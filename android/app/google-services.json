@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "1039310271276",
+    "project_id": "pp191225-40959",
+    "storage_bucket": "pp191225-40959.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1039310271276:android:d5414ae6626db985c27289",
+        "android_client_info": {
+          "package_name": "com.kruzetech.pp191225_mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1039310271276-6icaf578n651dr6kqdgon9aoobptsq1r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kruzetech.pp191225_mobile",
+            "certificate_hash": "c653b2054c93d9cdb0e3682b79eccf504805a0b8"
+          }
+        },
+        {
+          "client_id": "1039310271276-td9jgq733uunv6npcdcdf6k19o6ctqc2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kruzetech.pp191225_mobile",
+            "certificate_hash": "ee8090e50802f82d089aef68a0a4a02d584273ed"
+          }
+        },
+        {
+          "client_id": "1039310271276-lm58qm58f8dhmesb66ul7dpbndik39me.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxQqOQXH84aE0XXJOIVegjvaMU2IQmCuI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1039310271276-lm58qm58f8dhmesb66ul7dpbndik39me.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1039310271276-9vun8qrjprau7oc8aco2u1fe3fgdtp7a.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.temp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

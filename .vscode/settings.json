@@ -1,0 +1,8 @@
+{
+  "cSpell.words": ["Neue"],
+  "dart.previewAutoCompleteSymbols": true,
+  "dart.showTodos": true,
+  "dart.analysisServerFolding": true,
+  "dart.enableSdkFormatter": true,
+  "dart.imports.organizeOnSave": true
+}
