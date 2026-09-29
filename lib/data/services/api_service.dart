@@ -11,9 +11,7 @@ class ApiService {
     _dio = Dio(
       BaseOptions(
         baseUrl: ApiConstants.baseUrl,
-        connectTimeout: Duration(
-          milliseconds: ApiConstants.connectTimeout,
-        ),
+        connectTimeout: Duration(milliseconds: ApiConstants.connectTimeout),
       ),
     );
 
@@ -27,7 +25,8 @@ class ApiService {
             ]);
 
             options.headers.addAll({
-              'Authorization': 'Bearer $accessToken',
+              if (accessToken != null && accessToken.isNotEmpty)
+                'Authorization': 'Bearer $accessToken',
               'device-name': AppConstants.deviceName,
               'device-token': deviceKey,
               'device-id': AppConstants.deviceId,
@@ -52,9 +51,20 @@ class ApiService {
           return handler.next(response);
         },
         onError: (DioException error, handler) async {
-          print("Call API error with status ${error.response?.statusCode}");
+          final requestPath = error.requestOptions.uri.path;
+          print(
+            "Call API error: ${error.requestOptions.method} "
+            "$requestPath status=${error.response?.statusCode} "
+            "message=${error.response?.data?['message']}",
+          );
+          final refreshTokenValue = await _storage.read(
+            key: StorageConstants.refreshTokenKey,
+          );
           if (error.response?.statusCode == 401 &&
-              error.requestOptions.headers['Authorization'] != null) {
+              !requestPath.startsWith('/auth/') &&
+              error.requestOptions.headers['Authorization'] != null &&
+              refreshTokenValue != null &&
+              refreshTokenValue.isNotEmpty) {
             try {
               final newTokens = await refreshToken();
               error.requestOptions.headers['Authorization'] =
@@ -81,9 +91,8 @@ class ApiService {
     try {
       final refreshToken = await _storage.read(
         key: StorageConstants.refreshTokenKey,
-      );      // create new Dio other than particularly to avoid infinite loops
+      ); // create new Dio other than particularly to avoid infinite loops
       final refreshDio = Dio(BaseOptions(baseUrl: ApiConstants.baseUrl));
-
 
       final response = await refreshDio.post(
         '/auth/refresh',

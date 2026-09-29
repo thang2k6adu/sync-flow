@@ -1,30 +1,26 @@
 import 'package:pp191225/core/utils/either.dart';
-import 'package:pp191225/domain/entities/auth/auth_response.dart';
+import 'package:pp191225/data/services/firebase_auth_service.dart';
 import 'package:pp191225/domain/failures/failures.dart';
-import 'package:pp191225/domain/repositories/auth_repository.dart';
 
 class RegisterUseCase {
-  final AuthRepository repository;
+  final FirebaseAuthService firebaseAuthService;
 
-  RegisterUseCase(this.repository);
+  RegisterUseCase(this.firebaseAuthService);
 
-  Future<Either<Failure, AuthResponse>> call({
+  Future<Either<Failure, void>> call({
     required String email,
     required String password,
     String? name,
   }) async {
-    final result = await repository.register(
-      email: email,
-      password: password,
-      name: name,
-    );
-    
-    return result.fold(
-      (failure) => Left(failure),
-      (authResponse) async {
-        await repository.saveTokens(authResponse.tokens);
-        return Right(authResponse);
-      },
-    );
+    try {
+      await firebaseAuthService.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+        displayName: name,
+      );
+      return const Right(null);
+    } catch (e) {
+      return Left(AuthFailure(message: e.toString()));
+    }
   }
 }

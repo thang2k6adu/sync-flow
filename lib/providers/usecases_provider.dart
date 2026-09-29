@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pp191225/domain/usecases/auth/login_usecase.dart';
-import 'package:pp191225/domain/usecases/auth/login_with_provider_usecase.dart';
 import 'package:pp191225/domain/usecases/auth/login_with_password_usecase.dart';
+import 'package:pp191225/domain/usecases/auth/login_with_provider_usecase.dart';
 import 'package:pp191225/domain/usecases/auth/logout_usecase.dart';
 import 'package:pp191225/domain/usecases/auth/register_usecase.dart';
 import 'package:pp191225/domain/usecases/task/create_task_usecase.dart';
@@ -10,8 +10,8 @@ import 'package:pp191225/domain/usecases/task/get_tasks_usecase.dart';
 import 'package:pp191225/domain/usecases/task/update_task_usecase.dart';
 import 'package:pp191225/domain/usecases/user/get_current_user_usecase.dart';
 import 'package:pp191225/domain/usecases/user/update_user_profile_usecase.dart';
-import 'package:pp191225/providers/repositories_provider.dart';
 import 'package:pp191225/providers/datasources_provider.dart';
+import 'package:pp191225/providers/repositories_provider.dart';
 
 // ============================================================================
 // Auth UseCases
@@ -25,10 +25,9 @@ final loginUseCaseProvider = Provider<LoginUseCase>((ref) {
 
 /// Provide RegisterUseCase
 final registerUseCaseProvider = Provider<RegisterUseCase>((ref) {
-  final repository = ref.watch(authRepositoryProvider);
-  return RegisterUseCase(repository);
+  final firebaseAuthService = ref.watch(firebaseAuthServiceProvider);
+  return RegisterUseCase(firebaseAuthService);
 });
-
 
 /// Provide LogoutUseCase (calls Repository only)
 final logoutUseCaseProvider = Provider<LogoutUseCase>((ref) {
@@ -36,7 +35,9 @@ final logoutUseCaseProvider = Provider<LogoutUseCase>((ref) {
   return LogoutUseCase(repository);
 });
 
-final loginWithProviderUseCaseProvider = Provider<LoginWithProviderUseCase>((ref) {
+final loginWithProviderUseCaseProvider = Provider<LoginWithProviderUseCase>((
+  ref,
+) {
   final repository = ref.watch(authRepositoryProvider);
   final firebaseAuthService = ref.watch(firebaseAuthServiceProvider);
   return LoginWithProviderUseCase(
@@ -45,7 +46,9 @@ final loginWithProviderUseCaseProvider = Provider<LoginWithProviderUseCase>((ref
   );
 });
 
-final loginWithPasswordUseCaseProvider = Provider<LoginWithPasswordUseCase>((ref) {
+final loginWithPasswordUseCaseProvider = Provider<LoginWithPasswordUseCase>((
+  ref,
+) {
   final repository = ref.watch(authRepositoryProvider);
   final firebaseAuthService = ref.watch(firebaseAuthServiceProvider);
   return LoginWithPasswordUseCase(
@@ -60,7 +63,9 @@ final getCurrentUserUseCaseProvider = Provider<GetCurrentUserUseCase>((ref) {
 });
 
 /// Provide UpdateUserProfileUseCase
-final updateUserProfileUseCaseProvider = Provider<UpdateUserProfileUseCase>((ref) {
+final updateUserProfileUseCaseProvider = Provider<UpdateUserProfileUseCase>((
+  ref,
+) {
   final repository = ref.watch(userRepositoryProvider);
   return UpdateUserProfileUseCase(repository);
 });
