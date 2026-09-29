@@ -20,8 +20,9 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class LoginScreenState extends ConsumerState<LoginScreen> {
-  static final _emailPattern =
-      RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$");
+  static final _emailPattern = RegExp(
+    r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$",
+  );
 
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
@@ -37,7 +38,9 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
 
   void _showMessage(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   Future<void> _onSignInWithProvider(ProviderLogin provider) async {
@@ -54,7 +57,7 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
 
     final authController = ref.read(authControllerProvider.notifier);
     try {
-      await authController.loginWithEmailAndPassword(
+      await authController.loginWithPassword(
         context,
         _emailController.text,
         _passwordController.text,
@@ -80,7 +83,9 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
               Expanded(
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: AppDimens.pagePadding),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppDimens.pagePadding,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -142,8 +147,10 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
             validator: (value) {
-              if (value == null || value.isEmpty) return AppStrings.emailRequired;
-              if (!_emailPattern.hasMatch(value)) return AppStrings.emailInvalid;
+              if (value == null || value.isEmpty)
+                return AppStrings.emailRequired;
+              if (!_emailPattern.hasMatch(value))
+                return AppStrings.emailInvalid;
               return null;
             },
           ),
@@ -158,7 +165,8 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
                 _obscurePassword ? Icons.visibility_off : Icons.visibility,
                 color: AppColors.gray[4],
               ),
-              onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+              onPressed: () =>
+                  setState(() => _obscurePassword = !_obscurePassword),
             ),
             validator: (value) => (value == null || value.isEmpty)
                 ? AppStrings.passwordRequired
@@ -170,7 +178,10 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
               onPressed: () {
                 // Handle forgot password
               },
-              child: Text(AppStrings.forgotPassword, style: AppTextStyles.smallLink),
+              child: Text(
+                AppStrings.forgotPassword,
+                style: AppTextStyles.smallLink,
+              ),
             ),
           ),
         ],
@@ -179,7 +190,9 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Widget _buildDivider() {
-    final line = Expanded(child: Divider(color: AppColors.brandLight, thickness: 1));
+    final line = Expanded(
+      child: Divider(color: AppColors.brandLight, thickness: 1),
+    );
     return Row(
       children: [
         line,
