@@ -3,16 +3,6 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pp191225/core/core.dart';
 
-class GoogleAccountLinkRequiredException implements Exception {
-  final String email;
-  final AuthCredential credential;
-
-  const GoogleAccountLinkRequiredException({
-    required this.email,
-    required this.credential,
-  });
-}
-
 class FirebaseAuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -37,7 +27,6 @@ class FirebaseAuthService {
 
   Future<String?> signInWithGoogle() async {
     await _ensureInitialized();
-    AuthCredential? googleCredential;
     try {
       if (!_gsi.supportsAuthenticate()) return null;
       // Isolate heavy logic to light isolate
@@ -50,7 +39,6 @@ class FirebaseAuthService {
         if (idToken == null) return null;
 
         final credential = GoogleAuthProvider.credential(idToken: idToken);
-        googleCredential = credential;
         final userCred = await FirebaseAuth.instance.signInWithCredential(
           credential,
         );
@@ -58,14 +46,6 @@ class FirebaseAuthService {
         return await userCred.user?.getIdToken(true);
       });
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'account-exists-with-different-credential' &&
-          googleCredential != null &&
-          e.email != null) {
-        throw GoogleAccountLinkRequiredException(
-          email: e.email!,
-          credential: googleCredential!,
-        );
-      }
       throw Exception('Firebase Google Sign-In failed: ${e.message ?? e.code}');
     } on GoogleSignInException catch (e) {
       throw Exception('Google Sign-In failed: $e');
@@ -74,48 +54,13 @@ class FirebaseAuthService {
     }
   }
 
-  Future<String> linkGoogleWithEmailPassword({
-    required String email,
-    required String password,
-    required AuthCredential googleCredential,
-  }) async {
-    try {
-      final userCredential = await _auth.signInWithEmailAndPassword(
-        email: email.trim(),
-        password: password,
-      );
-      final user = userCredential.user;
-      if (user == null) {
-        throw Exception('Không thể liên kết: Firebase user rỗng.');
-      }
-
-      final linkedCredential = await user.linkWithCredential(googleCredential);
-      final linkedUser = linkedCredential.user;
-      final idToken = await linkedUser?.getIdToken(true);
-      if (idToken == null) {
-        throw Exception('Không thể lấy Firebase ID token.');
-      }
-      return idToken;
-    } on FirebaseAuthException catch (e) {
-      throw FirebaseAuthException(
-        code: e.code,
-        message: e.code == 'wrong-password'
-            ? 'Sai mật khẩu email.'
-            : e.message ?? 'Không thể liên kết Google với tài khoản này.',
-      );
-    }
-  }
-
   Future<String> signInWithEmailAndPassword({
-    required String username,
+    required String email,
     required String password,
   }) async {
     try {
       final UserCredential userCredential = await _auth
-          .signInWithEmailAndPassword(
-            email: username.trim(),
-            password: password,
-          );
+          .signInWithEmailAndPassword(email: email.trim(), password: password);
 
       final user = userCredential.user;
       if (user == null) {

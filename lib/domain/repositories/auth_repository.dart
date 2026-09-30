@@ -4,11 +4,6 @@ import 'package:pp191225/domain/entities/auth/token.dart';
 import 'package:pp191225/domain/failures/failures.dart';
 
 abstract class AuthRepository {
-  Future<Either<Failure, AuthResponse>> login({
-    required String email,
-    required String password,
-  });
-
   Future<Either<Failure, AuthResponse>> register({
     required String email,
     required String password,

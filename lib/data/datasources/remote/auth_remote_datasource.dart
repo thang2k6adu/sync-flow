@@ -5,12 +5,6 @@ import 'package:pp191225/data/models/base/api_response.dart';
 /// Authentication remote data source interface
 /// Handles authentication API calls
 abstract class AuthRemoteDataSource {
-  /// Login with email and password
-  Future<ApiResponse<AuthResponseDto>> login({
-    required String email,
-    required String password,
-  });
-
   /// Register a new user
   Future<ApiResponse<AuthResponseDto>> register({
     required String email,

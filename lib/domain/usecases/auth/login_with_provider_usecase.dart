@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pp191225/core/utils/either.dart';
 import 'package:pp191225/data/services/firebase_auth_service.dart';
 import 'package:pp191225/domain/entities/auth/auth_response.dart';
@@ -38,42 +37,7 @@ class LoginWithProviderUseCase {
         return const Left(AuthFailure(message: 'Provider sign in failed'));
       }
 
-      final authResult = await repository.loginWithFirebase(idToken: idToken);
-
-      return await authResult.fold((failure) => Left(failure), (
-        authResponse,
-      ) async {
-        await repository.saveTokens(authResponse.tokens);
-        return Right(authResponse);
-      });
-    } on GoogleAccountLinkRequiredException catch (e) {
-      return Left(
-        AuthFailure(message: 'Email này đã đăng ký bằng password.', details: e),
-      );
-    } catch (e) {
-      return Left(ServerFailure(message: e.toString()));
-    }
-  }
-
-  Future<Either<Failure, AuthResponse>> linkGoogleWithPassword({
-    required String email,
-    required String password,
-    required AuthCredential googleCredential,
-  }) async {
-    try {
-      final idToken = await firebaseAuthService.linkGoogleWithEmailPassword(
-        email: email,
-        password: password,
-        googleCredential: googleCredential,
-      );
-      final authResult = await repository.loginWithFirebase(idToken: idToken);
-
-      return await authResult.fold((failure) => Left(failure), (
-        authResponse,
-      ) async {
-        await repository.saveTokens(authResponse.tokens);
-        return Right(authResponse);
-      });
+      return await repository.loginWithFirebase(idToken: idToken);
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }

@@ -12,22 +12,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   AuthRemoteDataSourceImpl(this.apiService);
 
   @override
-  Future<ApiResponse<AuthResponseDto>> login({
-    required String email,
-    required String password,
-  }) async {
-    final response = await apiService.post(
-      ApiEndpoints.authLogin,
-      data: {'email': email, 'password': password},
-    );
-
-    return ApiResponse<AuthResponseDto>.fromJson(
-      response,
-      (data) => AuthResponseDto.fromJson(data as Map<String, dynamic>),
-    );
-  }
-
-  @override
   Future<ApiResponse<AuthResponseDto>> register({
     required String email,
     required String password,

@@ -1,3 +1,4 @@
+import 'package:pp191225/core/constants/app_constants.dart';
 import 'package:pp191225/core/utils/either.dart';
 import 'package:pp191225/data/datasources/local/auth_local_datasource.dart';
 import 'package:pp191225/data/datasources/remote/auth_remote_datasource.dart';
@@ -15,26 +16,6 @@ class AuthRepositoryImpl implements AuthRepository {
     required this.remoteDataSource,
     required this.localDataSource,
   });
-
-  @override
-  Future<Either<Failure, AuthResponse>> login({
-    required String email,
-    required String password,
-  }) async {
-    try {
-      final res =
-          await remoteDataSource.login(email: email, password: password);
-      if (res.error || res.data == null) {
-        return Left(ServerFailure(message: res.message, code: res.code.toString()));
-      }
-
-      final auth = res.data!.toEntity();
-      await localDataSource.saveToken(auth.tokens.toDto());
-      return Right(auth);
-    } catch (e) {
-      return Left(ServerFailure(message: e.toString()));
-    }
-  }
 
   @override
   Future<Either<Failure, AuthResponse>> register({
@@ -69,8 +50,8 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final res = await remoteDataSource.loginWithFirebase(
         idToken: idToken,
-        deviceId: deviceId,
-        platform: platform,
+        deviceId: deviceId ?? AppConstants.deviceId,
+        platform: platform ?? AppConstants.osType?.toLowerCase(),
       );
       if (res.error || res.data == null) {
         return Left(ServerFailure(message: res.message, code: res.code.toString()));

@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pp191225/domain/usecases/auth/login_usecase.dart';
 import 'package:pp191225/domain/usecases/auth/login_with_password_usecase.dart';
 import 'package:pp191225/domain/usecases/auth/login_with_provider_usecase.dart';
 import 'package:pp191225/domain/usecases/auth/logout_usecase.dart';
@@ -17,22 +16,20 @@ import 'package:pp191225/providers/repositories_provider.dart';
 // Auth UseCases
 // ============================================================================
 
-/// Provide LoginUseCase (for backward compatibility - direct backend login)
-final loginUseCaseProvider = Provider<LoginUseCase>((ref) {
-  final repository = ref.watch(authRepositoryProvider);
-  return LoginUseCase(repository);
-});
-
 /// Provide RegisterUseCase
 final registerUseCaseProvider = Provider<RegisterUseCase>((ref) {
   final firebaseAuthService = ref.watch(firebaseAuthServiceProvider);
   return RegisterUseCase(firebaseAuthService);
 });
 
-/// Provide LogoutUseCase (calls Repository only)
+/// Provide LogoutUseCase (BE logout + Firebase sign out)
 final logoutUseCaseProvider = Provider<LogoutUseCase>((ref) {
   final repository = ref.watch(authRepositoryProvider);
-  return LogoutUseCase(repository);
+  final firebaseAuthService = ref.watch(firebaseAuthServiceProvider);
+  return LogoutUseCase(
+    repository: repository,
+    firebaseAuthService: firebaseAuthService,
+  );
 });
 
 final loginWithProviderUseCaseProvider = Provider<LoginWithProviderUseCase>((
