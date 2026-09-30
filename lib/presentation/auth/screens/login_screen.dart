@@ -190,9 +190,7 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Widget _buildDivider() {
-    final line = Expanded(
-      child: Divider(color: AppColors.brandLight, thickness: 1),
-    );
+    final line = Expanded(child: Divider(color: AppColors.neutral200, thickness: 1));
     return Row(
       children: [
         line,

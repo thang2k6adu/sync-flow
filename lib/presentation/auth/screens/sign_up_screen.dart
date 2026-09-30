@@ -45,7 +45,9 @@ class SignUpScreenState extends ConsumerState<SignUpScreen> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(primary: Color(0xFF4461F2)),
+            colorScheme: const ColorScheme.light(
+              primary: AppColors.primary,
+            ),
           ),
           child: child!,
         );
@@ -282,7 +284,7 @@ class SignUpScreenState extends ConsumerState<SignUpScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF4461F2), width: 2),
+          borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -322,7 +324,7 @@ class SignUpScreenState extends ConsumerState<SignUpScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF4461F2), width: 2),
+          borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -376,7 +378,7 @@ class SignUpScreenState extends ConsumerState<SignUpScreen> {
       child: ElevatedButton(
         onPressed: _onRegister,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF4461F2),
+          backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -402,7 +404,7 @@ class SignUpScreenState extends ConsumerState<SignUpScreen> {
             TextSpan(
               text: 'Login',
               style: const TextStyle(
-                color: Color(0xFF4461F2),
+                color: AppColors.primary,
                 fontWeight: FontWeight.w600,
                 fontSize: 14,
               ),

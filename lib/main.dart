@@ -7,6 +7,7 @@ import 'package:pp191225/routers/app_router.dart';
 
 import 'core/constants/constants.dart';
 import 'core/theme/app_colors.dart';
+import 'core/theme/app_fonts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,10 +39,40 @@ class MyApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'App Name',
       theme: ThemeData(
-        fontFamily: 'HelveticaNeue',
+        fontFamily: AppFonts.poppins,
         splashColor: Colors.transparent,
         highlightColor: Colors.transparent,
-        primaryColor: AppColors.primary,
+        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary).copyWith(
+          primary: AppColors.primary,
+          onPrimary: AppColors.white,
+          secondary: AppColors.secondary,
+          onSecondary: AppColors.primary,
+          error: AppColors.error,
+          onError: AppColors.white,
+          surface: AppColors.white,
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            foregroundColor: AppColors.white,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppDimens.buttonRadius),
+            ),
+          ),
+        ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.primary,
+            side: const BorderSide(color: AppColors.primary),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppDimens.buttonRadius),
+            ),
+          ),
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+        ),
         scaffoldBackgroundColor: Colors.white,
         textTheme: TextTheme(
           // Headings

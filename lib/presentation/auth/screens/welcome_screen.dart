@@ -12,7 +12,7 @@ class WelcomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      backgroundColor: AppColors.brand,
+      backgroundColor: AppColors.primary,
       body: Column(
         children: [
           Expanded(

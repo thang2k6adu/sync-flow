@@ -31,7 +31,7 @@ class SocialLoginButton extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: AppColors.white,
-            border: Border.all(color: AppColors.brand),
+            border: Border.all(color: AppColors.primary),
           ),
           child: svgAsset != null
               ? SvgPicture.asset(svgAsset!, height: AppDimens.socialIconSize)

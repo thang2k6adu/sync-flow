@@ -3,15 +3,28 @@ import 'package:flutter/material.dart';
 class AppColors {
   static const Color white = Color(0xFFffffff);
   static const Color black = Color(0xFF000000);
-  static const Color primary =  Color(0xFFE65983);
-  static const Color submain = Color(0xFFF4DBF0);
+  // ---- Màu theo Figma (PP191225) ----
 
-  /// Màu thương hiệu của màn Welcome / Login (tím)
-  static const Color brand = Color(0xFF5F33E1);
-  static const Color brandLight = Color(0xFFD7CCF8);
+  /// Màu thương hiệu chính (Figma: Brand/500)
+  static const Color primary = Color(0xFF5F33E1);
 
-  static const Color textPrimary = Color(0xFF333333);
-  static const Color textSecondary = Color(0xFF555555);
+  /// Màu thương hiệu nhạt, dùng cho nền / vùng chọn (Figma: Brand/600)
+  static const Color secondary = Color(0xFFEEE9FF);
+
+  /// Trung tính (Figma: Neutral/50-900)
+  static const Color neutral50 = Color(0xFFFFFFFF);
+  static const Color neutral200 = Color(0xFFE9EAEB);
+  static const Color neutral500 = Color(0xFF717680);
+  static const Color neutral700 = Color(0xFF777777);
+  static const Color neutral900 = Color(0xFF181D27);
+
+  /// Trạng thái
+  static const Color error = Color(0xFF7F1D1D);
+  static const Color warning = Color(0xFFFEC84B);
+  static const Color success = Color(0xFF6CE9A6);
+
+  static const Color textPrimary = neutral900;
+  static const Color textSecondary = neutral500;
 
   /// Các vệt màu pastel mờ ở nền màn Login
   static const Color blobMint = Color(0xFFDDF5E6);

@@ -52,7 +52,7 @@ class AuthTextField extends StatelessWidget {
                 const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
             border: _border(AppColors.gray[2]),
             enabledBorder: _border(AppColors.gray[2]),
-            focusedBorder: _border(AppColors.brand, 1.5),
+            focusedBorder: _border(AppColors.primary, 1.5),
             errorBorder: _border(AppColors.red[5]),
             focusedErrorBorder: _border(AppColors.red[5], 1.5),
           ),

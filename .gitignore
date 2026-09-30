@@ -27,10 +27,14 @@ migrate_working_dir/
 **/doc/api/
 **/ios/Flutter/.last_build_id
 .dart_tool/
+.flutter-plugins
 .flutter-plugins-dependencies
+.packages
 .pub-cache/
 .pub/
 /build/
+/android/build/
+/android/app/build/
 /coverage/
 
 # Symbolication related
@@ -48,7 +52,16 @@ sonar-project.properties
 sonar-scanner-6.0.0.4432-linux/
 sonar-scanner-6.0.0.4432-linux.zip
 
-# Environment variables
+# Environment variables (giữ .env.example)
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
+
+# Firebase / khoá
+firebase-debug.log
+*.jks
+*.keystore
+key.properties
+
+# Windows
+Thumbs.db
