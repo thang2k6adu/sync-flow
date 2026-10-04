@@ -1,30 +1,42 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:pp191225/main.dart';
+import 'package:pp191225/core/utils/either.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  group('Either Unit Tests', () {
+    test('Left should correctly identify as Left and return folded value', () {
+      const Either<String, int> either = Left('error_occurred');
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+      expect(either.isLeft, isTrue);
+      expect(either.isRight, isFalse);
+      expect(either.left, 'error_occurred');
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+      final result = either.fold(
+        (left) => 'Handled: $left',
+        (right) => 'Value: $right',
+      );
+      expect(result, 'Handled: error_occurred');
+    });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    test('Right should correctly identify as Right and return folded value', () {
+      const Either<String, int> either = Right(42);
+
+      expect(either.isLeft, isFalse);
+      expect(either.isRight, isTrue);
+      expect(either.right, 42);
+
+      final result = either.fold(
+        (left) => 'Handled: $left',
+        (right) => 'Value: $right',
+      );
+      expect(result, 'Value: 42');
+    });
+
+    test('getOrElse should return right value or fallback', () {
+      const Either<String, int> right = Right(100);
+      const Either<String, int> left = Left('err');
+
+      expect(right.getOrElse(() => 0), 100);
+      expect(left.getOrElse(() => 0), 0);
+    });
   });
 }

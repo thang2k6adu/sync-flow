@@ -12,8 +12,8 @@ class RefreshTokenUseCase {
     try {
       final tokenResult = await repository.getToken();
       
-      return tokenResult.fold(
-        (failure) => Left(failure),
+      return await tokenResult.fold(
+        (failure) async => Left(failure),
         (token) async {
           if (token == null || token.refreshToken == null || token.refreshToken!.isEmpty) {
             await repository.clearTokens();
