@@ -30,6 +30,14 @@
           }
         },
         {
+          "client_id": "1039310271276-ol3vgr5s598r2ndrj16qnkcm71k0tivs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kruzetech.pp191225_mobile",
+            "certificate_hash": "02b9f9cf0f98a3d3294d89f2bc19b0c112db2141"
+          }
+        },
+        {
           "client_id": "1039310271276-td9jgq733uunv6npcdcdf6k19o6ctqc2.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

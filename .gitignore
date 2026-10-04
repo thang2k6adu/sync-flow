@@ -63,5 +63,24 @@ firebase-debug.log
 *.keystore
 key.properties
 
+# Web related
+lib/generated_plugin_registrant.dart
+
+# iOS / macOS related
+**/ios/Flutter/ephemeral/
+**/macos/Flutter/ephemeral/
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Pods/
+**/macos/Pods/
+
+# Windows related
+/windows/flutter/ephemeral/
+
+# Linux related
+/linux/flutter/ephemeral/
+
 # Windows
 Thumbs.db
