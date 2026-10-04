@@ -7,6 +7,11 @@ class ApiConstants {
     return dotenv.env['API_BASE_URL'] ?? 'http://10.0.2.2:3000/api';
   }
 
+  /// true: ApiService/FirebaseAuthService trả mock data (lib/data/mocks), không gọi backend/Firebase.
+  static bool get useMockData {
+    return dotenv.env['USE_MOCK_DATA']?.trim().toLowerCase() == 'true';
+  }
+
   static String get webClientId {
     return dotenv.env['GOOGLE_WEB_CLIENT_ID'] ?? '';
   }

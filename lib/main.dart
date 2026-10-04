@@ -16,7 +16,7 @@ void main() async {
   await dotenv.load(fileName: ".env");
   
   await AppConstants.initialize();
-  await Firebase.initializeApp();
+  if (!ApiConstants.useMockData) await Firebase.initializeApp();
   runApp(const ProviderScope(child: MyApp()));
 }
 

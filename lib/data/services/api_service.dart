@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:pp191225/core/constants/constants.dart';
+import 'package:pp191225/data/mocks/mock_api_router.dart';
 import 'package:pp191225/data/models/auth/token_dto.dart';
 
 class ApiService {
@@ -129,6 +130,9 @@ class ApiService {
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? headers,
   }) async {
+    if (ApiConstants.useMockData) {
+      return MockApiRouter.handle('GET', path, query: queryParameters);
+    }
     try {
       final response = await _dio.get(
         path,
@@ -157,6 +161,9 @@ class ApiService {
     dynamic data,
     Map<String, dynamic>? headers,
   }) async {
+    if (ApiConstants.useMockData) {
+      return MockApiRouter.handle('POST', path, data: data);
+    }
     try {
       final response = await _dio.post(
         path,
@@ -178,6 +185,9 @@ class ApiService {
     dynamic data,
     Map<String, dynamic>? headers,
   }) async {
+    if (ApiConstants.useMockData) {
+      return MockApiRouter.handle('PATCH', path, data: data);
+    }
     try {
       final response = await _dio.patch(
         path,
@@ -200,6 +210,9 @@ class ApiService {
     dynamic data,
     Map<String, dynamic>? headers,
   }) async {
+    if (ApiConstants.useMockData) {
+      return MockApiRouter.handle('PUT', path, data: data);
+    }
     try {
       final response = await _dio.put(
         path,
@@ -221,6 +234,9 @@ class ApiService {
     dynamic data,
     Map<String, dynamic>? headers,
   }) async {
+    if (ApiConstants.useMockData) {
+      return MockApiRouter.handle('DELETE', path, data: data);
+    }
     try {
       final response = await _dio.delete(
         path,

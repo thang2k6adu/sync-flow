@@ -2,17 +2,22 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pp191225/core/core.dart';
+import 'package:pp191225/data/mocks/auth_mock.dart';
 
 class FirebaseAuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  // Lazy: mock mode không khởi tạo Firebase nên không được chạm FirebaseAuth.instance sớm.
+  FirebaseAuth get _auth => FirebaseAuth.instance;
 
-  User? get currentFirebaseUser => _auth.currentUser;
+  User? get currentFirebaseUser =>
+      ApiConstants.useMockData ? null : _auth.currentUser;
 
   final GoogleSignIn _gsi = GoogleSignIn.instance;
 
   final String webClientId = ApiConstants.webClientId;
 
-  Stream<User?> get authStateChanges => _auth.authStateChanges();
+  Stream<User?> get authStateChanges => ApiConstants.useMockData
+      ? const Stream<User?>.empty()
+      : _auth.authStateChanges();
 
   bool _initialized = false;
 
@@ -26,6 +31,7 @@ class FirebaseAuthService {
   }
 
   Future<String?> signInWithGoogle() async {
+    if (ApiConstants.useMockData) return AuthMock.signInWithGoogle();
     await _ensureInitialized();
     try {
       if (!_gsi.supportsAuthenticate()) return null;
@@ -58,6 +64,9 @@ class FirebaseAuthService {
     required String email,
     required String password,
   }) async {
+    if (ApiConstants.useMockData) {
+      return AuthMock.signInWithEmail(email, password);
+    }
     try {
       final UserCredential userCredential = await _auth
           .signInWithEmailAndPassword(email: email.trim(), password: password);
@@ -122,6 +131,7 @@ class FirebaseAuthService {
     required String password,
     String? displayName,
   }) async {
+    if (ApiConstants.useMockData) return AuthMock.createUser(email);
     try {
       final userCredential = await _auth.createUserWithEmailAndPassword(
         email: email.trim(),
@@ -168,6 +178,7 @@ class FirebaseAuthService {
 
   /// Sign out from Firebase and Google
   Future<void> signOut() async {
+    if (ApiConstants.useMockData) return;
     try {
       // Sign out from Firebase
       await _auth.signOut();
