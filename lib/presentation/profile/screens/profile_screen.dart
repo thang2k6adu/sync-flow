@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pp191225/core/constants/route_constants.dart';
-import 'package:pp191225/core/theme/app_colors.dart';
 import 'package:pp191225/presentation/auth/controllers/auth_controller.dart';
 import 'package:pp191225/presentation/profile/widgets/achievement_list.dart';
 import 'package:pp191225/presentation/profile/widgets/edit_profile_dialog.dart';
 import 'package:pp191225/presentation/profile/widgets/level_progress_card.dart';
 import 'package:pp191225/presentation/profile/widgets/stats_grid.dart';
 import 'package:pp191225/presentation/progression/controllers/progression_controller.dart';
+import 'package:pp191225/shared/widgets/common/chunky_card.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -18,6 +18,9 @@ class ProfileScreen extends ConsumerWidget {
     final user = ref.watch(authControllerProvider);
     final progressionState = ref.watch(progressionControllerProvider);
     final progression = progressionState.progression;
+
+    final name = (user != null && user.name.isNotEmpty) ? user.name : 'Người dùng';
+    final initial = name.substring(0, 1).toUpperCase();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -32,101 +35,79 @@ class ProfileScreen extends ConsumerWidget {
               surfaceTintColor: Colors.transparent,
               elevation: 0,
               scrolledUnderElevation: 0,
+              centerTitle: true,
               title: const Text(
-                'Hồ Sơ Cá Nhân',
+                'Hồ sơ',
                 style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: AppColors.neutral900,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 18,
+                  color: ChunkyColors.textMain,
                 ),
               ),
               actions: [
                 IconButton(
-                  icon: const Icon(Icons.settings_outlined, color: AppColors.neutral900),
+                  icon: const Icon(Icons.settings_rounded, color: ChunkyColors.textSub),
                   tooltip: 'Cài đặt',
                   onPressed: () => context.push(RouteConstants.settings),
                 ),
+                const SizedBox(width: 4),
               ],
-            ),
-            SliverToBoxAdapter(
-              child: Column(
-                children: [
-            // User Header Card
-            Container(
-              margin: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppColors.neutral200),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.03),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+              bottom: const PreferredSize(
+                preferredSize: Size.fromHeight(2),
+                child: Divider(height: 2, thickness: 2, color: ChunkyColors.border),
               ),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 34,
-                    backgroundColor: AppColors.primary,
-                    child: Text(
-                      user != null && user.name.isNotEmpty
-                          ? user.name.substring(0, 1).toUpperCase()
-                          : 'U',
-                      style: const TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 40),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
+                  // Avatar + tên
+                  Center(
+                    child: Container(
+                      width: 104,
+                      height: 104,
+                      decoration: BoxDecoration(
+                        color: ChunkyColors.brand,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: ChunkyColors.brandDark, width: 4),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        initial,
+                        style: const TextStyle(
+                          fontSize: 44,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          user?.name ?? 'Người dùng',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.neutral900,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          user?.email ?? '',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: AppColors.neutral500,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: AppColors.secondary,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            user?.role.toUpperCase() ?? 'HỌC VIÊN',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                        ),
-                      ],
+                  const SizedBox(height: 16),
+                  Text(
+                    name,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
+                      color: ChunkyColors.textMain,
                     ),
                   ),
-                  if (user != null)
-                    IconButton(
-                      icon: const Icon(Icons.edit_outlined, color: AppColors.primary),
-                      tooltip: 'Chỉnh sửa',
+                  if ((user?.email ?? '').isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      user!.email,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: ChunkyColors.textSub,
+                      ),
+                    ),
+                  ],
+                  if (user != null) ...[
+                    const SizedBox(height: 20),
+                    ChunkyButton.outlined(
+                      label: 'Chỉnh sửa hồ sơ',
                       onPressed: () {
                         showDialog(
                           context: context,
@@ -134,21 +115,17 @@ class ProfileScreen extends ConsumerWidget {
                         );
                       },
                     ),
-                ],
-              ),
-            ),
+                  ],
+                  const SizedBox(height: 28),
 
-            // Level Progress Card
-            LevelProgressCard(progression: progression),
+                  LevelProgressCard(progression: progression),
+                  const SizedBox(height: 28),
 
-            // Statistics Grid (Streak, Mastered, Reviews, EXP)
-            StatsGrid(progression: progression),
+                  StatsGrid(progression: progression),
+                  const SizedBox(height: 28),
 
-            // Achievement Badges
-            AchievementList(progression: progression),
-
-                  const SizedBox(height: 40),
-                ],
+                  AchievementList(progression: progression),
+                ]),
               ),
             ),
           ],

@@ -123,8 +123,8 @@ class _CreateCardScreenState extends ConsumerState<CreateCardScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Thêm thẻ thất bại: $e'),
+          const SnackBar(
+            content: Text('Thêm thẻ thất bại'),
             backgroundColor: AppColors.error,
           ),
         );

@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:pp191225/core/theme/app_colors.dart';
 import 'package:pp191225/domain/entities/vocab/study_item.dart';
+import 'package:pp191225/shared/widgets/common/chunky_card.dart';
 
 class FlashcardFlipView extends StatelessWidget {
   final StudyItem item;
@@ -19,9 +19,10 @@ class FlashcardFlipView extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onFlip,
+      behavior: HitTestBehavior.opaque,
       child: TweenAnimationBuilder(
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeInOutBack,
+        duration: const Duration(milliseconds: 350),
+        curve: Curves.easeInOut,
         tween: Tween<double>(begin: 0, end: isFlipped ? 180 : 0),
         builder: (context, double value, child) {
           final isBack = value >= 90;
@@ -30,34 +31,24 @@ class FlashcardFlipView extends StatelessWidget {
             transform: Matrix4.identity()
               ..setEntry(3, 2, 0.001)
               ..rotateY((value * pi) / 180),
-            child: Container(
-              width: double.infinity,
-              height: 380,
-              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withOpacity(0.08),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-                border: Border.all(
-                  color: isBack
-                      ? AppColors.primary.withOpacity(0.4)
-                      : AppColors.neutral200,
-                  width: 1.5,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              child: ChunkyCard(
+                depth: 5,
+                radius: 24,
+                borderColor: isBack ? ChunkyColors.brandBorder : ChunkyColors.border,
+                padding: EdgeInsets.zero,
+                child: SizedBox(
+                  height: 380,
+                  child: isBack
+                      ? Transform(
+                          alignment: Alignment.center,
+                          transform: Matrix4.identity()..rotateY(pi),
+                          child: _buildBackContent(),
+                        )
+                      : _buildFrontContent(),
                 ),
               ),
-              child: isBack
-                  ? Transform(
-                      alignment: Alignment.center,
-                      transform: Matrix4.identity()..rotateY(pi),
-                      child: _buildBackContent(),
-                    )
-                  : _buildFrontContent(),
             ),
           );
         },
@@ -72,17 +63,19 @@ class FlashcardFlipView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             decoration: BoxDecoration(
-              color: AppColors.secondary,
-              borderRadius: BorderRadius.circular(16),
+              color: ChunkyColors.brandSoft,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: ChunkyColors.brandBorder, width: 1.5),
             ),
             child: Text(
-              'Cấp độ SRS: ${item.masteryLevel}',
+              'CẤP ĐỘ SRS: ${item.masteryLevel}',
               style: const TextStyle(
                 fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: AppColors.primary,
+                fontWeight: FontWeight.w700,
+                color: ChunkyColors.brand,
+                letterSpacing: 0.5,
               ),
             ),
           ),
@@ -92,9 +85,8 @@ class FlashcardFlipView extends StatelessWidget {
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 34,
-              fontWeight: FontWeight.bold,
-              letterSpacing: -0.5,
-              color: AppColors.neutral900,
+              fontWeight: FontWeight.w800,
+              color: ChunkyColors.textMain,
             ),
           ),
           if (item.phonetic != null && item.phonetic!.isNotEmpty) ...[
@@ -102,24 +94,24 @@ class FlashcardFlipView extends StatelessWidget {
             Text(
               item.phonetic!,
               style: const TextStyle(
-                fontSize: 18,
-                color: AppColors.neutral500,
-                fontStyle: FontStyle.italic,
+                fontSize: 17,
+                color: ChunkyColors.textSub,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
           const Spacer(),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.touch_app_outlined, size: 16, color: AppColors.slate[4]),
-              const SizedBox(width: 6),
+            children: const [
+              Icon(Icons.touch_app_rounded, size: 18, color: ChunkyColors.textSub),
+              SizedBox(width: 6),
               Text(
                 'Chạm vào thẻ để lật xem nghĩa',
                 style: TextStyle(
                   fontSize: 13,
-                  color: AppColors.slate[5],
-                  fontWeight: FontWeight.w500,
+                  color: ChunkyColors.textSub,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
@@ -141,8 +133,8 @@ class FlashcardFlipView extends StatelessWidget {
                 item.term,
                 style: const TextStyle(
                   fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
+                  fontWeight: FontWeight.w800,
+                  color: ChunkyColors.brand,
                 ),
               ),
               if (item.phonetic != null) ...[
@@ -151,17 +143,20 @@ class FlashcardFlipView extends StatelessWidget {
                   item.phonetic!,
                   style: const TextStyle(
                     fontSize: 14,
-                    fontStyle: FontStyle.italic,
-                    color: AppColors.neutral500,
+                    color: ChunkyColors.textSub,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
             ],
           ),
-          const Divider(height: 20),
+          const SizedBox(height: 12),
+          const Divider(height: 2, thickness: 2, color: ChunkyColors.border),
+          const SizedBox(height: 12),
           Expanded(
             child: ListView.separated(
               shrinkWrap: true,
+              physics: const BouncingScrollPhysics(),
               itemCount: item.meanings.length,
               separatorBuilder: (context, index) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
@@ -170,21 +165,23 @@ class FlashcardFlipView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         if (m.pos != null)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            margin: const EdgeInsets.only(right: 6),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            margin: const EdgeInsets.only(right: 8),
                             decoration: BoxDecoration(
-                              color: AppColors.slate[2],
-                              borderRadius: BorderRadius.circular(4),
+                              color: ChunkyColors.brandSoft,
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: ChunkyColors.brandBorder, width: 1),
                             ),
                             child: Text(
                               m.pos!,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.slate[7],
+                                fontWeight: FontWeight.w700,
+                                color: ChunkyColors.brand,
                               ),
                             ),
                           ),
@@ -193,8 +190,8 @@ class FlashcardFlipView extends StatelessWidget {
                             m.meaningVi,
                             style: const TextStyle(
                               fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.neutral900,
+                              fontWeight: FontWeight.w700,
+                              color: ChunkyColors.textMain,
                             ),
                           ),
                         ),
@@ -206,18 +203,20 @@ class FlashcardFlipView extends StatelessWidget {
                         m.definitionEn!,
                         style: const TextStyle(
                           fontSize: 13,
-                          color: AppColors.neutral700,
+                          color: ChunkyColors.textSub,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
                     if (m.exampleEn != null && m.exampleEn!.isNotEmpty) ...[
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 8),
                       Container(
-                        padding: const EdgeInsets.all(8),
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: AppColors.slate[0],
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: AppColors.slate[2]),
+                          color: ChunkyColors.surfaceMuted,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: ChunkyColors.border, width: 1.5),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -225,9 +224,9 @@ class FlashcardFlipView extends StatelessWidget {
                             Text(
                               '“${m.exampleEn!}”',
                               style: const TextStyle(
-                                fontSize: 12,
-                                fontStyle: FontStyle.italic,
-                                color: AppColors.neutral900,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: ChunkyColors.textMain,
                               ),
                             ),
                             if (m.exampleVi != null && m.exampleVi!.isNotEmpty) ...[
@@ -235,8 +234,9 @@ class FlashcardFlipView extends StatelessWidget {
                               Text(
                                 m.exampleVi!,
                                 style: const TextStyle(
-                                  fontSize: 11,
-                                  color: AppColors.neutral500,
+                                  fontSize: 12,
+                                  color: ChunkyColors.textSub,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ],
