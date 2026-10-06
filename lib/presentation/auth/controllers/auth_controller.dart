@@ -44,23 +44,21 @@ class AuthController extends AutoDisposeNotifier<User?> {
       result.fold(
         (failure) {
           overlay.showWithTimeout(
-            message: "Đăng nhập thất bại: ${failure.message}",
+            message: "Đăng nhập thất bại",
           );
         },
-        (authResponse) async {
+        (authResponse) {
           state = authResponse.user;
-
-          overlay.showWithTimeout(message: "Đăng nhập thành công");
-          await Future.delayed(const Duration(milliseconds: 500));
 
           if (context.mounted) {
             goScreen(context, RouteConstants.main);
           }
+          overlay.showWithTimeout(message: "Đăng nhập thành công");
         },
       );
     } catch (e) {
       if (context.mounted) {
-        overlay.showWithTimeout(message: "Đăng nhập thất bại: $e");
+        overlay.showWithTimeout(message: "Đăng nhập thất bại");
       }
     }
   }
@@ -84,7 +82,7 @@ class AuthController extends AutoDisposeNotifier<User?> {
       result.fold(
         (failure) {
           overlay.showWithTimeout(
-            message: "Đăng ký thất bại: ${failure.message}",
+            message: "Đăng ký thất bại",
           );
         },
         (_) {
@@ -97,7 +95,7 @@ class AuthController extends AutoDisposeNotifier<User?> {
       );
     } catch (e) {
       if (context.mounted) {
-        overlay.showWithTimeout(message: "Đăng ký thất bại: $e");
+        overlay.showWithTimeout(message: "Đăng ký thất bại");
       }
     }
   }
@@ -116,23 +114,21 @@ class AuthController extends AutoDisposeNotifier<User?> {
       result.fold(
         (failure) {
           overlay.showWithTimeout(
-            message: "Đăng nhập thất bại: ${failure.message}",
+            message: "Đăng nhập thất bại",
           );
         },
-        (authResponse) async {
+        (authResponse) {
           state = authResponse.user;
-
-          overlay.showWithTimeout(message: "Đăng nhập thành công");
-          await Future.delayed(const Duration(milliseconds: 500));
 
           if (context.mounted) {
             goScreen(context, RouteConstants.main);
           }
+          overlay.showWithTimeout(message: "Đăng nhập thành công");
         },
       );
     } catch (e) {
       if (context.mounted) {
-        overlay.showWithTimeout(message: "Đăng nhập thất bại: $e");
+        overlay.showWithTimeout(message: "Đăng nhập thất bại");
       }
     }
   }
@@ -148,23 +144,21 @@ class AuthController extends AutoDisposeNotifier<User?> {
       result.fold(
         (failure) {
           overlay.showWithTimeout(
-            message: "Đăng xuất thất bại: ${failure.message}",
+            message: "Đăng xuất thất bại",
           );
         },
-        (_) async {
+        (_) {
           state = null;
-
-          overlay.showWithTimeout(message: "Đăng xuất thành công");
-          await Future.delayed(const Duration(milliseconds: 500));
 
           if (context.mounted) {
             goScreen(context, RouteConstants.login);
           }
+          overlay.showWithTimeout(message: "Đăng xuất thành công");
         },
       );
     } catch (e) {
       if (context.mounted) {
-        overlay.showWithTimeout(message: "Đăng xuất thất bại: $e");
+        overlay.showWithTimeout(message: "Đăng xuất thất bại");
       }
     }
   }

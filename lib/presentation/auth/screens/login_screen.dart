@@ -48,7 +48,7 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
     try {
       await authController.loginWithProvide(context, provider);
     } catch (e) {
-      _showMessage('Login failed:  ${e.toString()}');
+      _showMessage('Đăng nhập thất bại');
     }
   }
 
@@ -63,7 +63,7 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
         _passwordController.text,
       );
     } catch (e) {
-      _showMessage('Login failed:  ${e.toString()}');
+      _showMessage('Đăng nhập thất bại');
     }
   }
 

@@ -34,12 +34,12 @@ class LoginWithProviderUseCase {
       }
 
       if (idToken == null || idToken.isEmpty) {
-        return const Left(AuthFailure(message: 'Provider sign in failed'));
+        return const Left(AuthFailure(message: 'Đăng nhập thất bại'));
       }
 
       return await repository.loginWithFirebase(idToken: idToken);
     } catch (e) {
-      return Left(ServerFailure(message: e.toString()));
+      return const Left(ServerFailure(message: 'Đăng nhập thất bại'));
     }
   }
 }

@@ -73,9 +73,9 @@ class SignUpScreenState extends ConsumerState<SignUpScreen> {
         _passwordController.text,
       );
     } catch (e) {
-      if (context.mounted) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Registration failed: ${e.toString()}')),
+          const SnackBar(content: Text('Đăng ký thất bại')),
         );
       }
     }
