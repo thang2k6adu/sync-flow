@@ -1,10 +1,15 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiConstants {
   ApiConstants._();
 
   static String get baseUrl {
-    return dotenv.env['API_BASE_URL'] ?? 'http://10.0.2.2:3000/api';
+    final url = dotenv.env['API_BASE_URL'] ?? 'http://10.0.2.2:3000/api';
+    if (kIsWeb && url.contains('10.0.2.2')) {
+      return url.replaceAll('10.0.2.2', 'localhost');
+    }
+    return url;
   }
 
   /// true: ApiService/FirebaseAuthService trả mock data (lib/data/mocks), không gọi backend/Firebase.

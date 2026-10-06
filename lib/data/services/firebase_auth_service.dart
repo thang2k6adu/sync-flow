@@ -32,6 +32,21 @@ class FirebaseAuthService {
 
   Future<String?> signInWithGoogle() async {
     if (ApiConstants.useMockData) return AuthMock.signInWithGoogle();
+
+    if (kIsWeb) {
+      try {
+        final GoogleAuthProvider googleProvider = GoogleAuthProvider();
+        googleProvider.addScope('email');
+        googleProvider.addScope('profile');
+        final userCred = await _auth.signInWithPopup(googleProvider);
+        return await userCred.user?.getIdToken(true);
+      } on FirebaseAuthException catch (e) {
+        throw Exception('Firebase Google Sign-In failed: ${e.message ?? e.code}');
+      } catch (e) {
+        throw Exception('Unexpected Google Sign-In error: $e');
+      }
+    }
+
     await _ensureInitialized();
     try {
       if (!_gsi.supportsAuthenticate()) return null;
@@ -184,7 +199,9 @@ class FirebaseAuthService {
       await _auth.signOut();
 
       // Sign out from Google
-      await _gsi.signOut();
+      if (!kIsWeb) {
+        await _gsi.signOut();
+      }
     } catch (e) {
       throw Exception('Đăng xuất thất bại: $e');
     }
