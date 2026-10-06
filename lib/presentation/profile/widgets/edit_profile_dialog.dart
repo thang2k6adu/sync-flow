@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pp191225/core/theme/app_colors.dart';
 import 'package:pp191225/domain/entities/users/user.dart';
 import 'package:pp191225/presentation/auth/controllers/auth_controller.dart';
 import 'package:pp191225/providers/usecases_provider.dart';
+import 'package:pp191225/shared/widgets/common/chunky_card.dart';
+import 'package:pp191225/shared/widgets/feedback/overlay.dart';
 
 class EditProfileDialog extends ConsumerStatefulWidget {
   final User user;
@@ -35,6 +36,7 @@ class _EditProfileDialogState extends ConsumerState<EditProfileDialog> {
     if (name.isEmpty) return;
 
     setState(() => _isLoading = true);
+    final overlay = UOverlay(context);
     final updateUseCase = ref.read(updateUserProfileUseCaseProvider);
     final result = await updateUseCase(name: name);
 
@@ -42,22 +44,14 @@ class _EditProfileDialogState extends ConsumerState<EditProfileDialog> {
       setState(() => _isLoading = false);
       result.fold(
         (failure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Cập nhật thất bại: ${failure.message}'),
-              backgroundColor: AppColors.error,
-            ),
+          overlay.showWithTimeout(
+            message: 'Cập nhật thất bại',
           );
         },
         (updatedUser) {
           ref.read(authControllerProvider.notifier).setUser(updatedUser);
           Navigator.of(context).pop();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Đã cập nhật hồ sơ thành công!'),
-              backgroundColor: Colors.green,
-            ),
-          );
+          overlay.showWithTimeout(message: 'Cập nhật hồ sơ thành công');
         },
       );
     }
@@ -65,48 +59,69 @@ class _EditProfileDialogState extends ConsumerState<EditProfileDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: const Text('Chỉnh sửa hồ sơ', style: TextStyle(fontWeight: FontWeight.bold)),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            controller: _nameController,
-            decoration: InputDecoration(
-              labelText: 'Họ và tên',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              prefixIcon: const Icon(Icons.person_outline),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Email: ${widget.user.email}',
-            style: const TextStyle(fontSize: 13, color: AppColors.neutral500),
-          ),
-        ],
+    return Dialog(
+      backgroundColor: Colors.white,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: const BorderSide(color: ChunkyColors.border, width: 2),
       ),
-      actions: [
-        TextButton(
-          onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
-          child: const Text('Huỷ'),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Padding(
+        padding: const EdgeInsets.all(22),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Center(
+              child: Text(
+                'Chỉnh sửa hồ sơ',
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 20,
+                  color: ChunkyColors.textMain,
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: _nameController,
+              decoration: InputDecoration(
+                labelText: 'Họ và tên',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: const BorderSide(color: ChunkyColors.border, width: 2),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: const BorderSide(color: ChunkyColors.border, width: 2),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: const BorderSide(color: ChunkyColors.brand, width: 2),
+                ),
+                prefixIcon: const Icon(Icons.person_rounded, color: ChunkyColors.brand),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Email: ${widget.user.email}',
+              style: const TextStyle(fontSize: 13, color: ChunkyColors.textSub, fontWeight: FontWeight.w500),
+            ),
+            const SizedBox(height: 24),
+            ChunkyButton(
+              label: _isLoading ? 'Đang lưu...' : 'Lưu thay đổi',
+              onPressed: _isLoading ? null : _submit,
+            ),
+            const SizedBox(height: 8),
+            ChunkyButton.outlined(
+              label: 'Huỷ bỏ',
+              textColor: ChunkyColors.textSub,
+              onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
+            ),
+          ],
         ),
-        ElevatedButton(
-          onPressed: _isLoading ? null : _submit,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          ),
-          child: _isLoading
-              ? const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                )
-              : const Text('Lưu thay đổi'),
-        ),
-      ],
+      ),
     );
   }
 }

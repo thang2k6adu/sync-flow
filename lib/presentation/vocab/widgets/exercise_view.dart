@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:pp191225/core/theme/app_colors.dart';
+import 'package:flutter/services.dart';
 import 'package:pp191225/domain/entities/vocab/card_exercise.dart';
+import 'package:pp191225/shared/widgets/common/chunky_card.dart';
 
 class ExerciseView extends StatelessWidget {
   final CardExercise exercise;
@@ -28,13 +29,11 @@ class ExerciseView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Pool of available tokens = tokens + distractorTokens
     final allAvailableTokens = [
       ...exercise.tokens,
       ...exercise.distractorTokens,
     ];
 
-    // Count how many times each token is available vs currently selected
     final Map<String, int> availableCounts = {};
     for (var token in allAvailableTokens) {
       availableCounts[token] = (availableCounts[token] ?? 0) + 1;
@@ -46,18 +45,16 @@ class ExerciseView extends StatelessWidget {
     }
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Prompt & Meaning Hint
-          Container(
+          // Prompt card
+          ChunkyCard(
+            fillColor: ChunkyColors.surfaceMuted,
+            borderColor: ChunkyColors.border,
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.secondary.withOpacity(0.5),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.primary.withOpacity(0.2)),
-            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -65,20 +62,21 @@ class ExerciseView extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      'Sắp xếp câu hoàn chỉnh:',
+                      'SẮP XẾP CÂU HOÀN CHỈNH',
                       style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primary,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: ChunkyColors.brand,
+                        letterSpacing: 0.8,
                       ),
                     ),
                     if (exercise.meaningHint != null)
                       IconButton(
                         visualDensity: VisualDensity.compact,
                         icon: Icon(
-                          Icons.lightbulb_outline,
-                          color: usedHint ? Colors.amber[700] : AppColors.neutral500,
-                          size: 20,
+                          Icons.lightbulb_rounded,
+                          color: usedHint ? ChunkyColors.yellow : ChunkyColors.textSub,
+                          size: 22,
                         ),
                         tooltip: 'Gợi ý',
                         onPressed: onHint,
@@ -90,26 +88,27 @@ class ExerciseView extends StatelessWidget {
                   Text(
                     exercise.vietnameseTranslation!,
                     style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.neutral900,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                      color: ChunkyColors.textMain,
                     ),
                   ),
                 ],
                 if (usedHint && exercise.meaningHint != null) ...[
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 10),
                   Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
-                      color: Colors.amber.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(8),
+                      color: const Color(0xFFFFF7D6),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: ChunkyColors.yellow, width: 1.5),
                     ),
                     child: Text(
                       'Gợi ý: ${exercise.meaningHint}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontStyle: FontStyle.italic,
-                        color: Colors.amber[900],
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFFB27B00),
                       ),
                     ),
                   ),
@@ -117,93 +116,90 @@ class ExerciseView extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
 
-          // Answer Zone (Selected tokens)
-          Container(
-            constraints: const Duration(milliseconds: 300) == Duration.zero
-                ? null
-                : const BoxConstraints(minHeight: 110),
+          // Answer Zone
+          ChunkyCard(
+            depth: 0,
+            fillColor: Colors.white,
+            borderColor: isSubmitted
+                ? (isCorrect ? ChunkyColors.green : ChunkyColors.red)
+                : ChunkyColors.border,
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: isSubmitted
-                    ? (isCorrect ? AppColors.success : AppColors.error)
-                    : AppColors.neutral200,
-                width: 2,
-              ),
-            ),
-            child: selectedTokens.isEmpty
-                ? const Center(
-                    child: Text(
-                      'Chạm vào các từ bên dưới để ghép câu',
-                      style: TextStyle(fontSize: 13, color: AppColors.neutral500),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 90),
+              child: selectedTokens.isEmpty
+                  ? const Center(
+                      child: Text(
+                        'Chạm vào các từ bên dưới để ghép câu',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: ChunkyColors.textSub,
+                        ),
+                      ),
+                    )
+                  : Wrap(
+                      spacing: 8,
+                      runSpacing: 10,
+                      children: List.generate(selectedTokens.length, (index) {
+                        final token = selectedTokens[index];
+                        return _TokenChip(
+                          text: token,
+                          selected: true,
+                          onTap: isSubmitted ? null : () => onRemoveToken(index),
+                        );
+                      }),
                     ),
-                  )
-                : Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: List.generate(selectedTokens.length, (index) {
-                      final token = selectedTokens[index];
-                      return ActionChip(
-                        label: Text(
-                          token,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                        backgroundColor: AppColors.secondary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          side: const BorderSide(color: AppColors.primary, width: 1),
-                        ),
-                        onPressed: isSubmitted ? null : () => onRemoveToken(index),
-                      );
-                    }),
-                  ),
+            ),
           ),
           const SizedBox(height: 16),
 
           // Feedback banner if submitted
           if (isSubmitted) ...[
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: isCorrect
-                    ? AppColors.success.withOpacity(0.15)
-                    : AppColors.error.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
+            ChunkyCard(
+              fillColor: isCorrect ? const Color(0xFFE8FAF4) : const Color(0xFFFFF1F4),
+              borderColor: isCorrect ? const Color(0xFFA6EBD5) : const Color(0xFFFFCCD5),
+              padding: const EdgeInsets.all(14),
               child: Row(
                 children: [
-                  Icon(
-                    isCorrect ? Icons.check_circle : Icons.cancel,
-                    color: isCorrect ? Colors.green[700] : AppColors.error,
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: isCorrect ? ChunkyColors.mint : ChunkyColors.coral,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      isCorrect ? Icons.check_rounded : Icons.close_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          isCorrect ? 'Tuyệt vời! Đáp án chính xác.' : 'Chưa đúng rồi!',
+                          isCorrect ? 'Tuyệt vời! Chính xác!' : 'Chưa đúng rồi!',
                           style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: isCorrect ? Colors.green[800] : AppColors.error,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: isCorrect ? const Color(0xFF007A55) : const Color(0xFFBE123C),
                           ),
                         ),
-                        if (!isCorrect)
+                        if (!isCorrect) ...[
+                          const SizedBox(height: 2),
                           Text(
-                            'Đáp án đúng: "${exercise.targetSentence}"',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[800],
+                            'Đáp án: "${exercise.targetSentence}"',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFFBE123C),
                             ),
                           ),
+                        ],
                       ],
                     ),
                   ),
@@ -213,60 +209,149 @@ class ExerciseView extends StatelessWidget {
             const SizedBox(height: 16),
           ],
 
-          // Token options pool
-          const Text(
-            'Kho từ gợi ý:',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: AppColors.neutral700,
+          // Token pool
+          const Padding(
+            padding: EdgeInsets.only(left: 4, bottom: 8),
+            child: Text(
+              'Từ gợi ý:',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: ChunkyColors.textSub,
+              ),
             ),
           ),
-          const SizedBox(height: 8),
           Wrap(
             spacing: 8,
-            runSpacing: 8,
+            runSpacing: 10,
             children: allAvailableTokens.toSet().map((token) {
               final remainingCount = availableCounts[token] ?? 0;
               final isAvailable = remainingCount > 0 && !isSubmitted;
 
-              return ActionChip(
-                label: Text(token),
-                labelStyle: TextStyle(
-                  color: isAvailable ? AppColors.neutral900 : AppColors.slate[4],
-                  fontWeight: FontWeight.w500,
-                ),
-                backgroundColor: isAvailable ? AppColors.slate[1] : AppColors.slate[2],
-                side: BorderSide(
-                  color: isAvailable ? AppColors.neutral200 : Colors.transparent,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                onPressed: isAvailable ? () => onSelectToken(token) : null,
+              return _TokenChip(
+                text: token,
+                selected: false,
+                isAvailable: isAvailable,
+                onTap: isAvailable ? () => onSelectToken(token) : null,
               );
             }).toList(),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
 
           // Check button
           if (!isSubmitted)
-            ElevatedButton(
+            ChunkyButton.mint(
+              label: 'Kiểm tra đáp án',
               onPressed: selectedTokens.isNotEmpty ? onCheck : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TokenChip extends StatefulWidget {
+  final String text;
+  final bool selected;
+  final bool isAvailable;
+  final VoidCallback? onTap;
+
+  const _TokenChip({
+    required this.text,
+    required this.selected,
+    this.isAvailable = true,
+    this.onTap,
+  });
+
+  @override
+  State<_TokenChip> createState() => _TokenChipState();
+}
+
+class _TokenChipState extends State<_TokenChip> {
+  bool _isPressed = false;
+  static const double _depth = 3.0;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!widget.selected && !widget.isAvailable) {
+      // Ô rỗng giữ chỗ màu xám (Iconic Duolingo placeholder slot)
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF0F0F0),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFE0E0E0), width: 2),
+        ),
+        child: Text(
+          widget.text,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: Colors.transparent, // Giấu chữ để giữ đúng kích thước ô
+          ),
+        ),
+      );
+    }
+
+    final faceColor = widget.selected ? ChunkyColors.brandSoft : Colors.white;
+    final baseColor = widget.selected ? ChunkyColors.brandBorder : const Color(0xFFE5E5E5);
+    final borderColor = widget.selected ? ChunkyColors.brandBorder : const Color(0xFFE5E5E5);
+    final textColor = widget.selected ? ChunkyColors.brand : ChunkyColors.textMain;
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTapDown: (_) {
+        HapticFeedback.selectionClick();
+        setState(() => _isPressed = true);
+      },
+      onTapUp: (_) {
+        setState(() => _isPressed = false);
+        widget.onTap?.call();
+      },
+      onTapCancel: () => setState(() => _isPressed = false),
+      child: SizedBox(
+        height: 38 + _depth,
+        child: Stack(
+          children: [
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: 38,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: baseColor,
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text(
-                'Kiểm tra đáp án',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 50),
+              curve: Curves.easeOutQuad,
+              top: _isPressed ? _depth : 0,
+              left: 0,
+              right: 0,
+              height: 38,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                decoration: BoxDecoration(
+                  color: faceColor,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: borderColor, width: 2),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  widget.text,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: textColor,
+                  ),
+                ),
               ),
             ),
-        ],
+          ],
+        ),
       ),
     );
   }

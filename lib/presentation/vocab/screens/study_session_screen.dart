@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pp191225/core/theme/app_colors.dart';
 import 'package:pp191225/presentation/progression/controllers/progression_controller.dart';
 import 'package:pp191225/presentation/progression/widgets/level_up_dialog.dart';
 import 'package:pp191225/presentation/vocab/controllers/study_session_controller.dart';
 import 'package:pp191225/presentation/vocab/widgets/exercise_view.dart';
 import 'package:pp191225/presentation/vocab/widgets/flashcard_flip_view.dart';
 import 'package:pp191225/presentation/vocab/widgets/srs_rating_bar.dart';
+import 'package:pp191225/shared/widgets/common/chunky_card.dart';
 
 class StudySessionScreen extends ConsumerWidget {
   final String? deckId;
@@ -34,13 +34,21 @@ class StudySessionScreen extends ConsumerWidget {
 
     if (state.isLoading) {
       return const Scaffold(
+        backgroundColor: Colors.white,
         body: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CircularProgressIndicator(),
+              CircularProgressIndicator(color: ChunkyColors.brand),
               SizedBox(height: 16),
-              Text('Đang tải hàng đợi ôn tập SRS...'),
+              Text(
+                'Đang chuẩn bị thẻ ôn tập...',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: ChunkyColors.textMain,
+                ),
+              ),
             ],
           ),
         ),
@@ -49,24 +57,44 @@ class StudySessionScreen extends ConsumerWidget {
 
     if (state.errorMessage != null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Ôn tập từ vựng')),
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.close_rounded, color: ChunkyColors.textMain),
+            onPressed: () => context.pop(),
+          ),
+          title: const Text(
+            'Ôn tập từ vựng',
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 18,
+              color: ChunkyColors.textMain,
+            ),
+          ),
+        ),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.error_outline, size: 56, color: AppColors.error),
+                const Icon(Icons.error_outline_rounded, size: 56, color: ChunkyColors.red),
                 const SizedBox(height: 16),
                 Text(
-                  'Không thể tải hàng đợi: ${state.errorMessage}',
+                  'Không thể tải hàng đợi:\n${state.errorMessage}',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 15),
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: ChunkyColors.textSub,
+                  ),
                 ),
-                const SizedBox(height: 20),
-                ElevatedButton(
+                const SizedBox(height: 24),
+                ChunkyButton(
+                  label: 'Thử lại',
                   onPressed: () => controller.restart(),
-                  child: const Text('Thử lại'),
                 ),
               ],
             ),
@@ -76,67 +104,111 @@ class StudySessionScreen extends ConsumerWidget {
     }
 
     if (state.isCompleted) {
+      final completedCount = state.completedResults.length;
       return Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
-          title: const Text('Hoàn thành'),
+          backgroundColor: Colors.white,
+          elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.close),
+            icon: const Icon(Icons.close_rounded, color: ChunkyColors.textMain),
             onPressed: () => context.pop(),
           ),
         ),
-        body: Center(
+        body: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(32),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                const Spacer(),
                 Container(
-                  width: 100,
-                  height: 100,
+                  width: 96,
+                  height: 96,
                   decoration: BoxDecoration(
-                    color: AppColors.secondary,
+                    color: ChunkyColors.yellow,
                     shape: BoxShape.circle,
+                    border: Border.all(color: const Color(0xFFE5A100), width: 4),
                   ),
                   child: const Icon(
-                    Icons.emoji_events,
-                    size: 56,
-                    color: AppColors.primary,
+                    Icons.emoji_events_rounded,
+                    size: 52,
+                    color: Colors.white,
                   ),
                 ),
                 const SizedBox(height: 24),
                 const Text(
-                  'Chúc mừng cậu! 🎉',
+                  'Tuyệt vời! Hoàn thành!',
                   style: TextStyle(
                     fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.neutral900,
+                    fontWeight: FontWeight.w800,
+                    color: ChunkyColors.textMain,
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
                 Text(
-                  state.completedResults.isNotEmpty
-                      ? 'Cậu đã hoàn thành xuất sắc ${state.completedResults.length} thẻ từ hôm nay.'
-                      : 'Hàng đợi ôn tập trống! Bạn đã học hết tất cả các thẻ đến hạn.',
+                  completedCount > 0
+                    ? 'Bạn đã hoàn thành xuất sắc $completedCount thẻ ôn tập hôm nay.'
+                    : 'Bạn đã ôn tập xong tất cả thẻ từ đến hạn!',
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 15,
-                    color: AppColors.neutral700,
+                    fontWeight: FontWeight.w500,
+                    color: ChunkyColors.textSub,
                   ),
                 ),
-                const SizedBox(height: 32),
-                ElevatedButton.icon(
+                const SizedBox(height: 24),
+                ChunkyCard(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Column(
+                        children: [
+                          const Icon(Icons.check_circle_rounded, color: ChunkyColors.green, size: 28),
+                          const SizedBox(height: 6),
+                          Text(
+                            '$completedCount thẻ',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: ChunkyColors.textMain,
+                            ),
+                          ),
+                          const Text(
+                            'Đã ôn tập',
+                            style: TextStyle(fontSize: 12, color: ChunkyColors.textSub, fontWeight: FontWeight.w500),
+                          ),
+                        ],
+                      ),
+                      Container(height: 40, width: 2, color: ChunkyColors.border),
+                      Column(
+                        children: [
+                          const Icon(Icons.bolt_rounded, color: ChunkyColors.yellow, size: 28),
+                          const SizedBox(height: 6),
+                          Text(
+                            '+${completedCount * 10} EXP',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: ChunkyColors.amberText,
+                            ),
+                          ),
+                          const Text(
+                            'Kinh nghiệm',
+                            style: TextStyle(fontSize: 12, color: ChunkyColors.textSub, fontWeight: FontWeight.w500),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const Spacer(),
+                ChunkyButton(
+                  label: 'Tiếp tục',
                   onPressed: () => context.pop(),
-                  icon: const Icon(Icons.check),
-                  label: const Text('Quay lại kho từ'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    minimumSize: const Size(200, 48),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
                 ),
+                const SizedBox(height: 16),
               ],
             ),
           ),
@@ -147,7 +219,13 @@ class StudySessionScreen extends ConsumerWidget {
     final currentItem = state.currentItem;
     if (currentItem == null) {
       return const Scaffold(
-        body: Center(child: Text('Không có thẻ nào')),
+        backgroundColor: Colors.white,
+        body: Center(
+          child: Text(
+            'Không có thẻ nào trong hàng đợi',
+            style: TextStyle(fontWeight: FontWeight.w600, color: ChunkyColors.textSub),
+          ),
+        ),
       );
     }
 
@@ -156,33 +234,47 @@ class StudySessionScreen extends ConsumerWidget {
     final progress = total > 0 ? current / total : 0.0;
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Ôn tập ($current/$total)'),
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close),
+          icon: const Icon(Icons.close_rounded, color: ChunkyColors.textSub),
           onPressed: () => context.pop(),
         ),
+        title: Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: ChunkyProgressBar(
+            value: progress,
+            height: 12,
+            color: ChunkyColors.brand,
+            trackColor: ChunkyColors.border,
+          ),
+        ),
+        titleSpacing: 0,
         actions: [
           if (currentItem.currentExercise != null)
-            IconButton(
-              icon: Icon(
-                state.isExerciseMode
-                    ? Icons.style_outlined
-                    : Icons.edit_note_outlined,
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: IconButton(
+                icon: Icon(
+                  state.isExerciseMode
+                      ? Icons.style_rounded
+                      : Icons.spellcheck_rounded,
+                  color: ChunkyColors.brand,
+                ),
+                tooltip: state.isExerciseMode
+                    ? 'Chuyển sang Flashcard'
+                    : 'Chuyển sang Bài tập câu',
+                onPressed: () => controller.toggleMode(),
               ),
-              tooltip: state.isExerciseMode
-                  ? 'Chuyển sang Flashcard'
-                  : 'Chuyển sang Bài tập câu',
-              onPressed: () => controller.toggleMode(),
             ),
         ],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(4),
-          child: LinearProgressIndicator(
-            value: progress,
-            backgroundColor: AppColors.neutral200,
-            valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
-          ),
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(2),
+          child: Divider(height: 2, thickness: 2, color: ChunkyColors.border),
         ),
       ),
       body: Column(

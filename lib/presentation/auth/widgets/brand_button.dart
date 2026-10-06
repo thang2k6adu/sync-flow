@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:pp191225/core/core.dart';
+import 'package:pp191225/shared/widgets/common/chunky_card.dart';
 
-/// Nút bo tròn dạng viên thuốc của màn Welcome / Login.
-/// Màu và hình dạng lấy từ `elevatedButtonTheme` / `outlinedButtonTheme`.
-/// [filled] = true: nền primary, chữ trắng. false: nền trắng, viền và chữ primary.
+/// Nút bấm 3D phong cách Duolingo cho các màn hình Auth / Login / Register.
 class BrandButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
@@ -18,18 +16,22 @@ class BrandButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: AppDimens.buttonHeight,
-      child: filled
-          ? ElevatedButton(
-              onPressed: onPressed,
-              child: Text(label, style: AppTextStyles.button),
-            )
-          : OutlinedButton(
-              onPressed: onPressed,
-              child: Text(label, style: AppTextStyles.buttonOutlined),
-            ),
-    );
+    if (filled) {
+      return ChunkyButton(
+        label: label,
+        onPressed: onPressed,
+        height: 50,
+        depth: 4,
+        radius: 16,
+      );
+    } else {
+      return ChunkyButton.outlined(
+        label: label,
+        onPressed: onPressed,
+        height: 50,
+        depth: 4,
+        radius: 16,
+      );
+    }
   }
 }

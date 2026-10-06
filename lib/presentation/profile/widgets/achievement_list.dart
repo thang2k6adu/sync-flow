@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:pp191225/core/theme/app_colors.dart';
 import 'package:pp191225/domain/entities/progression/user_progression.dart';
+import 'package:pp191225/shared/widgets/common/chunky_card.dart';
 
 class AchievementList extends StatelessWidget {
   final UserProgression progression;
@@ -13,129 +13,154 @@ class AchievementList extends StatelessWidget {
       _AchievementData(
         title: 'Khởi đầu nan',
         desc: 'Thực hiện lượt ôn tập từ vựng đầu tiên',
-        icon: Icons.rocket_launch_outlined,
-        isUnlocked: progression.totalReviews >= 1,
+        icon: Icons.rocket_launch_rounded,
+        color: ChunkyColors.brand,
+        current: progression.totalReviews,
+        target: 1,
       ),
       _AchievementData(
         title: 'Ngọn lửa kiên trì',
-        desc: 'Duy trì chuỗi học liên tục từ 3 ngày trở lên',
-        icon: Icons.local_fire_department,
-        isUnlocked: progression.streak >= 3,
+        desc: 'Duy trì chuỗi học liên tục 3 ngày',
+        icon: Icons.local_fire_department_rounded,
+        color: ChunkyColors.orange,
+        current: progression.streak,
+        target: 3,
       ),
       _AchievementData(
         title: 'Kho từ phong phú',
-        desc: 'Thuần thục từ 10 từ vựng SRS',
-        icon: Icons.auto_stories,
-        isUnlocked: progression.wordsMastered >= 10,
+        desc: 'Thuộc 10 từ vựng',
+        icon: Icons.auto_stories_rounded,
+        color: ChunkyColors.green,
+        current: progression.wordsMastered,
+        target: 10,
       ),
       _AchievementData(
         title: 'Bậc thầy tri thức',
-        desc: 'Đạt Cấp độ 3 (Tinh Anh)',
-        icon: Icons.military_tech,
-        isUnlocked: progression.level >= 3,
+        desc: 'Đạt cấp độ 3 (Tinh Anh)',
+        icon: Icons.military_tech_rounded,
+        color: ChunkyColors.yellow,
+        current: progression.level,
+        target: 3,
       ),
     ];
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Huy hiệu thành tích',
+    final unlocked = achievements.where((a) => a.isUnlocked).length;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Expanded(
+              child: Text(
+                'Thành tích',
                 style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.neutral900,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: ChunkyColors.textMain,
                 ),
               ),
-              Text(
-                '${achievements.where((a) => a.isUnlocked).length}/${achievements.length} Đã mở',
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.bold,
-                ),
+            ),
+            Text(
+              '$unlocked/${achievements.length}',
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: ChunkyColors.textSub,
               ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 14),
+        ChunkyCard(
+          padding: EdgeInsets.zero,
+          child: Column(
+            children: [
+              for (int i = 0; i < achievements.length; i++) ...[
+                if (i > 0)
+                  const Divider(height: 2, thickness: 2, color: ChunkyColors.border),
+                _AchievementRow(data: achievements[i]),
+              ],
             ],
           ),
-          const SizedBox(height: 12),
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: achievements.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 10),
-            itemBuilder: (context, index) {
-              final a = achievements[index];
-              return Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: a.isUnlocked ? Colors.white : AppColors.slate[1],
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                    color: a.isUnlocked
-                        ? AppColors.primary.withOpacity(0.3)
-                        : AppColors.neutral200,
+        ),
+      ],
+    );
+  }
+}
+
+class _AchievementRow extends StatelessWidget {
+  final _AchievementData data;
+
+  const _AchievementRow({required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    final unlocked = data.isUnlocked;
+    final accent = unlocked ? data.color : const Color(0xFFAFAFAF);
+
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              color: accent,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(
+              unlocked ? data.icon : Icons.lock_rounded,
+              color: Colors.white,
+              size: 28,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  data.title,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: ChunkyColors.textMain,
                   ),
                 ),
-                child: Row(
+                const SizedBox(height: 2),
+                Text(
+                  data.desc,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: ChunkyColors.textSub,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Row(
                   children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: a.isUnlocked
-                            ? AppColors.secondary
-                            : AppColors.slate[2],
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        a.icon,
-                        color: a.isUnlocked
-                            ? AppColors.primary
-                            : AppColors.neutral500,
-                        size: 24,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            a.title,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: a.isUnlocked
-                                  ? AppColors.neutral900
-                                  : AppColors.neutral500,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            a.desc,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: a.isUnlocked
-                                  ? AppColors.neutral700
-                                  : AppColors.neutral500,
-                            ),
-                          ),
-                        ],
+                      child: ChunkyProgressBar(
+                        value: data.target == 0 ? 0 : data.current / data.target,
+                        color: accent,
+                        height: 10,
                       ),
                     ),
-                    if (a.isUnlocked)
-                      const Icon(Icons.check_circle, color: Colors.green, size: 20)
-                    else
-                      const Icon(Icons.lock_outline, color: AppColors.neutral500, size: 20),
+                    const SizedBox(width: 10),
+                    Text(
+                      '${data.current.clamp(0, data.target)}/${data.target}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: accent,
+                      ),
+                    ),
                   ],
                 ),
-              );
-            },
+              ],
+            ),
           ),
         ],
       ),
@@ -147,12 +172,18 @@ class _AchievementData {
   final String title;
   final String desc;
   final IconData icon;
-  final bool isUnlocked;
+  final Color color;
+  final int current;
+  final int target;
 
   _AchievementData({
     required this.title,
     required this.desc,
     required this.icon,
-    required this.isUnlocked,
+    required this.color,
+    required this.current,
+    required this.target,
   });
+
+  bool get isUnlocked => current >= target;
 }

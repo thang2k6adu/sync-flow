@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:pp191225/core/theme/app_colors.dart';
 import 'package:pp191225/domain/entities/vocab/vocab_card.dart';
+import 'package:pp191225/shared/widgets/common/chunky_card.dart';
 
 class VocabCardItem extends StatelessWidget {
   final VocabCard card;
@@ -16,114 +16,109 @@ class VocabCardItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final firstMeaning = card.meanings.isNotEmpty ? card.meanings.first : null;
 
-    return Card(
-      elevation: 1,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: AppColors.neutral200.withOpacity(0.8)),
-      ),
-      child: InkWell(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: ChunkyCard(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Row(
-                      children: [
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      Text(
+                        card.term,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: ChunkyColors.textMain,
+                        ),
+                      ),
+                      if (card.phonetic != null && card.phonetic!.isNotEmpty) ...[
+                        const SizedBox(width: 8),
                         Text(
-                          card.term,
+                          card.phonetic!,
                           style: const TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.neutral900,
+                            fontSize: 13,
+                            color: ChunkyColors.textSub,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                        if (card.phonetic != null && card.phonetic!.isNotEmpty) ...[
-                          const SizedBox(width: 8),
-                          Text(
-                            card.phonetic!,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontStyle: FontStyle.italic,
-                              color: AppColors.neutral500,
-                            ),
-                          ),
-                        ],
                       ],
+                    ],
+                  ),
+                ),
+                if (card.cefrLevel != null)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: ChunkyColors.brandSoft,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: ChunkyColors.brandBorder, width: 1.5),
+                    ),
+                    child: Text(
+                      card.cefrLevel!,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: ChunkyColors.brand,
+                      ),
                     ),
                   ),
-                  if (card.cefrLevel != null)
+              ],
+            ),
+            if (firstMeaning != null) ...[
+              const SizedBox(height: 10),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (firstMeaning.pos != null)
                     Container(
+                      margin: const EdgeInsets.only(right: 8, top: 1),
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: AppColors.secondary,
+                        color: ChunkyColors.surfaceMuted,
                         borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: ChunkyColors.border, width: 1),
                       ),
                       child: Text(
-                        card.cefrLevel!,
+                        firstMeaning.pos!,
                         style: const TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.primary,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: ChunkyColors.textSub,
                         ),
                       ),
                     ),
-                ],
-              ),
-              if (firstMeaning != null) ...[
-                const SizedBox(height: 8),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (firstMeaning.pos != null)
-                      Container(
-                        margin: const EdgeInsets.only(right: 6, top: 1),
-                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                        decoration: BoxDecoration(
-                          color: AppColors.slate[2],
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          firstMeaning.pos!,
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.slate[7],
-                          ),
-                        ),
+                  Expanded(
+                    child: Text(
+                      firstMeaning.meaningVi,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: ChunkyColors.textMain,
                       ),
-                    Expanded(
-                      child: Text(
-                        firstMeaning.meaningVi,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: AppColors.neutral700,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                if (firstMeaning.exampleEn != null && firstMeaning.exampleEn!.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    '"${firstMeaning.exampleEn!}"',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontStyle: FontStyle.italic,
-                      color: AppColors.slate[5],
                     ),
                   ),
                 ],
+              ),
+              if (firstMeaning.exampleEn != null && firstMeaning.exampleEn!.isNotEmpty) ...[
+                const SizedBox(height: 6),
+                Text(
+                  '“${firstMeaning.exampleEn!}”',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: ChunkyColors.textSub,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ],
             ],
-          ),
+          ],
         ),
       ),
     );
