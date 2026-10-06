@@ -168,6 +168,10 @@ class AuthController extends AutoDisposeNotifier<User?> {
       }
     }
   }
+
+  void setUser(User? user) {
+    state = user;
+  }
 }
 
 final authControllerProvider =

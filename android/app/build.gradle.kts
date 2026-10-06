@@ -11,7 +11,7 @@ android {
     namespace = "com.example.temp"
     compileSdk = 36  // ✅ Should be fixed instead of taken from flutter.compileSdkVersion
 
-    ndkVersion = "27.0.12077973" // ✅ Matches the latest NDK (if not used, you can delete this line)
+    ndkVersion = "28.2.13676358" // ✅ Matches the latest NDK required by plugins
 
     defaultConfig {
         applicationId = "com.kruzetech.pp191225_mobile"
@@ -46,13 +46,7 @@ android {
         //ignore warning “obsolete options”
 
     }
-    //✅ JDK 21 will still work — Gradle will automatically compile at 17
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-
-    // ✅ Improve build performance
-    packagingOptions {
+    packaging {
         resources {
             excludes += listOf(
                 "META-INF/AL2.0",

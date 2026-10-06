@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pp191225/routers/app_router.dart';
 
+import 'firebase_options.dart';
 import 'core/constants/constants.dart';
 import 'core/theme/app_colors.dart';
 import 'core/theme/app_fonts.dart';
@@ -13,10 +14,27 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   // Load environment variables
-  await dotenv.load(fileName: ".env");
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    debugPrint("Failed to load .env file: $e");
+  }
   
-  await AppConstants.initialize();
-  if (!ApiConstants.useMockData) await Firebase.initializeApp();
+  try {
+    await AppConstants.initialize();
+  } catch (e) {
+    debugPrint("AppConstants initialization error: $e");
+  }
+
+  if (!ApiConstants.useMockData) {
+    try {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    } catch (e) {
+      debugPrint("Firebase initialization error: $e");
+    }
+  }
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -72,6 +90,18 @@ class MyApp extends ConsumerWidget {
         ),
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          iconTheme: IconThemeData(color: AppColors.neutral900),
+          titleTextStyle: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: AppColors.neutral900,
+          ),
         ),
         scaffoldBackgroundColor: Colors.white,
         textTheme: TextTheme(

@@ -9,6 +9,13 @@ import 'package:pp191225/domain/usecases/task/get_tasks_usecase.dart';
 import 'package:pp191225/domain/usecases/task/update_task_usecase.dart';
 import 'package:pp191225/domain/usecases/user/get_current_user_usecase.dart';
 import 'package:pp191225/domain/usecases/user/update_user_profile_usecase.dart';
+import 'package:pp191225/domain/usecases/vocab/create_card_usecase.dart';
+import 'package:pp191225/domain/usecases/vocab/create_deck_usecase.dart';
+import 'package:pp191225/domain/usecases/vocab/delete_deck_usecase.dart';
+import 'package:pp191225/domain/usecases/vocab/get_cards_by_deck_usecase.dart';
+import 'package:pp191225/domain/usecases/vocab/get_decks_usecase.dart';
+import 'package:pp191225/domain/usecases/vocab/get_study_queue_usecase.dart';
+import 'package:pp191225/domain/usecases/vocab/submit_study_usecase.dart';
 import 'package:pp191225/providers/datasources_provider.dart';
 import 'package:pp191225/providers/repositories_provider.dart';
 
@@ -94,3 +101,43 @@ final deleteTaskUseCaseProvider = Provider<DeleteTaskUseCase>((ref) {
   final repository = ref.watch(taskRepositoryProvider);
   return DeleteTaskUseCase(repository);
 });
+
+// ============================================================================
+// Vocab UseCases
+// ============================================================================
+
+final getDecksUseCaseProvider = Provider<GetDecksUseCase>((ref) {
+  final repository = ref.watch(vocabRepositoryProvider);
+  return GetDecksUseCase(repository);
+});
+
+final createDeckUseCaseProvider = Provider<CreateDeckUseCase>((ref) {
+  final repository = ref.watch(vocabRepositoryProvider);
+  return CreateDeckUseCase(repository);
+});
+
+final deleteDeckUseCaseProvider = Provider<DeleteDeckUseCase>((ref) {
+  final repository = ref.watch(vocabRepositoryProvider);
+  return DeleteDeckUseCase(repository);
+});
+
+final getCardsByDeckUseCaseProvider = Provider<GetCardsByDeckUseCase>((ref) {
+  final repository = ref.watch(vocabRepositoryProvider);
+  return GetCardsByDeckUseCase(repository);
+});
+
+final createCardUseCaseProvider = Provider<CreateCardUseCase>((ref) {
+  final repository = ref.watch(vocabRepositoryProvider);
+  return CreateCardUseCase(repository);
+});
+
+final getStudyQueueUseCaseProvider = Provider<GetStudyQueueUseCase>((ref) {
+  final repository = ref.watch(vocabRepositoryProvider);
+  return GetStudyQueueUseCase(repository);
+});
+
+final submitStudyUseCaseProvider = Provider<SubmitStudyUseCase>((ref) {
+  final repository = ref.watch(vocabRepositoryProvider);
+  return SubmitStudyUseCase(repository);
+});
+

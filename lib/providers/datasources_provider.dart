@@ -2,12 +2,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:pp191225/data/datasources/local/auth_local_datasource.dart';
 import 'package:pp191225/data/datasources/local/auth_local_datasource_impl.dart';
+import 'package:pp191225/data/datasources/local/progression_local_datasource.dart';
+import 'package:pp191225/data/datasources/local/settings_local_datasource.dart';
 import 'package:pp191225/data/datasources/remote/auth_remote_datasource.dart';
 import 'package:pp191225/data/datasources/remote/auth_remote_datasource_impl.dart';
 import 'package:pp191225/data/datasources/remote/task_remote_datasource.dart';
 import 'package:pp191225/data/datasources/remote/task_remote_datasource_impl.dart';
 import 'package:pp191225/data/datasources/remote/user_remote_datasource.dart';
 import 'package:pp191225/data/datasources/remote/user_remote_datasource_impl.dart';
+import 'package:pp191225/data/datasources/remote/vocab_remote_datasource.dart';
+import 'package:pp191225/data/datasources/remote/vocab_remote_datasource_impl.dart';
 import 'package:pp191225/data/services/api_service.dart';
 import 'package:pp191225/data/services/firebase_auth_service.dart';
 
@@ -43,3 +47,20 @@ final taskRemoteDataSourceProvider = Provider<TaskRemoteDataSource>((ref) {
   final apiService = ref.watch(apiServiceProvider);
   return TaskRemoteDataSourceImpl(apiService);
 });
+
+final vocabRemoteDataSourceProvider = Provider<VocabRemoteDataSource>((ref) {
+  final apiService = ref.watch(apiServiceProvider);
+  return VocabRemoteDataSourceImpl(apiService);
+});
+
+final progressionLocalDataSourceProvider = Provider<ProgressionLocalDataSource>((ref) {
+  final storage = ref.watch(secureStorageProvider);
+  return ProgressionLocalDataSource(storage);
+});
+
+final settingsLocalDataSourceProvider = Provider<SettingsLocalDataSource>((ref) {
+  final storage = ref.watch(secureStorageProvider);
+  return SettingsLocalDataSource(storage);
+});
+
+

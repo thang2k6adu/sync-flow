@@ -14,6 +14,15 @@ class ApiEndpoints {
   static const String tasks = '/tasks';
   static String getTaskById(String taskId) => '/tasks/$taskId';
 
+  static const String decks = '/decks';
+  static String getDeckById(String deckId) => '/decks/$deckId';
+
+  static const String cards = '/cards';
+  static String getCardById(String cardId) => '/cards/$cardId';
+
+  static const String studyQueue = '/study/queue';
+  static const String studySubmit = '/study/submit';
+
   static const String healthCheck = '/health';
   
   static const String versionCheck = '/version';

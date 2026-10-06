@@ -29,7 +29,13 @@ class AppInitializerState extends ConsumerState<AppInitializer> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         router.go(RouteConstants.welcome);
       });
-      return const SizedBox.shrink();
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(
+            color: AppColors.primary,
+          ),
+        ),
+      );
     }
   }
 }

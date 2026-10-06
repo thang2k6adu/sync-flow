@@ -9,4 +9,12 @@ class RouteConstants {
   static const String onboarding = '/onboarding';
 
   static const String taskForm = '/tasks/form';
+
+  static const String deckDetail = '/vocab/deck-detail';
+  static const String deckForm = '/vocab/deck-form';
+  static const String cardForm = '/vocab/card-form';
+  static const String studySession = '/vocab/study';
+
+  static const String profile = '/profile';
+  static const String settings = '/settings';
 }
