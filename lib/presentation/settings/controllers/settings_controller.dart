@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pp191225/domain/entities/settings/app_settings.dart';
 import 'package:pp191225/domain/repositories/settings_repository.dart';
@@ -51,6 +52,12 @@ class SettingsController extends Notifier<AppSettings> {
 
   Future<void> toggleHapticFeedback() async {
     final updated = state.copyWith(hapticFeedback: !state.hapticFeedback);
+    state = updated;
+    await _repository.saveSettings(updated);
+  }
+
+  Future<void> updateThemeMode(ThemeMode mode) async {
+    final updated = state.copyWith(themeMode: mode);
     state = updated;
     await _repository.saveSettings(updated);
   }

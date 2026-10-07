@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pp191225/core/theme/app_theme.dart';
 import 'package:pp191225/presentation/profile/screens/profile_screen.dart';
 import 'package:pp191225/presentation/settings/screens/settings_screen.dart';
 import 'package:pp191225/presentation/vocab/screens/deck_list_screen.dart';
-import 'package:pp191225/shared/widgets/common/chunky_card.dart';
 
 class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
@@ -23,6 +23,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     final List<Widget> children = [
       const DeckListScreen(),
       const ProfileScreen(),
@@ -30,20 +31,21 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     ];
 
     return Scaffold(
+      backgroundColor: colors.background,
       body: children[selectedIndex],
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          border: Border(top: BorderSide(color: ChunkyColors.border, width: 2)),
+        decoration: BoxDecoration(
+          color: colors.surface,
+          border: Border(top: BorderSide(color: colors.border, width: 2)),
         ),
         child: BottomNavigationBar(
           currentIndex: selectedIndex,
           onTap: touchBottomNavBar,
-          backgroundColor: Colors.white,
+          backgroundColor: colors.surface,
           elevation: 0,
           type: BottomNavigationBarType.fixed,
-          selectedItemColor: ChunkyColors.brand,
-          unselectedItemColor: const Color(0xFFAFAFAF),
+          selectedItemColor: colors.brand,
+          unselectedItemColor: colors.textSub,
           selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
           unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
           items: const [

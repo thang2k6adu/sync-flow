@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pp191225/core/theme/app_theme.dart';
 import 'package:pp191225/presentation/auth/controllers/auth_controller.dart';
 import 'package:pp191225/presentation/settings/controllers/settings_controller.dart';
 import 'package:pp191225/shared/widgets/common/chunky_card.dart';
@@ -10,34 +11,38 @@ class SettingsScreen extends ConsumerWidget {
   static const _goalOptions = [5, 10, 15, 20, 30];
 
   void _confirmLogout(BuildContext context, WidgetRef ref) {
+    final colors = context.themeColors;
     showDialog(
       context: context,
       builder: (ctx) => Dialog(
-        backgroundColor: Colors.white,
+        backgroundColor: colors.surface,
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: colors.border, width: 2),
+        ),
         insetPadding: const EdgeInsets.symmetric(horizontal: 24),
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
+              Text(
                 'Đăng xuất?',
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
-                  color: ChunkyColors.textMain,
+                  color: colors.textMain,
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Bạn sẽ cần đăng nhập lại để tiếp tục học.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: ChunkyColors.textSub,
+                  color: colors.textSub,
                 ),
               ),
               const SizedBox(height: 24),
@@ -48,7 +53,7 @@ class SettingsScreen extends ConsumerWidget {
               const SizedBox(height: 8),
               ChunkyButton.outlined(
                 label: 'Đăng xuất',
-                textColor: ChunkyColors.red,
+                textColor: colors.coral,
                 onPressed: () async {
                   Navigator.pop(ctx);
                   await ref.read(authControllerProvider.notifier).logout(context);
@@ -63,46 +68,55 @@ class SettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.themeColors;
     final settings = ref.watch(settingsControllerProvider);
     final controller = ref.read(settingsControllerProvider.notifier);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: colors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: colors.surface,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           'Cài đặt',
           style: TextStyle(
             fontWeight: FontWeight.w700,
             fontSize: 18,
-            color: ChunkyColors.textMain,
+            color: colors.textMain,
           ),
         ),
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(2),
-          child: Divider(height: 2, thickness: 2, color: ChunkyColors.border),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(2),
+          child: Divider(height: 2, thickness: 2, color: colors.border),
         ),
       ),
       body: ListView(
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(20, 24, 20, 40),
         children: [
+          // Mục Giao diện (Light Mode / Dark Mode / System)
+          const _SectionTitle('Giao diện'),
+          _ThemeModeSelector(
+            selectedMode: settings.themeMode,
+            onChanged: (mode) => controller.updateThemeMode(mode),
+          ),
+          const SizedBox(height: 28),
+
           const _SectionTitle('Mục tiêu học tập'),
           ChunkyCard(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Số từ mỗi ngày',
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
-                    color: ChunkyColors.textMain,
+                    color: colors.textMain,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -132,7 +146,7 @@ class SettingsScreen extends ConsumerWidget {
               children: [
                 _SwitchRow(
                   icon: Icons.volume_up_rounded,
-                  color: ChunkyColors.brand,
+                  color: colors.brand,
                   title: 'Tự động phát âm',
                   subtitle: 'Đọc từ khi lật thẻ',
                   value: settings.autoPlayAudio,
@@ -141,7 +155,7 @@ class SettingsScreen extends ConsumerWidget {
                 const _RowDivider(),
                 _SwitchRow(
                   icon: Icons.vibration_rounded,
-                  color: ChunkyColors.brand,
+                  color: colors.brand,
                   title: 'Rung phản hồi',
                   subtitle: 'Rung nhẹ khi chọn đáp án',
                   value: settings.hapticFeedback,
@@ -159,7 +173,7 @@ class SettingsScreen extends ConsumerWidget {
               children: [
                 _SwitchRow(
                   icon: Icons.notifications_rounded,
-                  color: ChunkyColors.brand,
+                  color: colors.brand,
                   title: 'Nhắc học hằng ngày',
                   subtitle: 'Giữ chuỗi ngày học của bạn',
                   value: settings.dailyReminderEnabled,
@@ -189,18 +203,18 @@ class SettingsScreen extends ConsumerWidget {
                       padding: const EdgeInsets.all(16),
                       child: Row(
                         children: [
-                          const _IconBadge(
+                          _IconBadge(
                             icon: Icons.access_time_filled_rounded,
-                            color: ChunkyColors.brand,
+                            color: colors.brand,
                           ),
                           const SizedBox(width: 14),
-                          const Expanded(
+                          Expanded(
                             child: Text(
                               'Giờ nhắc',
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w700,
-                                color: ChunkyColors.textMain,
+                                color: colors.textMain,
                               ),
                             ),
                           ),
@@ -210,19 +224,19 @@ class SettingsScreen extends ConsumerWidget {
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: ChunkyColors.surfaceMuted,
+                              color: colors.surfaceMuted,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: ChunkyColors.border,
+                                color: colors.border,
                                 width: 2,
                               ),
                             ),
                             child: Text(
                               settings.reminderTime,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w700,
-                                color: ChunkyColors.brand,
+                                color: colors.brand,
                               ),
                             ),
                           ),
@@ -239,18 +253,118 @@ class SettingsScreen extends ConsumerWidget {
           const _SectionTitle('Tài khoản'),
           ChunkyButton.outlined(
             label: 'Đăng xuất',
-            textColor: ChunkyColors.red,
+            textColor: colors.coral,
             onPressed: () => _confirmLogout(context, ref),
           ),
           const SizedBox(height: 24),
-          const Center(
-            child: Text(
-              'Sync Flow  •  v1.0.0',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFFAFAFAF),
+          Text(
+            'Sync Flow  •  v1.0.0',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: colors.textSub,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ThemeModeSelector extends StatelessWidget {
+  final ThemeMode selectedMode;
+  final ValueChanged<ThemeMode> onChanged;
+
+  const _ThemeModeSelector({
+    required this.selectedMode,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.themeColors;
+
+    final options = [
+      (
+        mode: ThemeMode.system,
+        label: 'Tự động',
+        icon: Icons.brightness_auto_rounded,
+      ),
+      (
+        mode: ThemeMode.light,
+        label: 'Sáng',
+        icon: Icons.light_mode_rounded,
+      ),
+      (
+        mode: ThemeMode.dark,
+        label: 'Tối',
+        icon: Icons.dark_mode_rounded,
+      ),
+    ];
+
+    return ChunkyCard(
+      padding: const EdgeInsets.all(12),
+      child: Row(
+        children: [
+          for (int i = 0; i < options.length; i++) ...[
+            if (i > 0) const SizedBox(width: 8),
+            Expanded(
+              child: _ThemeModeOptionCard(
+                icon: options[i].icon,
+                label: options[i].label,
+                isSelected: selectedMode == options[i].mode,
+                onTap: () => onChanged(options[i].mode),
+                colors: colors,
               ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _ThemeModeOptionCard extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+  final AppThemeColors colors;
+
+  const _ThemeModeOptionCard({
+    required this.icon,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+    required this.colors,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ChunkyCard(
+      onTap: onTap,
+      radius: 12,
+      depth: isSelected ? 3 : 2,
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      fillColor: isSelected ? colors.brandSoft : colors.surfaceMuted,
+      borderColor: isSelected ? colors.brandBorder : colors.border,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 24,
+            color: isSelected ? colors.brand : colors.textSub,
+          ),
+          const SizedBox(height: 6),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: isSelected ? colors.brand : colors.textSub,
             ),
           ),
         ],
@@ -265,14 +379,15 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
       child: Text(
         text,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.w700,
-          color: ChunkyColors.textMain,
+          color: colors.textMain,
         ),
       ),
     );
@@ -283,8 +398,10 @@ class _RowDivider extends StatelessWidget {
   const _RowDivider();
 
   @override
-  Widget build(BuildContext context) =>
-      const Divider(height: 2, thickness: 2, color: ChunkyColors.border);
+  Widget build(BuildContext context) {
+    final colors = context.themeColors;
+    return Divider(height: 2, thickness: 2, color: colors.border);
+  }
 }
 
 class _IconBadge extends StatelessWidget {
@@ -325,6 +442,7 @@ class _SwitchRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return InkWell(
       onTap: () => onChanged(!value),
       child: Padding(
@@ -339,19 +457,19 @@ class _SwitchRow extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
-                      color: ChunkyColors.textMain,
+                      color: colors.textMain,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
-                      color: ChunkyColors.textSub,
+                      color: colors.textSub,
                     ),
                   ),
                 ],
@@ -362,9 +480,11 @@ class _SwitchRow extends StatelessWidget {
               value: value,
               onChanged: onChanged,
               activeThumbColor: Colors.white,
-              activeTrackColor: ChunkyColors.brand,
+              activeTrackColor: colors.brand,
               inactiveThumbColor: Colors.white,
-              inactiveTrackColor: const Color(0xFFCFCFCF),
+              inactiveTrackColor: context.isDarkMode
+                  ? const Color(0xFF433F60)
+                  : const Color(0xFFCFCFCF),
               trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
             ),
           ],
@@ -387,20 +507,21 @@ class _GoalChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return ChunkyCard(
       onTap: onTap,
       radius: 12,
       depth: 3,
       padding: const EdgeInsets.symmetric(vertical: 10),
-      fillColor: selected ? ChunkyColors.brandSoft : Colors.white,
-      borderColor: selected ? ChunkyColors.brandBorder : ChunkyColors.border,
+      fillColor: selected ? colors.brandSoft : colors.surface,
+      borderColor: selected ? colors.brandBorder : colors.border,
       child: Center(
         child: Text(
           '$value',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w700,
-            color: selected ? ChunkyColors.brand : ChunkyColors.textSub,
+            color: selected ? colors.brand : colors.textSub,
           ),
         ),
       ),

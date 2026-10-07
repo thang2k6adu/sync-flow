@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pp191225/core/constants/route_constants.dart';
+import 'package:pp191225/core/theme/app_theme.dart';
 import 'package:pp191225/domain/entities/vocab/deck.dart';
 import 'package:pp191225/presentation/vocab/controllers/deck_list_controller.dart';
 import 'package:pp191225/presentation/vocab/widgets/create_deck_dialog.dart';
@@ -41,40 +42,41 @@ class DeckListScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.themeColors;
     final decksAsync = ref.watch(deckListControllerProvider);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: colors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: colors.surface,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           'Kho từ vựng',
           style: TextStyle(
             fontWeight: FontWeight.w700,
             fontSize: 18,
-            color: ChunkyColors.textMain,
+            color: colors.textMain,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.school_rounded, color: ChunkyColors.brand),
+            icon: Icon(Icons.school_rounded, color: colors.brand),
             tooltip: 'Học ngay (Toàn bộ)',
             onPressed: () => context.push(RouteConstants.studySession),
           ),
           const SizedBox(width: 4),
         ],
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(2),
-          child: Divider(height: 2, thickness: 2, color: ChunkyColors.border),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(2),
+          child: Divider(height: 2, thickness: 2, color: colors.border),
         ),
       ),
       body: decksAsync.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: ChunkyColors.brand),
+        loading: () => Center(
+          child: CircularProgressIndicator(color: colors.brand),
         ),
         error: (err, _) => Center(
           child: Padding(
@@ -82,14 +84,14 @@ class DeckListScreen extends ConsumerWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.error_rounded, size: 48, color: ChunkyColors.red),
+                Icon(Icons.error_rounded, size: 48, color: colors.coral),
                 const SizedBox(height: 12),
                 Text(
                   'Lỗi: ${err.toString()}',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    color: ChunkyColors.textSub,
+                    color: colors.textSub,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -104,7 +106,7 @@ class DeckListScreen extends ConsumerWidget {
         ),
         data: (decks) {
           return RefreshIndicator(
-            color: ChunkyColors.brand,
+            color: colors.brand,
             onRefresh: () =>
                 ref.read(deckListControllerProvider.notifier).refresh(),
             child: CustomScrollView(
@@ -115,8 +117,8 @@ class DeckListScreen extends ConsumerWidget {
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
                     child: ChunkyCard(
-                      fillColor: ChunkyColors.brand,
-                      borderColor: ChunkyColors.brandDark,
+                      fillColor: colors.brand,
+                      borderColor: colors.brandDark,
                       padding: const EdgeInsets.all(20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -142,8 +144,8 @@ class DeckListScreen extends ConsumerWidget {
                           ChunkyButton(
                             label: 'Bắt đầu ôn tập',
                             color: Colors.white,
-                            shadowColor: ChunkyColors.brandBorder,
-                            textColor: ChunkyColors.brand,
+                            shadowColor: colors.brandBorder,
+                            textColor: colors.brand,
                             onPressed: () => context.push(RouteConstants.studySession),
                           ),
                         ],
@@ -157,22 +159,22 @@ class DeckListScreen extends ConsumerWidget {
                     padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
                     child: Row(
                       children: [
-                        const Expanded(
+                        Expanded(
                           child: Text(
                             'Bộ từ vựng của bạn',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w700,
-                              color: ChunkyColors.textMain,
+                              color: colors.textMain,
                             ),
                           ),
                         ),
                         Text(
                           '${decks.length} bộ',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
-                            color: ChunkyColors.textSub,
+                            color: colors.textSub,
                           ),
                         ),
                       ],
@@ -186,28 +188,28 @@ class DeckListScreen extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 32),
                       child: Column(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.style_rounded,
                             size: 72,
-                            color: ChunkyColors.brandBorder,
+                            color: colors.brandBorder,
                           ),
                           const SizedBox(height: 16),
-                          const Text(
+                          Text(
                             'Chưa có bộ từ vựng nào',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
-                              color: ChunkyColors.textMain,
+                              color: colors.textMain,
                             ),
                           ),
                           const SizedBox(height: 6),
-                          const Text(
+                          Text(
                             'Tạo bộ từ đầu tiên để bắt đầu học nhé!',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
-                              color: ChunkyColors.textSub,
+                              color: colors.textSub,
                             ),
                           ),
                           const SizedBox(height: 24),
@@ -257,11 +259,11 @@ class DeckListScreen extends ConsumerWidget {
         focusElevation: 0,
         hoverElevation: 0,
         highlightElevation: 0,
-        backgroundColor: ChunkyColors.brand,
+        backgroundColor: colors.brand,
         foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: ChunkyColors.brandDark, width: 2),
+          side: BorderSide(color: colors.brandDark, width: 2),
         ),
       ),
     );
