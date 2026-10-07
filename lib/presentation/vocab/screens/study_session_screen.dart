@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pp191225/domain/entities/vocab/study_item.dart';
 import 'package:pp191225/presentation/progression/controllers/progression_controller.dart';
 import 'package:pp191225/presentation/progression/widgets/level_up_dialog.dart';
 import 'package:pp191225/presentation/vocab/controllers/study_session_controller.dart';
 import 'package:pp191225/presentation/vocab/widgets/exercise_view.dart';
 import 'package:pp191225/presentation/vocab/widgets/flashcard_flip_view.dart';
+import 'package:pp191225/presentation/vocab/widgets/leech_rescue_widgets.dart';
 import 'package:pp191225/presentation/vocab/widgets/srs_rating_bar.dart';
+import 'package:pp191225/presentation/vocab/widgets/typing_challenge_view.dart';
 import 'package:pp191225/shared/widgets/common/chunky_card.dart';
 
 class StudySessionScreen extends ConsumerWidget {
@@ -126,20 +129,31 @@ class StudySessionScreen extends ConsumerWidget {
                   width: 96,
                   height: 96,
                   decoration: BoxDecoration(
-                    color: ChunkyColors.yellow,
+                    color: state.isLeechRescueMode
+                        ? ChunkyColors.coral
+                        : ChunkyColors.yellow,
                     shape: BoxShape.circle,
-                    border: Border.all(color: const Color(0xFFE5A100), width: 4),
+                    border: Border.all(
+                      color: state.isLeechRescueMode
+                          ? const Color(0xFFC52940)
+                          : const Color(0xFFE5A100),
+                      width: 4,
+                    ),
                   ),
-                  child: const Icon(
-                    Icons.emoji_events_rounded,
+                  child: Icon(
+                    state.isLeechRescueMode
+                        ? Icons.local_fire_department_rounded
+                        : Icons.emoji_events_rounded,
                     size: 52,
                     color: Colors.white,
                   ),
                 ),
                 const SizedBox(height: 24),
-                const Text(
-                  'Tuyệt vời! Hoàn thành!',
-                  style: TextStyle(
+                Text(
+                  state.isLeechRescueMode
+                      ? 'Phiên cứu trợ hoàn thành!'
+                      : 'Tuyệt vời! Hoàn thành!',
+                  style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w800,
                     color: ChunkyColors.textMain,
@@ -148,7 +162,9 @@ class StudySessionScreen extends ConsumerWidget {
                 const SizedBox(height: 10),
                 Text(
                   completedCount > 0
-                    ? 'Bạn đã hoàn thành xuất sắc $completedCount thẻ ôn tập hôm nay.'
+                    ? state.isLeechRescueMode
+                        ? 'Bạn đã ôn tập $completedCount từ khó nhớ. Tiếp tục cố gắng nhé!'
+                        : 'Bạn đã hoàn thành xuất sắc $completedCount thẻ ôn tập hôm nay.'
                     : 'Bạn đã ôn tập xong tất cả thẻ từ đến hạn!',
                   textAlign: TextAlign.center,
                   style: const TextStyle(
@@ -246,11 +262,20 @@ class StudySessionScreen extends ConsumerWidget {
         ),
         title: Padding(
           padding: const EdgeInsets.only(right: 8),
-          child: ChunkyProgressBar(
-            value: progress,
-            height: 12,
-            color: ChunkyColors.brand,
-            trackColor: ChunkyColors.border,
+          child: Column(
+            children: [
+              ChunkyProgressBar(
+                value: progress,
+                height: 12,
+                color: state.isLeechRescueMode
+                    ? ChunkyColors.coral
+                    : ChunkyColors.brand,
+                trackColor: ChunkyColors.border,
+              ),
+              // Study Mode indicator
+              const SizedBox(height: 4),
+              _StudyModeLabel(mode: state.studyMode),
+            ],
           ),
         ),
         titleSpacing: 0,
@@ -260,45 +285,33 @@ class StudySessionScreen extends ConsumerWidget {
               padding: const EdgeInsets.only(right: 8),
               child: IconButton(
                 icon: Icon(
-                  state.isExerciseMode
-                      ? Icons.style_rounded
-                      : Icons.spellcheck_rounded,
+                  _getModeIcon(state.studyMode),
                   color: ChunkyColors.brand,
                 ),
-                tooltip: state.isExerciseMode
-                    ? 'Chuyển sang Flashcard'
-                    : 'Chuyển sang Bài tập câu',
+                tooltip: _getModeTooltip(state.studyMode),
                 onPressed: () => controller.toggleMode(),
               ),
             ),
         ],
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(2),
-          child: Divider(height: 2, thickness: 2, color: ChunkyColors.border),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(2),
+          child: Column(
+            children: [
+              // Leech badge trên AppBar
+              if (currentItem.isLeech)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: LeechBadge(lapsesCount: currentItem.lapsesCount),
+                ),
+              const Divider(height: 2, thickness: 2, color: ChunkyColors.border),
+            ],
+          ),
         ),
       ),
       body: Column(
         children: [
           Expanded(
-            child: state.isExerciseMode && currentItem.currentExercise != null
-                ? ExerciseView(
-                    exercise: currentItem.currentExercise!,
-                    selectedTokens: state.selectedTokens,
-                    isSubmitted: state.isExerciseSubmitted,
-                    isCorrect: state.isExerciseCorrect,
-                    onSelectToken: controller.addToken,
-                    onRemoveToken: controller.removeToken,
-                    onCheck: controller.checkExercise,
-                    onHint: controller.useHint,
-                    usedHint: state.usedHint,
-                  )
-                : Center(
-                    child: FlashcardFlipView(
-                      item: currentItem,
-                      isFlipped: state.isFlipped,
-                      onFlip: controller.flipCard,
-                    ),
-                  ),
+            child: _buildStudyContent(state, currentItem, controller),
           ),
 
           // SRS Action Rating Bar
@@ -306,6 +319,110 @@ class StudySessionScreen extends ConsumerWidget {
             onRating: (rating) => controller.submitRating(rating),
           ),
         ],
+      ),
+    );
+  }
+
+  /// Build nội dung học theo Study Mode hiện tại
+  Widget _buildStudyContent(
+    StudySessionState state,
+    StudyItem currentItem,
+    StudySessionController controller,
+  ) {
+    switch (state.studyMode) {
+      case StudyMode.flashcard:
+        return Center(
+          child: FlashcardFlipView(
+            item: currentItem,
+            isFlipped: state.isFlipped,
+            onFlip: controller.flipCard,
+          ),
+        );
+
+      case StudyMode.sentenceBuilder:
+        if (currentItem.currentExercise != null) {
+          return ExerciseView(
+            exercise: currentItem.currentExercise!,
+            selectedTokens: state.selectedTokens,
+            isSubmitted: state.isExerciseSubmitted,
+            isCorrect: state.isExerciseCorrect,
+            onSelectToken: controller.addToken,
+            onRemoveToken: controller.removeToken,
+            onCheck: controller.checkExercise,
+            onHint: controller.useHint,
+            usedHint: state.usedHint,
+          );
+        }
+        // Fallback to flashcard if no exercise available
+        return Center(
+          child: FlashcardFlipView(
+            item: currentItem,
+            isFlipped: state.isFlipped,
+            onFlip: controller.flipCard,
+          ),
+        );
+
+      case StudyMode.typingChallenge:
+        if (currentItem.currentExercise != null) {
+          return TypingChallengeView(
+            exercise: currentItem.currentExercise!,
+            isSubmitted: state.isExerciseSubmitted,
+            isCorrect: state.isExerciseCorrect,
+            userAnswer: state.typingAnswer,
+            usedHint: state.usedHint,
+            onHint: controller.useHint,
+            onSubmit: controller.checkTypingAnswer,
+          );
+        }
+        // Fallback to flashcard if no exercise available
+        return Center(
+          child: FlashcardFlipView(
+            item: currentItem,
+            isFlipped: state.isFlipped,
+            onFlip: controller.flipCard,
+          ),
+        );
+    }
+  }
+
+  IconData _getModeIcon(StudyMode mode) {
+    return switch (mode) {
+      StudyMode.flashcard => Icons.style_rounded,
+      StudyMode.sentenceBuilder => Icons.sort_rounded,
+      StudyMode.typingChallenge => Icons.keyboard_rounded,
+    };
+  }
+
+  String _getModeTooltip(StudyMode mode) {
+    return switch (mode) {
+      StudyMode.flashcard => 'Chuyển sang Ghép câu',
+      StudyMode.sentenceBuilder => 'Chuyển sang Gõ từ',
+      StudyMode.typingChallenge => 'Chuyển sang Flashcard',
+    };
+  }
+}
+
+/// Label nhỏ hiển thị Study Mode hiện tại dưới progress bar
+class _StudyModeLabel extends StatelessWidget {
+  final StudyMode mode;
+
+  const _StudyModeLabel({required this.mode});
+
+  @override
+  Widget build(BuildContext context) {
+    final (label, color) = switch (mode) {
+      StudyMode.flashcard => ('Lật thẻ', ChunkyColors.brand),
+      StudyMode.sentenceBuilder => ('Ghép câu', ChunkyColors.mint),
+      StudyMode.typingChallenge => ('Gõ từ', ChunkyColors.orange),
+    };
+
+    return Text(
+      label,
+      style: TextStyle(
+        fontSize: 10,
+        fontWeight: FontWeight.w700,
+        color: color,
+        letterSpacing: 0.5,
       ),
     );
   }

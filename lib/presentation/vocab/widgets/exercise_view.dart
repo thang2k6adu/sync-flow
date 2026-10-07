@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pp191225/core/theme/app_theme.dart';
 import 'package:pp191225/domain/entities/vocab/card_exercise.dart';
+import 'package:pp191225/providers/datasources_provider.dart';
 import 'package:pp191225/shared/widgets/common/chunky_card.dart';
 
-class ExerciseView extends StatelessWidget {
+class ExerciseView extends ConsumerWidget {
   final CardExercise exercise;
   final List<String> selectedTokens;
   final bool isSubmitted;
@@ -27,8 +30,16 @@ class ExerciseView extends StatelessWidget {
     required this.usedHint,
   });
 
+  bool get isFillInBlank =>
+      exercise.exerciseType == 'typing' ||
+      exercise.exerciseType == 'fill_in_blank' ||
+      exercise.tokens.length == 1 ||
+      exercise.targetSentence.contains('___');
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.themeColors;
+
     final allAvailableTokens = [
       ...exercise.tokens,
       ...exercise.distractorTokens,
@@ -52,8 +63,8 @@ class ExerciseView extends StatelessWidget {
         children: [
           // Prompt card
           ChunkyCard(
-            fillColor: ChunkyColors.surfaceMuted,
-            borderColor: ChunkyColors.border,
+            fillColor: colors.surfaceMuted,
+            borderColor: colors.border,
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,21 +72,35 @@ class ExerciseView extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'SẮP XẾP CÂU HOÀN CHỈNH',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: ChunkyColors.brand,
-                        letterSpacing: 0.8,
-                      ),
+                    Row(
+                      children: [
+                        Icon(
+                          isFillInBlank
+                              ? Icons.edit_note_rounded
+                              : Icons.sort_rounded,
+                          size: 18,
+                          color: colors.brand,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          isFillInBlank
+                              ? 'ĐIỀN TỪ VÀO CHỖ TRỐNG'
+                              : 'SẮP XẾP CÂU HOÀN CHỈNH',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: colors.brand,
+                            letterSpacing: 0.8,
+                          ),
+                        ),
+                      ],
                     ),
                     if (exercise.meaningHint != null)
                       IconButton(
                         visualDensity: VisualDensity.compact,
                         icon: Icon(
                           Icons.lightbulb_rounded,
-                          color: usedHint ? ChunkyColors.yellow : ChunkyColors.textSub,
+                          color: usedHint ? colors.amber : colors.textSub,
                           size: 22,
                         ),
                         tooltip: 'Gợi ý',
@@ -83,32 +108,63 @@ class ExerciseView extends StatelessWidget {
                       ),
                   ],
                 ),
-                if (exercise.vietnameseTranslation != null) ...[
-                  const SizedBox(height: 6),
-                  Text(
-                    exercise.vietnameseTranslation!,
-                    style: const TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w700,
-                      color: ChunkyColors.textMain,
-                    ),
+                const SizedBox(height: 10),
+
+                // Nội dung câu hỏi theo từng loại bài tập
+                if (isFillInBlank) ...[
+                  // Câu tiếng Anh có chỗ trống
+                  _FillInBlankSentence(
+                    targetSentence: exercise.targetSentence,
+                    selectedToken: selectedTokens.isNotEmpty
+                        ? selectedTokens.first
+                        : null,
+                    isSubmitted: isSubmitted,
+                    isCorrect: isCorrect,
+                    onRemove: isSubmitted ? null : () => onRemoveToken(0),
+                    colors: colors,
                   ),
+                  if (exercise.vietnameseTranslation != null) ...[
+                    const SizedBox(height: 10),
+                    Text(
+                      exercise.vietnameseTranslation!,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontStyle: FontStyle.italic,
+                        fontWeight: FontWeight.w500,
+                        color: colors.textSub,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ] else ...[
+                  // Sắp xếp câu: hiển thị nghĩa tiếng Việt làm đề bài
+                  if (exercise.vietnameseTranslation != null)
+                    Text(
+                      exercise.vietnameseTranslation!,
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        color: colors.textMain,
+                        height: 1.35,
+                      ),
+                    ),
                 ],
+
                 if (usedHint && exercise.meaningHint != null) ...[
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFF7D6),
+                      color: colors.brandSoft,
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: ChunkyColors.yellow, width: 1.5),
+                      border: Border.all(color: colors.brandBorder, width: 1.5),
                     ),
                     child: Text(
                       'Gợi ý: ${exercise.meaningHint}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFFB27B00),
+                        color: colors.brand,
                       ),
                     ),
                   ),
@@ -118,62 +174,66 @@ class ExerciseView extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // Answer Zone
-          ChunkyCard(
-            depth: 0,
-            fillColor: Colors.white,
-            borderColor: isSubmitted
-                ? (isCorrect ? ChunkyColors.green : ChunkyColors.red)
-                : ChunkyColors.border,
-            padding: const EdgeInsets.all(16),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 90),
-              child: selectedTokens.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'Chạm vào các từ bên dưới để ghép câu',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: ChunkyColors.textSub,
+          // Đối với dạng Sắp xếp câu: cần khung Answer Zone để thả các từ ghép câu
+          if (!isFillInBlank) ...[
+            ChunkyCard(
+              depth: 0,
+              fillColor: colors.surface,
+              borderColor: isSubmitted
+                  ? (isCorrect ? colors.mint : colors.coral)
+                  : colors.border,
+              padding: const EdgeInsets.all(16),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 90),
+                child: selectedTokens.isEmpty
+                    ? Center(
+                        child: Text(
+                          'Chạm vào các từ bên dưới để ghép câu',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: colors.textSub,
+                          ),
                         ),
+                      )
+                    : Wrap(
+                        spacing: 8,
+                        runSpacing: 10,
+                        children: List.generate(selectedTokens.length, (index) {
+                          final token = selectedTokens[index];
+                          return _TokenChip(
+                            text: token,
+                            selected: true,
+                            onTap: isSubmitted ? null : () => onRemoveToken(index),
+                          );
+                        }),
                       ),
-                    )
-                  : Wrap(
-                      spacing: 8,
-                      runSpacing: 10,
-                      children: List.generate(selectedTokens.length, (index) {
-                        final token = selectedTokens[index];
-                        return _TokenChip(
-                          text: token,
-                          selected: true,
-                          onTap: isSubmitted ? null : () => onRemoveToken(index),
-                        );
-                      }),
-                    ),
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
+          ],
 
           // Feedback banner if submitted
           if (isSubmitted) ...[
             ChunkyCard(
-              fillColor: isCorrect ? const Color(0xFFE8FAF4) : const Color(0xFFFFF1F4),
-              borderColor: isCorrect ? const Color(0xFFA6EBD5) : const Color(0xFFFFCCD5),
+              fillColor: isCorrect
+                  ? (context.isDarkMode ? const Color(0xFF0F392B) : const Color(0xFFE8FAF4))
+                  : (context.isDarkMode ? const Color(0xFF3E1C27) : const Color(0xFFFFF1F4)),
+              borderColor: isCorrect ? colors.mint : colors.coral,
               padding: const EdgeInsets.all(14),
               child: Row(
                 children: [
                   Container(
-                    width: 32,
-                    height: 32,
+                    width: 34,
+                    height: 34,
                     decoration: BoxDecoration(
-                      color: isCorrect ? ChunkyColors.mint : ChunkyColors.coral,
+                      color: isCorrect ? colors.mint : colors.coral,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       isCorrect ? Icons.check_rounded : Icons.close_rounded,
                       color: Colors.white,
-                      size: 20,
+                      size: 22,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -186,22 +246,41 @@ class ExerciseView extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
-                            color: isCorrect ? const Color(0xFF007A55) : const Color(0xFFBE123C),
+                            color: isCorrect ? colors.mint : colors.coral,
                           ),
                         ),
                         if (!isCorrect) ...[
-                          const SizedBox(height: 2),
+                          const SizedBox(height: 3),
                           Text(
-                            'Đáp án: "${exercise.targetSentence}"',
-                            style: const TextStyle(
+                            isFillInBlank
+                                ? 'Đáp án: "${exercise.tokens.isNotEmpty ? exercise.tokens.first : exercise.targetSentence}"'
+                                : 'Đáp án: "${exercise.targetSentence}"',
+                            style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: Color(0xFFBE123C),
+                              color: colors.coral,
                             ),
                           ),
                         ],
                       ],
                     ),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.volume_up_rounded,
+                      color: isCorrect ? colors.mint : colors.coral,
+                      size: 24,
+                    ),
+                    tooltip: 'Nghe phát âm',
+                    onPressed: () {
+                      final sentenceToSpeak = isFillInBlank
+                          ? exercise.targetSentence.replaceAll(
+                              RegExp(r'_{2,}'),
+                              exercise.tokens.isNotEmpty ? exercise.tokens.first : '',
+                            )
+                          : exercise.targetSentence;
+                      ref.read(ttsServiceProvider).speak(text: sentenceToSpeak);
+                    },
                   ),
                 ],
               ),
@@ -209,15 +288,17 @@ class ExerciseView extends StatelessWidget {
             const SizedBox(height: 16),
           ],
 
-          // Token pool
-          const Padding(
-            padding: EdgeInsets.only(left: 4, bottom: 8),
+          // Token pool (Từ gợi ý)
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 8),
             child: Text(
-              'Từ gợi ý:',
+              isFillInBlank
+                  ? 'Chọn từ thích hợp bên dưới để điền vào câu:'
+                  : 'Từ gợi ý:',
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: ChunkyColors.textSub,
+                color: colors.textSub,
               ),
             ),
           ),
@@ -250,6 +331,176 @@ class ExerciseView extends StatelessWidget {
   }
 }
 
+class _FillInBlankSentence extends StatelessWidget {
+  final String targetSentence;
+  final String? selectedToken;
+  final bool isSubmitted;
+  final bool isCorrect;
+  final VoidCallback? onRemove;
+  final AppThemeColors colors;
+
+  const _FillInBlankSentence({
+    required this.targetSentence,
+    required this.selectedToken,
+    required this.isSubmitted,
+    required this.isCorrect,
+    required this.onRemove,
+    required this.colors,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final blankRegex = RegExp(r'_{2,}');
+    final hasBlank = blankRegex.hasMatch(targetSentence);
+
+    if (!hasBlank) {
+      // Trường hợp câu không chứa dấu gạch dưới: hiển thị cả câu và ô trả lời
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            targetSentence,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: colors.textMain,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 12),
+          _SlotChip(
+            text: selectedToken,
+            isSubmitted: isSubmitted,
+            isCorrect: isCorrect,
+            onTap: onRemove,
+            colors: colors,
+          ),
+        ],
+      );
+    }
+
+    final parts = targetSentence.split(blankRegex);
+    final prefix = parts.isNotEmpty ? parts.first : '';
+    final suffix = parts.length > 1 ? parts.sublist(1).join(' ') : '';
+
+    return RichText(
+      text: TextSpan(
+        style: TextStyle(
+          fontFamily: 'Poppins',
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: colors.textMain,
+          height: 1.6,
+        ),
+        children: [
+          TextSpan(text: prefix),
+          WidgetSpan(
+            alignment: PlaceholderAlignment.middle,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: _SlotChip(
+                text: selectedToken,
+                isSubmitted: isSubmitted,
+                isCorrect: isCorrect,
+                onTap: onRemove,
+                colors: colors,
+              ),
+            ),
+          ),
+          TextSpan(text: suffix),
+        ],
+      ),
+    );
+  }
+}
+
+class _SlotChip extends StatelessWidget {
+  final String? text;
+  final bool isSubmitted;
+  final bool isCorrect;
+  final VoidCallback? onTap;
+  final AppThemeColors colors;
+
+  const _SlotChip({
+    required this.text,
+    required this.isSubmitted,
+    required this.isCorrect,
+    required this.onTap,
+    required this.colors,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (text == null) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+        decoration: BoxDecoration(
+          color: colors.surface,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: colors.brand,
+            width: 2,
+            style: BorderStyle.solid,
+          ),
+        ),
+        child: Text(
+          ' ______ ',
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: colors.brand,
+          ),
+        ),
+      );
+    }
+
+    Color bgColor = colors.brandSoft;
+    Color borderColor = colors.brandBorder;
+    Color textColor = colors.brand;
+
+    if (isSubmitted) {
+      if (isCorrect) {
+        bgColor = const Color(0xFFE8FAF4);
+        borderColor = colors.mint;
+        textColor = const Color(0xFF007A55);
+      } else {
+        bgColor = const Color(0xFFFFF1F4);
+        borderColor = colors.coral;
+        textColor = colors.coral;
+      }
+    }
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: borderColor, width: 2),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              text!,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: textColor,
+              ),
+            ),
+            if (!isSubmitted && onTap != null) ...[
+              const SizedBox(width: 4),
+              Icon(Icons.close_rounded, size: 14, color: textColor),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _TokenChip extends StatefulWidget {
   final String text;
   final bool selected;
@@ -273,14 +524,16 @@ class _TokenChipState extends State<_TokenChip> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
+
     if (!widget.selected && !widget.isAvailable) {
-      // Ô rỗng giữ chỗ màu xám (Iconic Duolingo placeholder slot)
+      // Ô rỗng giữ chỗ màu mờ (Placeholder slot)
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: const Color(0xFFF0F0F0),
+          color: colors.surfaceMuted,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE0E0E0), width: 2),
+          border: Border.all(color: colors.border, width: 2),
         ),
         child: Text(
           widget.text,
@@ -293,10 +546,10 @@ class _TokenChipState extends State<_TokenChip> {
       );
     }
 
-    final faceColor = widget.selected ? ChunkyColors.brandSoft : Colors.white;
-    final baseColor = widget.selected ? ChunkyColors.brandBorder : const Color(0xFFE5E5E5);
-    final borderColor = widget.selected ? ChunkyColors.brandBorder : const Color(0xFFE5E5E5);
-    final textColor = widget.selected ? ChunkyColors.brand : ChunkyColors.textMain;
+    final faceColor = widget.selected ? colors.brandSoft : colors.surface;
+    final baseColor = widget.selected ? colors.brandBase : colors.border;
+    final borderColor = widget.selected ? colors.brandBorder : colors.border;
+    final textColor = widget.selected ? colors.brand : colors.textMain;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,

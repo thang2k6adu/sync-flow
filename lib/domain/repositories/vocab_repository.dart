@@ -39,8 +39,14 @@ abstract class VocabRepository {
   });
 
   Future<Either<Failure, List<StudyItem>>> getStudyQueue({
-    String? deckId,
     int limit = 20,
+    int page = 0,
+  });
+
+  Future<Either<Failure, List<StudyItem>>> getDeckQueue({
+    required String deckId,
+    int limit = 20,
+    int page = 0,
   });
 
   Future<Either<Failure, StudySubmitResult>> submitStudy({
@@ -50,5 +56,6 @@ abstract class VocabRepository {
     required int mistakesCount,
     required bool usedHint,
     String? manualRating,
+    required bool isCram,
   });
 }

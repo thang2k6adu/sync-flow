@@ -21,6 +21,7 @@ class ApiEndpoints {
   static String getCardById(String cardId) => '/cards/$cardId';
 
   static const String studyQueue = '/study/queue';
+  static String getDeckStudyQueue(String deckId) => '/study/decks/$deckId/queue';
   static const String studySubmit = '/study/submit';
 
   static const String healthCheck = '/health';

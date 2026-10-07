@@ -15,6 +15,7 @@ class SubmitStudyUseCase {
     required int mistakesCount,
     required bool usedHint,
     String? manualRating,
+    required bool isCram,
   }) {
     if (cardId.trim().isEmpty) {
       return Future.value(
@@ -29,6 +30,7 @@ class SubmitStudyUseCase {
       mistakesCount: mistakesCount < 0 ? 0 : mistakesCount,
       usedHint: usedHint,
       manualRating: manualRating,
+      isCram: isCram,
     );
   }
 }

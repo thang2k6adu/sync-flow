@@ -2,6 +2,7 @@ import 'package:pp191225/core/constants/api_endpoints.dart';
 import 'package:pp191225/data/mocks/auth_mock.dart';
 import 'package:pp191225/data/mocks/task_mock.dart';
 import 'package:pp191225/data/mocks/user_mock.dart';
+import 'package:pp191225/data/mocks/vocab_mock.dart';
 
 /// Thay thế Dio khi USE_MOCK_DATA=true: nhận (method, path) và trả về JSON
 /// giống response của backend thật, y như `response.data` của Dio.
@@ -14,6 +15,7 @@ class MockApiRouter {
 
   static final _userById = RegExp(r'^/users/([^/]+)$');
   static final _taskById = RegExp(r'^/tasks/([^/]+)$');
+  static final _deckById = RegExp(r'^/decks/([^/]+)$');
 
   static Future<dynamic> handle(
     String method,
@@ -56,6 +58,13 @@ class MockApiRouter {
       if (method == 'PATCH') return TaskMock.update(taskId, body);
       if (method == 'DELETE') return TaskMock.delete(taskId);
     }
+
+    // Vocab
+    if (route == 'GET ${ApiEndpoints.decks}') return VocabMock.listDecks();
+    final deckIdMatch = _deckById.firstMatch(path)?.group(1);
+    if (method == 'GET' && deckIdMatch != null) return VocabMock.getDeck(deckIdMatch);
+    if (route == 'GET ${ApiEndpoints.studyQueue}') return VocabMock.getStudyQueue(params);
+    if (route == 'POST ${ApiEndpoints.studySubmit}') return VocabMock.submitStudy(body);
 
     throw Exception('Mock chưa có route: $route');
   }

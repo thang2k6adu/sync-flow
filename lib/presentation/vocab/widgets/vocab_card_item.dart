@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pp191225/domain/entities/vocab/vocab_card.dart';
+import 'package:pp191225/providers/datasources_provider.dart';
 import 'package:pp191225/shared/widgets/common/chunky_card.dart';
 
-class VocabCardItem extends StatelessWidget {
+class VocabCardItem extends ConsumerWidget {
   final VocabCard card;
   final VoidCallback? onTap;
 
@@ -13,7 +15,7 @@ class VocabCardItem extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final firstMeaning = card.meanings.isNotEmpty ? card.meanings.first : null;
 
     return Padding(
@@ -49,6 +51,24 @@ class VocabCardItem extends StatelessWidget {
                           ),
                         ),
                       ],
+                      const SizedBox(width: 8),
+                      InkWell(
+                        onTap: () {
+                          ref.read(ttsServiceProvider).speak(
+                            text: card.term,
+                            audioUrl: card.audioUrl,
+                          );
+                        },
+                        borderRadius: BorderRadius.circular(16),
+                        child: const Padding(
+                          padding: EdgeInsets.all(4),
+                          child: Icon(
+                            Icons.volume_up_rounded,
+                            color: ChunkyColors.brand,
+                            size: 20,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),

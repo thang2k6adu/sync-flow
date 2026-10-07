@@ -141,13 +141,34 @@ class VocabRepositoryImpl implements VocabRepository {
 
   @override
   Future<Either<Failure, List<StudyItem>>> getStudyQueue({
-    String? deckId,
     int limit = 20,
+    int page = 0,
   }) async {
     try {
       final res = await remoteDataSource.getStudyQueue(
+        limit: limit,
+        page: page,
+      );
+      if (res.error || res.data == null) {
+        return Left(ServerFailure(message: res.message, code: res.code.toString()));
+      }
+      return Right(res.data!.queue.map((dto) => dto.toEntity()).toList());
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<StudyItem>>> getDeckQueue({
+    required String deckId,
+    int limit = 20,
+    int page = 0,
+  }) async {
+    try {
+      final res = await remoteDataSource.getDeckQueue(
         deckId: deckId,
         limit: limit,
+        page: page,
       );
       if (res.error || res.data == null) {
         return Left(ServerFailure(message: res.message, code: res.code.toString()));
@@ -166,6 +187,7 @@ class VocabRepositoryImpl implements VocabRepository {
     required int mistakesCount,
     required bool usedHint,
     String? manualRating,
+    required bool isCram,
   }) async {
     try {
       final res = await remoteDataSource.submitStudy(
@@ -175,6 +197,7 @@ class VocabRepositoryImpl implements VocabRepository {
         mistakesCount: mistakesCount,
         usedHint: usedHint,
         manualRating: manualRating,
+        isCram: isCram,
       );
       if (res.error || res.data == null) {
         return Left(ServerFailure(message: res.message, code: res.code.toString()));

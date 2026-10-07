@@ -1,9 +1,11 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pp191225/domain/entities/vocab/study_item.dart';
+import 'package:pp191225/providers/datasources_provider.dart';
 import 'package:pp191225/shared/widgets/common/chunky_card.dart';
 
-class FlashcardFlipView extends StatelessWidget {
+class FlashcardFlipView extends ConsumerWidget {
   final StudyItem item;
   final bool isFlipped;
   final VoidCallback onFlip;
@@ -16,7 +18,7 @@ class FlashcardFlipView extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return GestureDetector(
       onTap: onFlip,
       behavior: HitTestBehavior.opaque,
@@ -44,9 +46,9 @@ class FlashcardFlipView extends StatelessWidget {
                       ? Transform(
                           alignment: Alignment.center,
                           transform: Matrix4.identity()..rotateY(pi),
-                          child: _buildBackContent(),
+                          child: _buildBackContent(ref),
                         )
-                      : _buildFrontContent(),
+                      : _buildFrontContent(ref),
                 ),
               ),
             ),
@@ -56,7 +58,7 @@ class FlashcardFlipView extends StatelessWidget {
     );
   }
 
-  Widget _buildFrontContent() {
+  Widget _buildFrontContent(WidgetRef ref) {
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -100,6 +102,42 @@ class FlashcardFlipView extends StatelessWidget {
               ),
             ),
           ],
+          const SizedBox(height: 14),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                ref.read(ttsServiceProvider).speak(
+                  text: item.term,
+                  audioUrl: item.audioUrl,
+                );
+              },
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                decoration: BoxDecoration(
+                  color: ChunkyColors.brandSoft,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: ChunkyColors.brandBorder, width: 1.5),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.volume_up_rounded, color: ChunkyColors.brand, size: 20),
+                    SizedBox(width: 6),
+                    Text(
+                      'Nghe phát âm',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: ChunkyColors.brand,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
           const Spacer(),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -121,7 +159,7 @@ class FlashcardFlipView extends StatelessWidget {
     );
   }
 
-  Widget _buildBackContent() {
+  Widget _buildBackContent(WidgetRef ref) {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -129,25 +167,42 @@ class FlashcardFlipView extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text(
-                item.term,
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                  color: ChunkyColors.brand,
+              Expanded(
+                child: Row(
+                  children: [
+                    Text(
+                      item.term,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        color: ChunkyColors.brand,
+                      ),
+                    ),
+                    if (item.phonetic != null) ...[
+                      const SizedBox(width: 8),
+                      Text(
+                        item.phonetic!,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: ChunkyColors.textSub,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
-              if (item.phonetic != null) ...[
-                const SizedBox(width: 8),
-                Text(
-                  item.phonetic!,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: ChunkyColors.textSub,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
+              IconButton(
+                visualDensity: VisualDensity.compact,
+                icon: const Icon(Icons.volume_up_rounded, color: ChunkyColors.brand, size: 22),
+                tooltip: 'Nghe phát âm từ',
+                onPressed: () {
+                  ref.read(ttsServiceProvider).speak(
+                    text: item.term,
+                    audioUrl: item.audioUrl,
+                  );
+                },
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -221,13 +276,35 @@ class FlashcardFlipView extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              '“${m.exampleEn!}”',
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: ChunkyColors.textMain,
-                              ),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    '“${m.exampleEn!}”',
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: ChunkyColors.textMain,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                InkWell(
+                                  onTap: () {
+                                    ref.read(ttsServiceProvider).speak(text: m.exampleEn!);
+                                  },
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: const Padding(
+                                    padding: EdgeInsets.all(2),
+                                    child: Icon(
+                                      Icons.volume_up_outlined,
+                                      size: 18,
+                                      color: ChunkyColors.brand,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                             if (m.exampleVi != null && m.exampleVi!.isNotEmpty) ...[
                               const SizedBox(height: 2),

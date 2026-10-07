@@ -112,31 +112,37 @@ class _ChunkyCardState extends State<ChunkyCard> {
     final radius = BorderRadius.circular(widget.radius);
     final depth = _pressed ? 0.0 : widget.depth;
 
+    final cardContent = AnimatedContainer(
+      duration: const Duration(milliseconds: 60),
+      margin: EdgeInsets.only(top: widget.depth - depth),
+      padding: EdgeInsets.only(bottom: depth),
+      decoration: BoxDecoration(
+        color: effectiveBorder,
+        borderRadius: radius,
+      ),
+      child: Container(
+        width: double.infinity,
+        padding: widget.padding,
+        decoration: BoxDecoration(
+          color: effectiveFill,
+          borderRadius: radius,
+          border: Border.all(color: effectiveBorder, width: 2),
+        ),
+        child: widget.child,
+      ),
+    );
+
+    if (widget.onTap == null) {
+      return cardContent;
+    }
+
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTapDown: (_) => _setPressed(true),
       onTapUp: (_) => _setPressed(false),
       onTapCancel: () => _setPressed(false),
       onTap: widget.onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 60),
-        margin: EdgeInsets.only(top: widget.depth - depth),
-        padding: EdgeInsets.only(bottom: depth),
-        decoration: BoxDecoration(
-          color: effectiveBorder,
-          borderRadius: radius,
-        ),
-        child: Container(
-          width: double.infinity,
-          padding: widget.padding,
-          decoration: BoxDecoration(
-            color: effectiveFill,
-            borderRadius: radius,
-            border: Border.all(color: effectiveBorder, width: 2),
-          ),
-          child: widget.child,
-        ),
-      ),
+      child: cardContent,
     );
   }
 }

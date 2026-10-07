@@ -14,6 +14,8 @@ _DeckDto _$DeckDtoFromJson(Map<String, dynamic> json) => _DeckDto(
   category: json['category'] as String?,
   iconUrl: json['iconUrl'] as String?,
   cefrLevel: json['cefrLevel'] as String?,
+  isSystem: json['isSystem'] as bool? ?? false,
+  cardCount: (json['cardCount'] as num?)?.toInt() ?? 0,
   createdAt: json['createdAt'] == null
       ? null
       : DateTime.parse(json['createdAt'] as String),
@@ -27,5 +29,7 @@ Map<String, dynamic> _$DeckDtoToJson(_DeckDto instance) => <String, dynamic>{
   'category': instance.category,
   'iconUrl': instance.iconUrl,
   'cefrLevel': instance.cefrLevel,
+  'isSystem': instance.isSystem,
+  'cardCount': instance.cardCount,
   'createdAt': instance.createdAt?.toIso8601String(),
 };

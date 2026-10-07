@@ -38,8 +38,14 @@ abstract class VocabRemoteDataSource {
   });
 
   Future<ApiResponse<StudyQueueResponseDto>> getStudyQueue({
-    String? deckId,
     int limit = 20,
+    int page = 0,
+  });
+
+  Future<ApiResponse<StudyQueueResponseDto>> getDeckQueue({
+    required String deckId,
+    int limit = 20,
+    int page = 0,
   });
 
   Future<ApiResponse<StudySubmitDto>> submitStudy({
@@ -49,5 +55,6 @@ abstract class VocabRemoteDataSource {
     required int mistakesCount,
     required bool usedHint,
     String? manualRating,
+    required bool isCram,
   });
 }

@@ -14,9 +14,14 @@ import 'package:pp191225/data/datasources/remote/vocab_remote_datasource.dart';
 import 'package:pp191225/data/datasources/remote/vocab_remote_datasource_impl.dart';
 import 'package:pp191225/data/services/api_service.dart';
 import 'package:pp191225/data/services/firebase_auth_service.dart';
+import 'package:pp191225/data/services/tts_service.dart';
 
 final apiServiceProvider = Provider<ApiService>((ref) {
   return ApiService();
+});
+
+final ttsServiceProvider = Provider<TtsService>((ref) {
+  return TtsService();
 });
 
 final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {

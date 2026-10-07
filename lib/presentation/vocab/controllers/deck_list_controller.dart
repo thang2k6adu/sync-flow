@@ -4,12 +4,23 @@ import 'package:pp191225/domain/entities/vocab/deck.dart';
 import 'package:pp191225/domain/usecases/vocab/create_deck_usecase.dart';
 import 'package:pp191225/domain/usecases/vocab/delete_deck_usecase.dart';
 import 'package:pp191225/domain/usecases/vocab/get_decks_usecase.dart';
+import 'package:pp191225/domain/usecases/vocab/get_study_queue_usecase.dart';
 import 'package:pp191225/providers/usecases_provider.dart';
 
 final deckListControllerProvider =
     AsyncNotifierProvider<DeckListController, List<Deck>>(
   DeckListController.new,
 );
+
+/// Lấy số lượng Leech Card để hiển thị lên Banner cứu trợ
+final leechCountProvider = FutureProvider.autoDispose<int>((ref) async {
+  final getQueue = ref.read(getStudyQueueUseCaseProvider);
+  final result = await getQueue(limit: 100);
+  return result.fold(
+    (l) => 0,
+    (queue) => queue.where((item) => item.isLeech).length,
+  );
+});
 
 class DeckListController extends BaseAsyncNotifier<List<Deck>> {
   late GetDecksUseCase _getDecks;

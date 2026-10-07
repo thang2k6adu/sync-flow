@@ -16,6 +16,8 @@ abstract class DeckDto with _$DeckDto {
     String? category,
     String? iconUrl,
     String? cefrLevel,
+    @Default(false) bool isSystem,
+    @Default(0) int cardCount,
     DateTime? createdAt,
   }) = _DeckDto;
 
@@ -31,6 +33,8 @@ abstract class DeckDto with _$DeckDto {
       category: category,
       iconUrl: iconUrl,
       cefrLevel: cefrLevel,
+      isSystem: isSystem,
+      cardCount: cardCount,
       createdAt: createdAt?.toLocal(),
     );
   }

@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$DeckDto {
 
- String get id; String? get userId; String get name; String? get description; String? get category; String? get iconUrl; String? get cefrLevel; DateTime? get createdAt;
+ String get id; String? get userId; String get name; String? get description; String? get category; String? get iconUrl; String? get cefrLevel; bool get isSystem; int get cardCount; DateTime? get createdAt;
 /// Create a copy of DeckDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $DeckDtoCopyWith<DeckDto> get copyWith => _$DeckDtoCopyWithImpl<DeckDto>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeckDto&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&(identical(other.category, category) || other.category == category)&&(identical(other.iconUrl, iconUrl) || other.iconUrl == iconUrl)&&(identical(other.cefrLevel, cefrLevel) || other.cefrLevel == cefrLevel)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeckDto&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&(identical(other.category, category) || other.category == category)&&(identical(other.iconUrl, iconUrl) || other.iconUrl == iconUrl)&&(identical(other.cefrLevel, cefrLevel) || other.cefrLevel == cefrLevel)&&(identical(other.isSystem, isSystem) || other.isSystem == isSystem)&&(identical(other.cardCount, cardCount) || other.cardCount == cardCount)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,userId,name,description,category,iconUrl,cefrLevel,createdAt);
+int get hashCode => Object.hash(runtimeType,id,userId,name,description,category,iconUrl,cefrLevel,isSystem,cardCount,createdAt);
 
 @override
 String toString() {
-  return 'DeckDto(id: $id, userId: $userId, name: $name, description: $description, category: $category, iconUrl: $iconUrl, cefrLevel: $cefrLevel, createdAt: $createdAt)';
+  return 'DeckDto(id: $id, userId: $userId, name: $name, description: $description, category: $category, iconUrl: $iconUrl, cefrLevel: $cefrLevel, isSystem: $isSystem, cardCount: $cardCount, createdAt: $createdAt)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $DeckDtoCopyWith<$Res>  {
   factory $DeckDtoCopyWith(DeckDto value, $Res Function(DeckDto) _then) = _$DeckDtoCopyWithImpl;
 @useResult
 $Res call({
- String id, String? userId, String name, String? description, String? category, String? iconUrl, String? cefrLevel, DateTime? createdAt
+ String id, String? userId, String name, String? description, String? category, String? iconUrl, String? cefrLevel, bool isSystem, int cardCount, DateTime? createdAt
 });
 
 
@@ -65,7 +65,7 @@ class _$DeckDtoCopyWithImpl<$Res>
 
 /// Create a copy of DeckDto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? userId = freezed,Object? name = null,Object? description = freezed,Object? category = freezed,Object? iconUrl = freezed,Object? cefrLevel = freezed,Object? createdAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? userId = freezed,Object? name = null,Object? description = freezed,Object? category = freezed,Object? iconUrl = freezed,Object? cefrLevel = freezed,Object? isSystem = null,Object? cardCount = null,Object? createdAt = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,userId: freezed == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
@@ -74,7 +74,9 @@ as String,description: freezed == description ? _self.description : description 
 as String?,category: freezed == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
 as String?,iconUrl: freezed == iconUrl ? _self.iconUrl : iconUrl // ignore: cast_nullable_to_non_nullable
 as String?,cefrLevel: freezed == cefrLevel ? _self.cefrLevel : cefrLevel // ignore: cast_nullable_to_non_nullable
-as String?,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as String?,isSystem: null == isSystem ? _self.isSystem : isSystem // ignore: cast_nullable_to_non_nullable
+as bool,cardCount: null == cardCount ? _self.cardCount : cardCount // ignore: cast_nullable_to_non_nullable
+as int,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,
   ));
 }
@@ -160,10 +162,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String? userId,  String name,  String? description,  String? category,  String? iconUrl,  String? cefrLevel,  DateTime? createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String? userId,  String name,  String? description,  String? category,  String? iconUrl,  String? cefrLevel,  bool isSystem,  int cardCount,  DateTime? createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _DeckDto() when $default != null:
-return $default(_that.id,_that.userId,_that.name,_that.description,_that.category,_that.iconUrl,_that.cefrLevel,_that.createdAt);case _:
+return $default(_that.id,_that.userId,_that.name,_that.description,_that.category,_that.iconUrl,_that.cefrLevel,_that.isSystem,_that.cardCount,_that.createdAt);case _:
   return orElse();
 
 }
@@ -181,10 +183,10 @@ return $default(_that.id,_that.userId,_that.name,_that.description,_that.categor
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String? userId,  String name,  String? description,  String? category,  String? iconUrl,  String? cefrLevel,  DateTime? createdAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String? userId,  String name,  String? description,  String? category,  String? iconUrl,  String? cefrLevel,  bool isSystem,  int cardCount,  DateTime? createdAt)  $default,) {final _that = this;
 switch (_that) {
 case _DeckDto():
-return $default(_that.id,_that.userId,_that.name,_that.description,_that.category,_that.iconUrl,_that.cefrLevel,_that.createdAt);case _:
+return $default(_that.id,_that.userId,_that.name,_that.description,_that.category,_that.iconUrl,_that.cefrLevel,_that.isSystem,_that.cardCount,_that.createdAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -201,10 +203,10 @@ return $default(_that.id,_that.userId,_that.name,_that.description,_that.categor
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String? userId,  String name,  String? description,  String? category,  String? iconUrl,  String? cefrLevel,  DateTime? createdAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String? userId,  String name,  String? description,  String? category,  String? iconUrl,  String? cefrLevel,  bool isSystem,  int cardCount,  DateTime? createdAt)?  $default,) {final _that = this;
 switch (_that) {
 case _DeckDto() when $default != null:
-return $default(_that.id,_that.userId,_that.name,_that.description,_that.category,_that.iconUrl,_that.cefrLevel,_that.createdAt);case _:
+return $default(_that.id,_that.userId,_that.name,_that.description,_that.category,_that.iconUrl,_that.cefrLevel,_that.isSystem,_that.cardCount,_that.createdAt);case _:
   return null;
 
 }
@@ -216,7 +218,7 @@ return $default(_that.id,_that.userId,_that.name,_that.description,_that.categor
 @JsonSerializable()
 
 class _DeckDto extends DeckDto {
-  const _DeckDto({required this.id, this.userId, required this.name, this.description, this.category, this.iconUrl, this.cefrLevel, this.createdAt}): super._();
+  const _DeckDto({required this.id, this.userId, required this.name, this.description, this.category, this.iconUrl, this.cefrLevel, this.isSystem = false, this.cardCount = 0, this.createdAt}): super._();
   factory _DeckDto.fromJson(Map<String, dynamic> json) => _$DeckDtoFromJson(json);
 
 @override final  String id;
@@ -226,6 +228,8 @@ class _DeckDto extends DeckDto {
 @override final  String? category;
 @override final  String? iconUrl;
 @override final  String? cefrLevel;
+@override@JsonKey() final  bool isSystem;
+@override@JsonKey() final  int cardCount;
 @override final  DateTime? createdAt;
 
 /// Create a copy of DeckDto
@@ -241,16 +245,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DeckDto&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&(identical(other.category, category) || other.category == category)&&(identical(other.iconUrl, iconUrl) || other.iconUrl == iconUrl)&&(identical(other.cefrLevel, cefrLevel) || other.cefrLevel == cefrLevel)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DeckDto&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&(identical(other.category, category) || other.category == category)&&(identical(other.iconUrl, iconUrl) || other.iconUrl == iconUrl)&&(identical(other.cefrLevel, cefrLevel) || other.cefrLevel == cefrLevel)&&(identical(other.isSystem, isSystem) || other.isSystem == isSystem)&&(identical(other.cardCount, cardCount) || other.cardCount == cardCount)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,userId,name,description,category,iconUrl,cefrLevel,createdAt);
+int get hashCode => Object.hash(runtimeType,id,userId,name,description,category,iconUrl,cefrLevel,isSystem,cardCount,createdAt);
 
 @override
 String toString() {
-  return 'DeckDto(id: $id, userId: $userId, name: $name, description: $description, category: $category, iconUrl: $iconUrl, cefrLevel: $cefrLevel, createdAt: $createdAt)';
+  return 'DeckDto(id: $id, userId: $userId, name: $name, description: $description, category: $category, iconUrl: $iconUrl, cefrLevel: $cefrLevel, isSystem: $isSystem, cardCount: $cardCount, createdAt: $createdAt)';
 }
 
 
@@ -261,7 +265,7 @@ abstract mixin class _$DeckDtoCopyWith<$Res> implements $DeckDtoCopyWith<$Res> {
   factory _$DeckDtoCopyWith(_DeckDto value, $Res Function(_DeckDto) _then) = __$DeckDtoCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String? userId, String name, String? description, String? category, String? iconUrl, String? cefrLevel, DateTime? createdAt
+ String id, String? userId, String name, String? description, String? category, String? iconUrl, String? cefrLevel, bool isSystem, int cardCount, DateTime? createdAt
 });
 
 
@@ -278,7 +282,7 @@ class __$DeckDtoCopyWithImpl<$Res>
 
 /// Create a copy of DeckDto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? userId = freezed,Object? name = null,Object? description = freezed,Object? category = freezed,Object? iconUrl = freezed,Object? cefrLevel = freezed,Object? createdAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? userId = freezed,Object? name = null,Object? description = freezed,Object? category = freezed,Object? iconUrl = freezed,Object? cefrLevel = freezed,Object? isSystem = null,Object? cardCount = null,Object? createdAt = freezed,}) {
   return _then(_DeckDto(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,userId: freezed == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
@@ -287,7 +291,9 @@ as String,description: freezed == description ? _self.description : description 
 as String?,category: freezed == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
 as String?,iconUrl: freezed == iconUrl ? _self.iconUrl : iconUrl // ignore: cast_nullable_to_non_nullable
 as String?,cefrLevel: freezed == cefrLevel ? _self.cefrLevel : cefrLevel // ignore: cast_nullable_to_non_nullable
-as String?,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as String?,isSystem: null == isSystem ? _self.isSystem : isSystem // ignore: cast_nullable_to_non_nullable
+as bool,cardCount: null == cardCount ? _self.cardCount : cardCount // ignore: cast_nullable_to_non_nullable
+as int,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,
   ));
 }

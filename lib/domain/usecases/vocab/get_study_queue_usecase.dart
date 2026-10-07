@@ -11,10 +11,15 @@ class GetStudyQueueUseCase {
   Future<Either<Failure, List<StudyItem>>> call({
     String? deckId,
     int limit = 20,
+    int page = 0,
   }) {
-    return repository.getStudyQueue(
-      deckId: deckId?.trim().isEmpty == true ? null : deckId?.trim(),
-      limit: limit > 0 ? limit : 20,
-    );
+    final validDeckId = deckId?.trim().isEmpty == true ? null : deckId?.trim();
+    final validLimit = limit > 0 ? limit : 20;
+
+    if (validDeckId != null) {
+      return repository.getDeckQueue(deckId: validDeckId, limit: validLimit, page: page);
+    } else {
+      return repository.getStudyQueue(limit: validLimit, page: page);
+    }
   }
 }

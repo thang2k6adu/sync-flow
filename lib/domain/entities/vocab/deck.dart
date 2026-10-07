@@ -6,6 +6,8 @@ class Deck {
   final String? category;
   final String? iconUrl;
   final String? cefrLevel;
+  final bool isSystem;
+  final int cardCount;
   final DateTime? createdAt;
 
   const Deck({
@@ -16,6 +18,8 @@ class Deck {
     this.category,
     this.iconUrl,
     this.cefrLevel,
+    this.isSystem = false,
+    this.cardCount = 0,
     this.createdAt,
   });
 }

@@ -175,15 +175,41 @@ class VocabRemoteDataSourceImpl implements VocabRemoteDataSource {
 
   @override
   Future<ApiResponse<StudyQueueResponseDto>> getStudyQueue({
-    String? deckId,
     int limit = 20,
+    int page = 0,
   }) async {
     try {
       final response = await apiService.get(
         ApiEndpoints.studyQueue,
         queryParameters: {
-          if (deckId != null) 'deckId': deckId,
           'limit': limit,
+          'page': page,
+        },
+      );
+      return ApiResponse<StudyQueueResponseDto>.fromJson(
+        response as Map<String, dynamic>,
+        (data) => StudyQueueResponseDto.fromJson(data as Map<String, dynamic>),
+      );
+    } catch (e) {
+      return ApiResponse<StudyQueueResponseDto>(
+        error: true,
+        message: e.toString(),
+      );
+    }
+  }
+
+  @override
+  Future<ApiResponse<StudyQueueResponseDto>> getDeckQueue({
+    required String deckId,
+    int limit = 20,
+    int page = 0,
+  }) async {
+    try {
+      final response = await apiService.get(
+        ApiEndpoints.getDeckStudyQueue(deckId),
+        queryParameters: {
+          'limit': limit,
+          'page': page,
         },
       );
       return ApiResponse<StudyQueueResponseDto>.fromJson(
@@ -206,6 +232,7 @@ class VocabRemoteDataSourceImpl implements VocabRemoteDataSource {
     required int mistakesCount,
     required bool usedHint,
     String? manualRating,
+    required bool isCram,
   }) async {
     try {
       final response = await apiService.post(
@@ -217,6 +244,7 @@ class VocabRemoteDataSourceImpl implements VocabRemoteDataSource {
           'mistakesCount': mistakesCount,
           'usedHint': usedHint,
           if (manualRating != null) 'manualRating': manualRating,
+          'isCram': isCram,
         },
       );
       return ApiResponse<StudySubmitDto>.fromJson(
