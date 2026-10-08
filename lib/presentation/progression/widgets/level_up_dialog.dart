@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pp191225/core/theme/app_theme.dart';
 import 'package:pp191225/domain/entities/progression/user_progression.dart';
 import 'package:pp191225/shared/widgets/common/chunky_card.dart';
 
@@ -14,12 +15,14 @@ class LevelUpDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
+
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
-        side: const BorderSide(color: ChunkyColors.border, width: 2),
+        side: BorderSide(color: colors.border, width: 2),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: colors.surface,
       surfaceTintColor: Colors.transparent,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
@@ -31,8 +34,8 @@ class LevelUpDialog extends StatelessWidget {
               height: 90,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: ChunkyColors.yellow,
-                border: Border.all(color: const Color(0xFFE5A100), width: 4),
+                color: colors.amber,
+                border: Border.all(color: colors.amber.withValues(alpha: 0.8), width: 4),
               ),
               child: const Icon(
                 Icons.military_tech_rounded,
@@ -41,44 +44,44 @@ class LevelUpDialog extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 18),
-            const Text(
+            Text(
               'LÊN CẤP MỚI!',
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 0.5,
-                color: ChunkyColors.textMain,
+                color: colors.textMain,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               'Chúc mừng bạn đã đạt Cấp độ ${progression.level}!',
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w500,
-                color: ChunkyColors.textSub,
+                color: colors.textSub,
               ),
             ),
             const SizedBox(height: 14),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: ChunkyColors.brandSoft,
+                color: colors.brandSoft,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: ChunkyColors.brandBorder, width: 1.5),
+                border: Border.all(color: colors.brandBorder, width: 1.5),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.stars_rounded, color: ChunkyColors.brand, size: 20),
+                  Icon(Icons.stars_rounded, color: colors.brand, size: 20),
                   const SizedBox(width: 8),
                   Text(
                     progression.rankTitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
-                      color: ChunkyColors.brand,
+                      color: colors.brand,
                     ),
                   ),
                 ],
