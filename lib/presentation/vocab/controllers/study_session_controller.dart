@@ -120,7 +120,11 @@ class StudySessionController
   StudySessionState build(String? arg) {
     _getStudyQueue = ref.read(getStudyQueueUseCaseProvider);
     _submitStudy = ref.read(submitStudyUseCaseProvider);
-    Future.microtask(() => _loadQueue(arg));
+    if (arg == 'leech_rescue') {
+      Future.microtask(() => startLeechRescue());
+    } else {
+      Future.microtask(() => _loadQueue(arg));
+    }
     return const StudySessionState(isLoading: true);
   }
 

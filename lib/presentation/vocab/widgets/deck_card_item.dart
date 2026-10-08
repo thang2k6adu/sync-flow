@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pp191225/core/theme/app_theme.dart';
 import 'package:pp191225/domain/entities/vocab/deck.dart';
 import 'package:pp191225/shared/widgets/common/chunky_card.dart';
 
@@ -18,6 +19,8 @@ class DeckCardItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: ChunkyCard(
@@ -33,7 +36,7 @@ class DeckCardItem extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: ChunkyColors.brand,
+                    color: colors.brand,
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: const Icon(Icons.style_rounded, color: Colors.white, size: 26),
@@ -45,10 +48,10 @@ class DeckCardItem extends StatelessWidget {
                     children: [
                       Text(
                         deck.name,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w700,
-                          color: ChunkyColors.textMain,
+                          color: colors.textMain,
                         ),
                       ),
                       if (deck.description != null && deck.description!.isNotEmpty) ...[
@@ -57,10 +60,10 @@ class DeckCardItem extends StatelessWidget {
                           deck.description!,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
-                            color: ChunkyColors.textSub,
+                            color: colors.textSub,
                           ),
                         ),
                       ],
@@ -72,42 +75,42 @@ class DeckCardItem extends StatelessWidget {
                     margin: const EdgeInsets.only(left: 8),
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: ChunkyColors.brandSoft,
+                      color: colors.brandSoft,
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: ChunkyColors.brandBorder, width: 2),
+                      border: Border.all(color: colors.brandBorder, width: 2),
                     ),
                     child: Text(
                       deck.cefrLevel!,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: ChunkyColors.brand,
+                        color: colors.brand,
                       ),
                     ),
                   ),
                 if (onDelete != null)
                   PopupMenuButton<String>(
-                    icon: const Icon(Icons.more_vert_rounded, color: ChunkyColors.textSub),
-                    color: Colors.white,
+                    icon: Icon(Icons.more_vert_rounded, color: colors.textSub),
+                    color: colors.surface,
                     surfaceTintColor: Colors.transparent,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
-                      side: const BorderSide(color: ChunkyColors.border, width: 2),
+                      side: BorderSide(color: colors.border, width: 2),
                     ),
                     onSelected: (value) {
                       if (value == 'delete') onDelete?.call();
                     },
-                    itemBuilder: (context) => const [
+                    itemBuilder: (context) => [
                       PopupMenuItem(
                         value: 'delete',
                         child: Row(
                           children: [
-                            Icon(Icons.delete_rounded, color: ChunkyColors.red, size: 20),
-                            SizedBox(width: 8),
+                            Icon(Icons.delete_rounded, color: colors.coral, size: 20),
+                            const SizedBox(width: 8),
                             Text(
                               'Xoá bộ từ',
                               style: TextStyle(
-                                color: ChunkyColors.red,
+                                color: colors.coral,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -121,16 +124,16 @@ class DeckCardItem extends StatelessWidget {
             const SizedBox(height: 16),
             Row(
               children: [
-                const Icon(Icons.category_rounded, size: 16, color: ChunkyColors.textSub),
+                Icon(Icons.category_rounded, size: 16, color: colors.textSub),
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
                     deck.category ?? 'Tổng quát',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
-                      color: ChunkyColors.textSub,
+                      color: colors.textSub,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -138,7 +141,11 @@ class DeckCardItem extends StatelessWidget {
                 const SizedBox(width: 12),
                 SizedBox(
                   width: 128,
-                  child: ChunkyButton(label: 'Ôn tập', onPressed: onStudy),
+                  child: ChunkyButton(
+                    label: 'Ôn tập',
+                    size: ChunkyButtonSize.small,
+                    onPressed: onStudy,
+                  ),
                 ),
               ],
             ),

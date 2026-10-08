@@ -291,6 +291,7 @@ class _TypingChallengeViewState extends ConsumerState<TypingChallengeView> {
           if (!widget.isSubmitted)
             ChunkyButton.mint(
               label: 'Kiểm tra',
+              size: ChunkyButtonSize.large,
               onPressed: _hasTyped ? _handleSubmit : null,
             ),
         ],

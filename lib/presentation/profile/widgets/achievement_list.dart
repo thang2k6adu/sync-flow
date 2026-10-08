@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pp191225/core/theme/app_theme.dart';
 import 'package:pp191225/domain/entities/progression/user_progression.dart';
 import 'package:pp191225/shared/widgets/common/chunky_card.dart';
 
@@ -9,12 +10,14 @@ class AchievementList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
+
     final achievements = [
       _AchievementData(
         title: 'Khởi đầu nan',
         desc: 'Thực hiện lượt ôn tập từ vựng đầu tiên',
         icon: Icons.rocket_launch_rounded,
-        color: ChunkyColors.brand,
+        color: colors.brand,
         current: progression.totalReviews,
         target: 1,
       ),
@@ -22,7 +25,7 @@ class AchievementList extends StatelessWidget {
         title: 'Ngọn lửa kiên trì',
         desc: 'Duy trì chuỗi học liên tục 3 ngày',
         icon: Icons.local_fire_department_rounded,
-        color: ChunkyColors.orange,
+        color: colors.coral,
         current: progression.streak,
         target: 3,
       ),
@@ -30,7 +33,7 @@ class AchievementList extends StatelessWidget {
         title: 'Kho từ phong phú',
         desc: 'Thuộc 10 từ vựng',
         icon: Icons.auto_stories_rounded,
-        color: ChunkyColors.green,
+        color: colors.mint,
         current: progression.wordsMastered,
         target: 10,
       ),
@@ -38,7 +41,7 @@ class AchievementList extends StatelessWidget {
         title: 'Bậc thầy tri thức',
         desc: 'Đạt cấp độ 3 (Tinh Anh)',
         icon: Icons.military_tech_rounded,
-        color: ChunkyColors.yellow,
+        color: colors.amber,
         current: progression.level,
         target: 3,
       ),
@@ -51,22 +54,22 @@ class AchievementList extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Expanded(
+            Expanded(
               child: Text(
                 'Thành tích',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
-                  color: ChunkyColors.textMain,
+                  color: colors.textMain,
                 ),
               ),
             ),
             Text(
               '$unlocked/${achievements.length}',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
-                color: ChunkyColors.textSub,
+                color: colors.textSub,
               ),
             ),
           ],
@@ -78,7 +81,7 @@ class AchievementList extends StatelessWidget {
             children: [
               for (int i = 0; i < achievements.length; i++) ...[
                 if (i > 0)
-                  const Divider(height: 2, thickness: 2, color: ChunkyColors.border),
+                  Divider(height: 2, thickness: 2, color: colors.border),
                 _AchievementRow(data: achievements[i]),
               ],
             ],
@@ -96,8 +99,10 @@ class _AchievementRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
+    final isDark = context.isDarkMode;
     final unlocked = data.isUnlocked;
-    final accent = unlocked ? data.color : const Color(0xFFAFAFAF);
+    final accent = unlocked ? data.color : (isDark ? const Color(0xFF4A436C) : const Color(0xFFAFAFAF));
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -123,19 +128,19 @@ class _AchievementRow extends StatelessWidget {
               children: [
                 Text(
                   data.title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
-                    color: ChunkyColors.textMain,
+                    color: colors.textMain,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   data.desc,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: ChunkyColors.textSub,
+                    color: colors.textSub,
                   ),
                 ),
                 const SizedBox(height: 10),

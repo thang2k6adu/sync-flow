@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pp191225/core/theme/app_theme.dart';
 import 'package:pp191225/domain/entities/progression/user_progression.dart';
 import 'package:pp191225/shared/widgets/common/chunky_card.dart';
 
@@ -9,15 +10,17 @@ class StatsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Thống kê',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w700,
-            color: ChunkyColors.textMain,
+            color: colors.textMain,
           ),
         ),
         const SizedBox(height: 14),
@@ -27,7 +30,7 @@ class StatsGrid extends StatelessWidget {
             Expanded(
               child: _StatCard(
                 icon: Icons.local_fire_department_rounded,
-                color: ChunkyColors.orange,
+                color: colors.coral,
                 value: '${progression.streak}',
                 label: 'Ngày liên tiếp',
               ),
@@ -36,7 +39,7 @@ class StatsGrid extends StatelessWidget {
             Expanded(
               child: _StatCard(
                 icon: Icons.bolt_rounded,
-                color: ChunkyColors.yellow,
+                color: colors.amber,
                 value: '${progression.totalExp}',
                 label: 'Tổng EXP',
               ),
@@ -50,7 +53,7 @@ class StatsGrid extends StatelessWidget {
             Expanded(
               child: _StatCard(
                 icon: Icons.check_circle_rounded,
-                color: ChunkyColors.green,
+                color: colors.mint,
                 value: '${progression.wordsMastered}',
                 label: 'Từ đã thuộc',
               ),
@@ -59,7 +62,7 @@ class StatsGrid extends StatelessWidget {
             Expanded(
               child: _StatCard(
                 icon: Icons.replay_rounded,
-                color: ChunkyColors.brand,
+                color: colors.brand,
                 value: '${progression.totalReviews}',
                 label: 'Lượt ôn tập',
               ),
@@ -86,6 +89,8 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
+
     return ChunkyCard(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       child: Row(
@@ -104,17 +109,17 @@ class _StatCard extends StatelessWidget {
                     fontSize: 20,
                     height: 1.2,
                     fontWeight: FontWeight.w700,
-                    color: color == ChunkyColors.yellow ? ChunkyColors.amberText : color,
+                    color: color,
                   ),
                 ),
                 Text(
                   label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: ChunkyColors.textSub,
+                    color: colors.textSub,
                   ),
                 ),
               ],

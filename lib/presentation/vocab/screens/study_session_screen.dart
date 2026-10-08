@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pp191225/core/theme/app_fonts.dart';
+import 'package:pp191225/core/theme/app_theme.dart';
 import 'package:pp191225/domain/entities/vocab/study_item.dart';
 import 'package:pp191225/presentation/progression/controllers/progression_controller.dart';
 import 'package:pp191225/presentation/progression/widgets/level_up_dialog.dart';
@@ -34,22 +36,24 @@ class StudySessionScreen extends ConsumerWidget {
 
     final state = ref.watch(studySessionControllerProvider(deckId));
     final controller = ref.read(studySessionControllerProvider(deckId).notifier);
+    final colors = context.themeColors;
 
     if (state.isLoading) {
-      return const Scaffold(
-        backgroundColor: Colors.white,
+      return Scaffold(
+        backgroundColor: colors.background,
         body: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CircularProgressIndicator(color: ChunkyColors.brand),
-              SizedBox(height: 16),
+              CircularProgressIndicator(color: colors.brand),
+              const SizedBox(height: 16),
               Text(
                 'Đang chuẩn bị thẻ ôn tập...',
                 style: TextStyle(
+                  fontFamily: AppFonts.poppins,
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
-                  color: ChunkyColors.textMain,
+                  color: colors.textMain,
                 ),
               ),
             ],
@@ -60,20 +64,21 @@ class StudySessionScreen extends ConsumerWidget {
 
     if (state.errorMessage != null) {
       return Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: colors.background,
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: colors.surface,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.close_rounded, color: ChunkyColors.textMain),
+            icon: Icon(Icons.close_rounded, color: colors.textSub),
             onPressed: () => context.pop(),
           ),
-          title: const Text(
+          title: Text(
             'Ôn tập từ vựng',
             style: TextStyle(
+              fontFamily: AppFonts.poppins,
               fontWeight: FontWeight.w700,
               fontSize: 18,
-              color: ChunkyColors.textMain,
+              color: colors.textMain,
             ),
           ),
         ),
@@ -83,15 +88,16 @@ class StudySessionScreen extends ConsumerWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.error_outline_rounded, size: 56, color: ChunkyColors.red),
+                Icon(Icons.error_outline_rounded, size: 56, color: colors.coral),
                 const SizedBox(height: 16),
                 Text(
                   'Không thể tải hàng đợi:\n${state.errorMessage}',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
+                    fontFamily: AppFonts.poppins,
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
-                    color: ChunkyColors.textSub,
+                    color: colors.textSub,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -109,12 +115,12 @@ class StudySessionScreen extends ConsumerWidget {
     if (state.isCompleted) {
       final completedCount = state.completedResults.length;
       return Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: colors.background,
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: colors.surface,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.close_rounded, color: ChunkyColors.textMain),
+            icon: Icon(Icons.close_rounded, color: colors.textMain),
             onPressed: () => context.pop(),
           ),
         ),
@@ -130,8 +136,8 @@ class StudySessionScreen extends ConsumerWidget {
                   height: 96,
                   decoration: BoxDecoration(
                     color: state.isLeechRescueMode
-                        ? ChunkyColors.coral
-                        : ChunkyColors.yellow,
+                        ? colors.coral
+                        : colors.amber,
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: state.isLeechRescueMode
@@ -153,10 +159,11 @@ class StudySessionScreen extends ConsumerWidget {
                   state.isLeechRescueMode
                       ? 'Phiên cứu trợ hoàn thành!'
                       : 'Tuyệt vời! Hoàn thành!',
-                  style: const TextStyle(
+                  style: TextStyle(
+                    fontFamily: AppFonts.poppins,
                     fontSize: 24,
                     fontWeight: FontWeight.w800,
-                    color: ChunkyColors.textMain,
+                    color: colors.textMain,
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -167,10 +174,11 @@ class StudySessionScreen extends ConsumerWidget {
                         : 'Bạn đã hoàn thành xuất sắc $completedCount thẻ ôn tập hôm nay.'
                     : 'Bạn đã ôn tập xong tất cả thẻ từ đến hạn!',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
+                    fontFamily: AppFonts.poppins,
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
-                    color: ChunkyColors.textSub,
+                    color: colors.textSub,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -181,38 +189,40 @@ class StudySessionScreen extends ConsumerWidget {
                     children: [
                       Column(
                         children: [
-                          const Icon(Icons.check_circle_rounded, color: ChunkyColors.green, size: 28),
+                          Icon(Icons.check_circle_rounded, color: colors.mint, size: 28),
                           const SizedBox(height: 6),
                           Text(
                             '$completedCount thẻ',
-                            style: const TextStyle(
+                            style: TextStyle(
+                              fontFamily: AppFonts.poppins,
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
-                              color: ChunkyColors.textMain,
+                              color: colors.textMain,
                             ),
                           ),
-                          const Text(
+                          Text(
                             'Đã ôn tập',
-                            style: TextStyle(fontSize: 12, color: ChunkyColors.textSub, fontWeight: FontWeight.w500),
+                            style: TextStyle(fontFamily: AppFonts.poppins, fontSize: 12, color: colors.textSub, fontWeight: FontWeight.w500),
                           ),
                         ],
                       ),
-                      Container(height: 40, width: 2, color: ChunkyColors.border),
+                      Container(height: 40, width: 2, color: colors.border),
                       Column(
                         children: [
-                          const Icon(Icons.bolt_rounded, color: ChunkyColors.yellow, size: 28),
+                          Icon(Icons.bolt_rounded, color: colors.amber, size: 28),
                           const SizedBox(height: 6),
                           Text(
                             '+${completedCount * 10} EXP',
-                            style: const TextStyle(
+                            style: TextStyle(
+                              fontFamily: AppFonts.poppins,
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
-                              color: ChunkyColors.amberText,
+                              color: colors.amber,
                             ),
                           ),
-                          const Text(
+                          Text(
                             'Kinh nghiệm',
-                            style: TextStyle(fontSize: 12, color: ChunkyColors.textSub, fontWeight: FontWeight.w500),
+                            style: TextStyle(fontFamily: AppFonts.poppins, fontSize: 12, color: colors.textSub, fontWeight: FontWeight.w500),
                           ),
                         ],
                       ),
@@ -220,8 +230,10 @@ class StudySessionScreen extends ConsumerWidget {
                   ),
                 ),
                 const Spacer(),
-                ChunkyButton(
+                ChunkyButton.mint(
                   label: 'Tiếp tục',
+                  size: ChunkyButtonSize.large,
+                  icon: Icons.arrow_forward_rounded,
                   onPressed: () => context.pop(),
                 ),
                 const SizedBox(height: 16),
@@ -234,12 +246,12 @@ class StudySessionScreen extends ConsumerWidget {
 
     final currentItem = state.currentItem;
     if (currentItem == null) {
-      return const Scaffold(
-        backgroundColor: Colors.white,
+      return Scaffold(
+        backgroundColor: colors.background,
         body: Center(
           child: Text(
             'Không có thẻ nào trong hàng đợi',
-            style: TextStyle(fontWeight: FontWeight.w600, color: ChunkyColors.textSub),
+            style: TextStyle(fontFamily: AppFonts.poppins, fontWeight: FontWeight.w600, color: colors.textSub),
           ),
         ),
       );
@@ -250,14 +262,14 @@ class StudySessionScreen extends ConsumerWidget {
     final progress = total > 0 ? current / total : 0.0;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: colors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: colors.surface,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close_rounded, color: ChunkyColors.textSub),
+          icon: Icon(Icons.close_rounded, color: colors.textSub, size: 26),
           onPressed: () => context.pop(),
         ),
         title: Padding(
@@ -266,11 +278,11 @@ class StudySessionScreen extends ConsumerWidget {
             children: [
               ChunkyProgressBar(
                 value: progress,
-                height: 12,
+                height: 16,
                 color: state.isLeechRescueMode
-                    ? ChunkyColors.coral
-                    : ChunkyColors.brand,
-                trackColor: ChunkyColors.border,
+                    ? colors.coral
+                    : colors.brand,
+                trackColor: colors.border,
               ),
               // Study Mode indicator
               const SizedBox(height: 4),
@@ -286,7 +298,7 @@ class StudySessionScreen extends ConsumerWidget {
               child: IconButton(
                 icon: Icon(
                   _getModeIcon(state.studyMode),
-                  color: ChunkyColors.brand,
+                  color: colors.brand,
                 ),
                 tooltip: _getModeTooltip(state.studyMode),
                 onPressed: () => controller.toggleMode(),
@@ -303,7 +315,7 @@ class StudySessionScreen extends ConsumerWidget {
                   padding: const EdgeInsets.only(bottom: 4),
                   child: LeechBadge(lapsesCount: currentItem.lapsesCount),
                 ),
-              const Divider(height: 2, thickness: 2, color: ChunkyColors.border),
+              Divider(height: 2, thickness: 2, color: colors.border),
             ],
           ),
         ),

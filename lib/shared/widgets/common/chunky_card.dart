@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pp191225/core/theme/app_theme.dart';
+export 'package:pp191225/shared/widgets/common/chunky_icon_button.dart';
 
 /// Bảng màu độc quyền của Sync Flow ("Flow 3D"):
 /// - Lấy cảm hứng từ cơ chế tương tác xúc giác của Duolingo nhưng mang sắc thái công nghệ, hiện đại.
@@ -19,12 +20,12 @@ class ChunkyColors {
   static const Color textMain = Color(0xFF1E1B39); // Deep Indigo
   static const Color textSub = Color(0xFF747094); // Muted Slate Violet
 
-  // Brand Signature: Electric Violet & Midnight Indigo
-  static const Color brand = Color(0xFF5F33E1);
-  static const Color brandDark = Color(0xFF3B1A99); // Khối đáy 3D sâu và đầm tay
-  static const Color brandSoft = Color(0xFFF4F0FF); // Lavender Mist
-  static const Color brandBorder = Color(0xFFDACDFE);
-  static const Color brandBase = Color(0xFFC7B4FA); // Đáy của nút Lavender
+  // Brand Signature: Modern Soft Violet (#7F57C8) & Midnight Violet
+  static const Color brand = Color(0xFF7F57C8);
+  static const Color brandDark = Color(0xFF5936A2); // Khối đáy 3D sâu và đầm tay
+  static const Color brandSoft = Color(0xFFF5F1FD); // Lavender Mist
+  static const Color brandBorder = Color(0xFFDDD2F6);
+  static const Color brandBase = Color(0xFFCFC0F0); // Đáy của nút Lavender
 
   // Accent Colors: Khác biệt với màu hoạt hình của Duolingo
   static const Color mint = Color(0xFF00C48C); // Tech Mint (thay vì xanh lá chuối)
@@ -100,35 +101,50 @@ class _ChunkyCardState extends State<ChunkyCard> {
 
     // Tự động phân giải màu nền và viền nếu là mặc định hoặc Colors.white
     Color effectiveFill = widget.fillColor ?? colors.surface;
-    if (isDark && (widget.fillColor == Colors.white || widget.fillColor == const Color(0xFFFFFFFF))) {
-      effectiveFill = colors.surface;
+    if (isDark) {
+      if (widget.fillColor == Colors.white ||
+          widget.fillColor == const Color(0xFFFFFFFF) ||
+          widget.fillColor == ChunkyColors.background) {
+        effectiveFill = colors.surface;
+      } else if (widget.fillColor == ChunkyColors.surfaceMuted) {
+        effectiveFill = colors.surfaceMuted;
+      }
     }
 
     Color effectiveBorder = widget.borderColor ?? colors.border;
-    if (isDark && widget.borderColor == ChunkyColors.border) {
-      effectiveBorder = colors.border;
+    if (isDark) {
+      if (widget.borderColor == ChunkyColors.border) {
+        effectiveBorder = colors.border;
+      } else if (widget.borderColor == ChunkyColors.borderStrong) {
+        effectiveBorder = colors.borderStrong;
+      }
     }
 
     final radius = BorderRadius.circular(widget.radius);
     final depth = _pressed ? 0.0 : widget.depth;
 
-    final cardContent = AnimatedContainer(
+    final cardContent = AnimatedPadding(
       duration: const Duration(milliseconds: 60),
-      margin: EdgeInsets.only(top: widget.depth - depth),
-      padding: EdgeInsets.only(bottom: depth),
-      decoration: BoxDecoration(
-        color: effectiveBorder,
-        borderRadius: radius,
+      curve: Curves.easeOutQuad,
+      padding: EdgeInsets.only(
+        top: widget.depth - depth,
+        bottom: depth,
       ),
       child: Container(
-        width: double.infinity,
-        padding: widget.padding,
         decoration: BoxDecoration(
-          color: effectiveFill,
+          color: effectiveBorder,
           borderRadius: radius,
-          border: Border.all(color: effectiveBorder, width: 2),
         ),
-        child: widget.child,
+        child: Container(
+          width: double.infinity,
+          padding: widget.padding,
+          decoration: BoxDecoration(
+            color: effectiveFill,
+            borderRadius: radius,
+            border: Border.all(color: effectiveBorder, width: 2),
+          ),
+          child: widget.child,
+        ),
       ),
     );
 
@@ -151,40 +167,90 @@ class _ChunkyCardState extends State<ChunkyCard> {
 /// - Kế thừa cảm giác dậm lún 3D cơ học và rung xúc giác của Duolingo.
 /// - Mang thiết kế riêng:
 ///   1. Nút chính (Primary): Tím Electric Violet + đáy Midnight Indigo sang trọng.
-///   2. Nút phụ (Secondary): Lavender Mist độc quyền (mặt tím sương mù, đáy tím pastel, chữ tím đậm) thay vì màu xám tẻ nhạt.
-///   3. Bo góc 14px tinh gọn, hiện đại thay vì bo tròn đồ chơi.
-enum FlowButtonVariant { primary, secondary, mint, coral }
+///   2. Nút phụ (Secondary): Lavender Mist độc quyền (mặt tím sương mù, đáy tím pastel, chữ tím đậm).
+///   3. Nút Mint: Xanh bạc hà công nghệ cho thao tác thành công/kiểm tra.
+///   4. Nút Amber: Vàng cam ấm áp cho Streak, điểm thưởng, nhiệm vụ.
+///   5. Nút Coral: Đỏ san hô cho giải cứu từ vựng, cảnh báo.
+enum FlowButtonVariant { primary, secondary, mint, amber, coral }
+
+/// Kích cỡ chuẩn hoá cho nút 3D xúc giác
+enum ChunkyButtonSize {
+  small(height: 36, depth: 3, radius: 10, fontSize: 13, horizontalPadding: 12),
+  medium(height: 48, depth: 4, radius: 14, fontSize: 15, horizontalPadding: 16),
+  large(height: 56, depth: 4, radius: 16, fontSize: 16, horizontalPadding: 20);
+
+  final double height;
+  final double depth;
+  final double radius;
+  final double fontSize;
+  final double horizontalPadding;
+
+  const ChunkyButtonSize({
+    required this.height,
+    required this.depth,
+    required this.radius,
+    required this.fontSize,
+    required this.horizontalPadding,
+  });
+}
 
 class ChunkyButton extends StatefulWidget {
   final String label;
   final VoidCallback? onPressed;
   final FlowButtonVariant variant;
+  final ChunkyButtonSize size;
   final Color? color;
   final Color? shadowColor;
   final Color? textColor;
-  final double height;
-  final double depth;
-  final double radius;
+  final double? height;
+  final double? depth;
+  final double? radius;
   final IconData? icon;
   final Widget? leading;
+  final Widget? trailing;
   final double? width;
-  final double fontSize;
+  final double? fontSize;
+  final bool isLoading;
 
   const ChunkyButton({
     super.key,
     required this.label,
     required this.onPressed,
     this.variant = FlowButtonVariant.primary,
+    this.size = ChunkyButtonSize.medium,
     this.color,
     this.shadowColor,
     this.textColor,
-    this.height = 48,
-    this.depth = 4,
-    this.radius = 14,
+    this.height,
+    this.depth,
+    this.radius,
     this.icon,
     this.leading,
+    this.trailing,
     this.width,
-    this.fontSize = 15,
+    this.fontSize,
+    this.isLoading = false,
+  });
+
+  /// Nút chính màu tím thương hiệu Electric Violet
+  const ChunkyButton.primary({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.variant = FlowButtonVariant.primary,
+    this.size = ChunkyButtonSize.medium,
+    this.color,
+    this.shadowColor,
+    this.textColor,
+    this.height,
+    this.depth,
+    this.radius,
+    this.icon,
+    this.leading,
+    this.trailing,
+    this.width,
+    this.fontSize,
+    this.isLoading = false,
   });
 
   /// Nút phụ mang sắc tím Lavender Mist đặc trưng của Sync Flow.
@@ -193,16 +259,19 @@ class ChunkyButton extends StatefulWidget {
     required this.label,
     required this.onPressed,
     this.variant = FlowButtonVariant.secondary,
+    this.size = ChunkyButtonSize.medium,
     this.color,
     this.shadowColor,
     this.textColor,
-    this.height = 48,
-    this.depth = 4,
-    this.radius = 14,
+    this.height,
+    this.depth,
+    this.radius,
     this.icon,
     this.leading,
+    this.trailing,
     this.width,
-    this.fontSize = 15,
+    this.fontSize,
+    this.isLoading = false,
   });
 
   /// Nút hành động thành công (Mint Flow)
@@ -211,16 +280,61 @@ class ChunkyButton extends StatefulWidget {
     required this.label,
     required this.onPressed,
     this.variant = FlowButtonVariant.mint,
+    this.size = ChunkyButtonSize.medium,
     this.color,
     this.shadowColor,
     this.textColor,
-    this.height = 48,
-    this.depth = 4,
-    this.radius = 14,
+    this.height,
+    this.depth,
+    this.radius,
     this.icon,
     this.leading,
+    this.trailing,
     this.width,
-    this.fontSize = 15,
+    this.fontSize,
+    this.isLoading = false,
+  });
+
+  /// Nút Vàng ấm Sunburst (Streak, Thưởng, Nhiệm vụ)
+  const ChunkyButton.amber({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.variant = FlowButtonVariant.amber,
+    this.size = ChunkyButtonSize.medium,
+    this.color,
+    this.shadowColor,
+    this.textColor,
+    this.height,
+    this.depth,
+    this.radius,
+    this.icon,
+    this.leading,
+    this.trailing,
+    this.width,
+    this.fontSize,
+    this.isLoading = false,
+  });
+
+  /// Nút Đỏ san hô Coral (Leech Rescue, Cảnh báo, Xoá)
+  const ChunkyButton.coral({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.variant = FlowButtonVariant.coral,
+    this.size = ChunkyButtonSize.medium,
+    this.color,
+    this.shadowColor,
+    this.textColor,
+    this.height,
+    this.depth,
+    this.radius,
+    this.icon,
+    this.leading,
+    this.trailing,
+    this.width,
+    this.fontSize,
+    this.isLoading = false,
   });
 
   @override
@@ -252,7 +366,6 @@ class _ChunkyButtonState extends State<ChunkyButton> {
   @override
   Widget build(BuildContext context) {
     final colors = context.themeColors;
-    final isDark = context.isDarkMode;
 
     Color faceColor;
     Color baseColor;
@@ -260,9 +373,9 @@ class _ChunkyButtonState extends State<ChunkyButton> {
     Border? border;
 
     if (!_isEnabled) {
-      faceColor = isDark ? const Color(0xFF28253E) : const Color(0xFFEAE9F2);
-      baseColor = isDark ? const Color(0xFF1E1B32) : const Color(0xFFD4D2E2);
-      textColor = isDark ? const Color(0xFF6B668B) : const Color(0xFFA19DB8);
+      faceColor = colors.surfaceMuted;
+      baseColor = colors.border;
+      textColor = colors.textSub.withValues(alpha: 0.6);
       border = null;
     } else {
       switch (widget.variant) {
@@ -274,28 +387,40 @@ class _ChunkyButtonState extends State<ChunkyButton> {
           break;
         case FlowButtonVariant.secondary:
           final isDestructive = widget.textColor == ChunkyColors.coral || widget.textColor == ChunkyColors.red;
-          faceColor = widget.color ?? (isDestructive ? (isDark ? const Color(0xFF3E1C27) : const Color(0xFFFFF1F4)) : colors.brandSoft);
-          baseColor = widget.shadowColor ?? (isDestructive ? (isDark ? const Color(0xFF5A1D2F) : const Color(0xFFFFD1DC)) : colors.brandBase);
+          faceColor = widget.color ?? (isDestructive ? colors.coral.withValues(alpha: 0.12) : colors.brandSoft);
+          baseColor = widget.shadowColor ?? (isDestructive ? colors.coral.withValues(alpha: 0.25) : colors.brandBase);
           textColor = widget.textColor ?? (isDestructive ? colors.coral : colors.brand);
           border = Border.all(
-            color: isDestructive ? (isDark ? const Color(0xFF6A263B) : const Color(0xFFFFCCD5)) : colors.brandBorder,
+            color: isDestructive ? colors.coral.withValues(alpha: 0.35) : colors.brandBorder,
             width: 2,
           );
           break;
         case FlowButtonVariant.mint:
           faceColor = widget.color ?? colors.mint;
-          baseColor = widget.shadowColor ?? (isDark ? const Color(0xFF065F46) : ChunkyColors.mintDark);
+          baseColor = widget.shadowColor ?? colors.mintDark;
+          textColor = widget.textColor ?? Colors.white;
+          border = null;
+          break;
+        case FlowButtonVariant.amber:
+          faceColor = widget.color ?? colors.amber;
+          baseColor = widget.shadowColor ?? colors.amberDark;
           textColor = widget.textColor ?? Colors.white;
           border = null;
           break;
         case FlowButtonVariant.coral:
           faceColor = widget.color ?? colors.coral;
-          baseColor = widget.shadowColor ?? (isDark ? const Color(0xFF881337) : ChunkyColors.coralDark);
+          baseColor = widget.shadowColor ?? colors.coralDark;
           textColor = widget.textColor ?? Colors.white;
           border = null;
           break;
       }
     }
+
+    final effectiveHeight = widget.height ?? widget.size.height;
+    final effectiveDepth = widget.depth ?? widget.size.depth;
+    final effectiveRadius = widget.radius ?? widget.size.radius;
+    final effectiveFontSize = widget.fontSize ?? widget.size.fontSize;
+    final effectivePadding = widget.size.horizontalPadding;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -304,7 +429,7 @@ class _ChunkyButtonState extends State<ChunkyButton> {
       onTapCancel: _handleTapCancel,
       child: SizedBox(
         width: widget.width ?? double.infinity,
-        height: widget.height + widget.depth,
+        height: effectiveHeight + effectiveDepth,
         child: Stack(
           clipBehavior: Clip.none,
           children: [
@@ -313,11 +438,11 @@ class _ChunkyButtonState extends State<ChunkyButton> {
               left: 0,
               right: 0,
               bottom: 0,
-              height: widget.height,
+              height: effectiveHeight,
               child: Container(
                 decoration: BoxDecoration(
                   color: baseColor,
-                  borderRadius: BorderRadius.circular(widget.radius),
+                  borderRadius: BorderRadius.circular(effectiveRadius),
                 ),
               ),
             ),
@@ -325,45 +450,58 @@ class _ChunkyButtonState extends State<ChunkyButton> {
             AnimatedPositioned(
               duration: const Duration(milliseconds: 60),
               curve: Curves.easeOutQuad,
-              top: _isPressed ? widget.depth : 0,
+              top: _isPressed ? effectiveDepth : 0,
               left: 0,
               right: 0,
-              height: widget.height,
+              height: effectiveHeight,
               child: Container(
                 decoration: BoxDecoration(
                   color: faceColor,
-                  borderRadius: BorderRadius.circular(widget.radius),
+                  borderRadius: BorderRadius.circular(effectiveRadius),
                   border: border,
                 ),
                 alignment: Alignment.center,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (widget.leading != null) ...[
-                      widget.leading!,
-                      const SizedBox(width: 8),
-                    ] else if (widget.icon != null) ...[
-                      Icon(widget.icon, color: textColor, size: 20),
-                      const SizedBox(width: 8),
-                    ],
-                    Flexible(
-                      child: Text(
-                        widget.label.toUpperCase(),
-                        textAlign: TextAlign.center,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: textColor,
-                          fontSize: widget.fontSize,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 0.6,
+                padding: EdgeInsets.symmetric(horizontal: effectivePadding),
+                child: widget.isLoading
+                    ? SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          valueColor: AlwaysStoppedAnimation<Color>(textColor),
                         ),
+                      )
+                    : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (widget.leading != null) ...[
+                            widget.leading!,
+                            const SizedBox(width: 8),
+                          ] else if (widget.icon != null) ...[
+                            Icon(widget.icon, color: textColor, size: effectiveFontSize + 3),
+                            const SizedBox(width: 8),
+                          ],
+                          Flexible(
+                            child: Text(
+                              widget.label.toUpperCase(),
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: textColor,
+                                fontSize: effectiveFontSize,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 0.6,
+                              ),
+                            ),
+                          ),
+                          if (widget.trailing != null) ...[
+                            const SizedBox(width: 8),
+                            widget.trailing!,
+                          ],
+                        ],
                       ),
-                    ),
-                  ],
-                ),
               ),
             ),
           ],

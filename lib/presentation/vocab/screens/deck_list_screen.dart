@@ -73,12 +73,16 @@ class DeckListScreen extends ConsumerWidget {
             ),
           ),
           actions: [
-            IconButton(
-              icon: Icon(Icons.school_rounded, color: colors.brand),
-              tooltip: 'Học ngay (Toàn bộ)',
-              onPressed: () => context.push(RouteConstants.studySession),
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: ChunkyIconButton.circle(
+                icon: Icons.school_rounded,
+                size: ChunkyButtonSize.small,
+                variant: FlowButtonVariant.secondary,
+                tooltip: 'Học ngay (Toàn bộ)',
+                onPressed: () => context.push(RouteConstants.studySession),
+              ),
             ),
-            const SizedBox(width: 4),
           ],
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(50),
