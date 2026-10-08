@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pp191225/core/constants/app_dimens.dart';
-import 'package:pp191225/core/theme/app_colors.dart';
 import 'package:pp191225/core/theme/app_fonts.dart';
 
 /// Bảng màu ngữ nghĩa thích ứng Light/Dark mode cho Sync Flow
@@ -20,8 +19,11 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
   final Color brandBorder;
   final Color brandBase;
   final Color mint;
+  final Color mintDark;
   final Color amber;
+  final Color amberDark;
   final Color coral;
+  final Color coralDark;
 
   const AppThemeColors({
     required this.background,
@@ -37,8 +39,11 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     required this.brandBorder,
     required this.brandBase,
     required this.mint,
+    required this.mintDark,
     required this.amber,
+    required this.amberDark,
     required this.coral,
+    required this.coralDark,
   });
 
   static const light = AppThemeColors(
@@ -49,14 +54,17 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     borderStrong: Color(0xFFDEDAEB),
     textMain: Color(0xFF1E1B39),
     textSub: Color(0xFF747094),
-    brand: Color(0xFF5F33E1),
-    brandDark: Color(0xFF3B1A99),
-    brandSoft: Color(0xFFF4F0FF),
-    brandBorder: Color(0xFFDACDFE),
-    brandBase: Color(0xFFC7B4FA),
+    brand: Color(0xFF7F57C8),
+    brandDark: Color(0xFF5936A2),
+    brandSoft: Color(0xFFF5F1FD),
+    brandBorder: Color(0xFFDDD2F6),
+    brandBase: Color(0xFFCFC0F0),
     mint: Color(0xFF00C48C),
+    mintDark: Color(0xFF008C63),
     amber: Color(0xFFF59E0B),
+    amberDark: Color(0xFFC97A00),
     coral: Color(0xFFF43F5E),
+    coralDark: Color(0xFFBE123C),
   );
 
   static const dark = AppThemeColors(
@@ -67,14 +75,17 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     borderStrong: Color(0xFF3A365B),
     textMain: Color(0xFFF5F3FF),
     textSub: Color(0xFFA5A1C8),
-    brand: Color(0xFF7C5CFC),
-    brandDark: Color(0xFF4B2EAF),
-    brandSoft: Color(0xFF262046),
-    brandBorder: Color(0xFF42377A),
-    brandBase: Color(0xFF322A5E),
+    brand: Color(0xFF9672E3),
+    brandDark: Color(0xFF603DA8),
+    brandSoft: Color(0xFF28203E),
+    brandBorder: Color(0xFF48376E),
+    brandBase: Color(0xFF382C58),
     mint: Color(0xFF10B981),
+    mintDark: Color(0xFF065F46),
     amber: Color(0xFFFBBF24),
+    amberDark: Color(0xFF92400E),
     coral: Color(0xFFFB7185),
+    coralDark: Color(0xFF881337),
   );
 
   @override
@@ -92,8 +103,11 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     Color? brandBorder,
     Color? brandBase,
     Color? mint,
+    Color? mintDark,
     Color? amber,
+    Color? amberDark,
     Color? coral,
+    Color? coralDark,
   }) {
     return AppThemeColors(
       background: background ?? this.background,
@@ -109,8 +123,11 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       brandBorder: brandBorder ?? this.brandBorder,
       brandBase: brandBase ?? this.brandBase,
       mint: mint ?? this.mint,
+      mintDark: mintDark ?? this.mintDark,
       amber: amber ?? this.amber,
+      amberDark: amberDark ?? this.amberDark,
       coral: coral ?? this.coral,
+      coralDark: coralDark ?? this.coralDark,
     );
   }
 
@@ -131,8 +148,11 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       brandBorder: Color.lerp(brandBorder, other.brandBorder, t)!,
       brandBase: Color.lerp(brandBase, other.brandBase, t)!,
       mint: Color.lerp(mint, other.mint, t)!,
+      mintDark: Color.lerp(mintDark, other.mintDark, t)!,
       amber: Color.lerp(amber, other.amber, t)!,
+      amberDark: Color.lerp(amberDark, other.amberDark, t)!,
       coral: Color.lerp(coral, other.coral, t)!,
+      coralDark: Color.lerp(coralDark, other.coralDark, t)!,
     );
   }
 }
@@ -151,7 +171,10 @@ extension AppThemeContextExtension on BuildContext {
 class AppTheme {
   AppTheme._();
 
-  static ThemeData get lightTheme {
+  static final ThemeData lightTheme = _buildLightTheme();
+  static final ThemeData darkTheme = _buildDarkTheme();
+
+  static ThemeData _buildLightTheme() {
     const colors = AppThemeColors.light;
     return ThemeData(
       brightness: Brightness.light,
@@ -219,7 +242,7 @@ class AppTheme {
     );
   }
 
-  static ThemeData get darkTheme {
+  static ThemeData _buildDarkTheme() {
     const colors = AppThemeColors.dark;
     return ThemeData(
       brightness: Brightness.dark,
@@ -361,15 +384,13 @@ class AppTheme {
         fontSize: 14,
         fontWeight: FontWeight.w400,
         height: 1.45,
-        letterSpacing: 0.14,
         color: subColor,
       ),
       labelLarge: TextStyle(
         fontFamily: AppFonts.poppins,
-        fontSize: 16,
+        fontSize: 15,
         fontWeight: FontWeight.w600,
-        height: 1.4,
-        letterSpacing: 0.4,
+        height: 1.3,
         color: mainColor,
       ),
       labelMedium: TextStyle(
@@ -381,10 +402,9 @@ class AppTheme {
       ),
       labelSmall: TextStyle(
         fontFamily: AppFonts.poppins,
-        fontSize: 12,
+        fontSize: 11,
         fontWeight: FontWeight.w500,
-        height: 1.2,
-        letterSpacing: 0.4,
+        height: 1.3,
         color: subColor,
       ),
     );
