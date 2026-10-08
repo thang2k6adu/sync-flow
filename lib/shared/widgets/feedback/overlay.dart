@@ -65,10 +65,10 @@ class _BannerToast extends StatelessWidget {
 
   const _BannerToast({required this.message, required this.isError});
 
-  static const _successFill = Color(0xFFEEE9FF);
-  static const _successBorder = Color(0xFFC9B8FF);
-  static const _successText = Color(0xFF4524B8);
-  static const _successIcon = Color(0xFF5F33E1);
+  static const _successFill = Color(0xFFF5F1FD);
+  static const _successBorder = Color(0xFFDDD2F6);
+  static const _successText = Color(0xFF5936A2);
+  static const _successIcon = Color(0xFF7F57C8);
 
   static const _errorFill = Color(0xFFFFDFE0);
   static const _errorBorder = Color(0xFFFFB2B2);
@@ -160,7 +160,7 @@ class _LoadingToast extends StatelessWidget {
               children: [
                 const CupertinoActivityIndicator(
                   radius: 14,
-                  color: Color(0xFF5F33E1),
+                  color: Color(0xFF7F57C8),
                 ),
                 const SizedBox(height: 14),
                 Text(
