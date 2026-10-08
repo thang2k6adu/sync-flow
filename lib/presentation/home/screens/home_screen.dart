@@ -3,145 +3,171 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pp191225/core/constants/route_constants.dart';
 import 'package:pp191225/core/theme/app_theme.dart';
+import 'package:pp191225/presentation/home/controllers/unified_search_controller.dart';
 import 'package:pp191225/presentation/home/widgets/categorized_decks_section.dart';
 import 'package:pp191225/presentation/home/widgets/continue_learning_hero_card.dart';
-import 'package:pp191225/presentation/home/widgets/gamification_header_bar.dart';
-import 'package:pp191225/presentation/home/widgets/srs_alert_card.dart';
+import 'package:pp191225/presentation/home/widgets/home_curved_header.dart';
+import 'package:pp191225/presentation/home/widgets/home_quick_grid.dart';
+import 'package:pp191225/presentation/home/widgets/home_search_bar.dart';
+import 'package:pp191225/presentation/home/widgets/search_results_view.dart';
 import 'package:pp191225/presentation/vocab/controllers/deck_list_controller.dart';
 import 'package:pp191225/shared/widgets/common/chunky_card.dart';
 
-/// Màn hình chính Dashboard Học tập (Smart Learning Hub):
-/// - Phân chia bố cục rõ ràng, mạch lạc, không đè chữ:
-///   1. Ôn tập Spaced Repetition (chỉ hiện khi có từ cần ôn tập)
-///   2. Tiếp tục học (In Progress Decks)
-///   3. Kho bộ từ vựng & Khám phá (Categorized Tracks)
-/// - 100% sử dụng icon chính thức từ Flutter Icons library, không dùng emoji.
-class HomeScreen extends ConsumerWidget {
+/// Màn hình chính Dashboard Học tập (Sync Flow Hub):
+/// - Header vát cong thương hiệu với Carousel, chuông thông báo & nút Profile góc trên
+/// - Thanh tìm kiếm thông minh: Tìm cả Bộ từ & Thẻ từ vựng
+/// - Bento Quick Grid (3x2) phím tắt học tập
+/// - Thẻ tiếp tục phiên học gần nhất tinh giản, hiện đại
+/// - Danh mục các bộ từ (Kho từ vựng)
+class HomeScreen extends ConsumerStatefulWidget {
   final Function(int)? onSwitchTab;
 
   const HomeScreen({super.key, this.onSwitchTab});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _startDueStudy() {
+    context.push(RouteConstants.studySession);
+  }
+
+  void _startLeechRescue() {
+    context.push(RouteConstants.studySession, extra: 'leech_rescue');
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final colors = context.themeColors;
     final decksAsync = ref.watch(deckListControllerProvider);
-    final summaryAsync = ref.watch(studySummaryProvider);
+    final searchState = ref.watch(unifiedSearchControllerProvider);
+    final searchNotifier = ref.read(unifiedSearchControllerProvider.notifier);
 
     return Scaffold(
       backgroundColor: colors.background,
-      body: Column(
-        children: [
-          // Header: Thanh trạng thái học tập tinh gọn
-          GamificationHeaderBar(
-            onProfileTap: () => onSwitchTab?.call(2),
-          ),
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 1. Header uốn cong thương hiệu (Top Bar + Lời chào + Profile góc trên + Carousel Slider)
+            HomeCurvedHeader(
+              onStartDueStudy: _startDueStudy,
+            ),
 
-          // Vùng nội dung cuộn gồm các khối phân chia rành mạch
-          Expanded(
-            child: RefreshIndicator(
-              color: colors.brand,
-              onRefresh: () async {
-                ref.invalidate(deckListControllerProvider);
-                ref.invalidate(studySummaryProvider);
-              },
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(
-                  parent: BouncingScrollPhysics(),
+            const SizedBox(height: 16),
+
+            // 2. Thanh tìm kiếm thông minh
+            HomeSearchBar(
+              controller: _searchController,
+              onChanged: (q) => searchNotifier.onQueryChanged(q),
+              onClear: () => searchNotifier.clearSearch(),
+            ),
+
+            const SizedBox(height: 16),
+
+            // NẾU ĐANG TÌM KIẾM: Hiển thị giao diện kết quả phân chia (Bộ từ / Từ vựng)
+            if (searchState.isSearching) ...[
+              const SearchResultsView(),
+            ] else ...[
+              // NẾU KHÔNG TÌM KIẾM: Hiển thị các khối học tập mặc định
+
+              // 3. Lưới 6 phím tắt học tập (Bento Quick Grid 3x2)
+              decksAsync.when(
+                data: (decks) => HomeQuickGrid(
+                  decks: decks,
+                  onStartDueStudy: _startDueStudy,
+                  onStartLeechRescue: _startLeechRescue,
                 ),
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Khối 1 & 2: Dựa trên trạng thái học tập
-                    summaryAsync.when(
-                      data: (summary) {
-                        final hasDueReviews = summary.dueCount > 0;
-                        final activeDeck = summary.recommendedDeck;
+                loading: () => const SizedBox.shrink(),
+                error: (_, _) => const SizedBox.shrink(),
+              ),
 
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // 1. Ôn tập Spaced Repetition (chỉ hiển thị khi có thẻ đến hạn)
-                            if (hasDueReviews) ...[
-                              SrsAlertCard(
-                                dueCount: summary.dueCount,
-                                leechCount: summary.leechCount,
-                                onStartLeechRescue: () => context.push(
-                                  RouteConstants.studySession,
-                                  extra: 'leech_rescue',
-                                ),
-                                onStartDueStudy: () => context.push(
-                                  RouteConstants.studySession,
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                            ],
+              const SizedBox(height: 24),
 
-                            // 2. Tiếp tục học bộ từ đang học
-                            if (activeDeck != null) ...[
-                              ContinueLearningHeroCard(
-                                deck: activeDeck,
-                                onStudy: () => context.push(
-                                  RouteConstants.studySession,
-                                  extra: activeDeck.id,
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                            ],
-                          ],
-                        );
-                      },
-                      loading: () => const SizedBox.shrink(),
-                      error: (err, stack) => const SizedBox.shrink(),
-                    ),
-
-                    // Khối 3: Kho bộ từ vựng & Khám phá
-                    decksAsync.when(
-                      data: (decks) {
-                        return CategorizedDecksSection(
-                          decks: decks,
-                          onStudy: (deck) => context.push(
-                            RouteConstants.studySession,
-                            extra: deck.id,
-                          ),
-                          onTap: (deck) => context.push(
-                            RouteConstants.deckDetail,
-                            extra: deck,
-                          ),
-                          onSeeAll: () => onSwitchTab?.call(1),
-                        );
-                      },
-                      loading: () => Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(32),
-                          child: CircularProgressIndicator(color: colors.brand),
-                        ),
-                      ),
-                      error: (err, _) => Center(
-                        child: Column(
-                          children: [
-                            Text(
-                              'Lỗi tải bộ từ: $err',
-                              style: TextStyle(color: colors.coral),
-                            ),
-                            const SizedBox(height: 8),
-                            ChunkyButton.primary(
-                              label: 'Tải lại',
-                              size: ChunkyButtonSize.small,
-                              onPressed: () => ref
-                                  .read(deckListControllerProvider.notifier)
-                                  .refresh(),
-                            ),
-                          ],
-                        ),
+              // 4. Khối Tiếp tục học (In-Progress Deck)
+              decksAsync.maybeWhen(
+                data: (decks) {
+                  if (decks.isEmpty) return const SizedBox.shrink();
+                  final recentDeck = decks.firstWhere(
+                    (d) => d.cardCount > 0,
+                    orElse: () => decks.first,
+                  );
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: ContinueLearningHeroCard(
+                      deck: recentDeck,
+                      onStudy: () => context.push(
+                        RouteConstants.studySession,
+                        extra: recentDeck.id,
                       ),
                     ),
-                  ],
+                  );
+                },
+                orElse: () => const SizedBox.shrink(),
+              ),
+
+              const SizedBox(height: 24),
+
+              // 5. Danh mục các bộ từ vựng & Khám phá
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: decksAsync.when(
+                  data: (decks) {
+                    return CategorizedDecksSection(
+                      decks: decks,
+                      onStudy: (deck) => context.push(
+                        RouteConstants.studySession,
+                        extra: deck.id,
+                      ),
+                      onTap: (deck) => context.push(
+                        RouteConstants.deckDetail,
+                        extra: deck,
+                      ),
+                      onSeeAll: () => widget.onSwitchTab?.call(1),
+                    );
+                  },
+                  loading: () => Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32),
+                      child: CircularProgressIndicator(color: colors.brand),
+                    ),
+                  ),
+                  error: (err, _) => Center(
+                    child: Column(
+                      children: [
+                        Text(
+                          'Lỗi tải bộ từ: $err',
+                          style: TextStyle(color: colors.coral),
+                        ),
+                        const SizedBox(height: 8),
+                        ChunkyButton.primary(
+                          label: 'Tải lại',
+                          size: ChunkyButtonSize.small,
+                          onPressed: () => ref
+                              .read(deckListControllerProvider.notifier)
+                              .refresh(),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-        ],
+            ],
+
+            // Đệm khoảng trống phía dưới để không bị che bởi navbar lượn sóng
+            const SizedBox(height: 100),
+          ],
+        ),
       ),
     );
   }
