@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pp191225/core/theme/app_theme.dart';
 import 'package:pp191225/shared/helpers/router_helper.dart';
 
 /// AppBar có nút Back và tiêu đề nằm giữa.
@@ -19,8 +20,8 @@ class AppBarWithBack extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final PreferredSizeWidget? bottom;
   final VoidCallback? onBack;
-  final Color backgroundColor;
-  final Color textColor;
+  final Color? backgroundColor;
+  final Color? textColor;
   final double elevation;
   final bool centerTitle;
   final bool bottomBorder;
@@ -31,8 +32,8 @@ class AppBarWithBack extends StatelessWidget implements PreferredSizeWidget {
     required this.title,
     this.bottom,
     this.onBack,
-    this.backgroundColor = Colors.white,
-    this.textColor = Colors.black,
+    this.backgroundColor,
+    this.textColor,
     this.elevation = 0,
     this.centerTitle = true,
     this.bottomBorder = false,
@@ -45,20 +46,24 @@ class AppBarWithBack extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
+    final bg = backgroundColor ?? colors.surface;
+    final fg = textColor ?? colors.textMain;
+
     return AppBar(
-      backgroundColor: backgroundColor,
+      backgroundColor: bg,
       elevation: elevation,
       leading: IconButton(
-        icon: Icon(Icons.arrow_back_ios, color: textColor, size: 20),
+        icon: Icon(Icons.arrow_back_ios_new_rounded, color: fg, size: 20),
         onPressed: () =>
             Navigator.canPop(context) && onBack != null ? goBack(context) : goHome(context),
       ),
       title: Text(
         title,
         style: TextStyle(
-          color: textColor,
+          color: fg,
           fontSize: 18,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w700,
         ),
       ),
       centerTitle: centerTitle,
@@ -66,8 +71,8 @@ class AppBarWithBack extends StatelessWidget implements PreferredSizeWidget {
           bottom ??
           (bottomBorder
               ? PreferredSize(
-                  preferredSize: Size.fromHeight(1),
-                  child: Container(height: 1, color: Colors.grey[300]),
+                  preferredSize: const Size.fromHeight(2),
+                  child: Container(height: 2, color: colors.border),
                 )
               : null),
       actions: actions,

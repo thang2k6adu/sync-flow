@@ -22,21 +22,21 @@ class ChunkyColors {
 
   // Brand Signature: Modern Soft Violet (#7F57C8) & Midnight Violet
   static const Color brand = Color(0xFF7F57C8);
-  static const Color brandDark = Color(0xFF5936A2); // Khối đáy 3D sâu và đầm tay
+  static const Color brandDark = Color(0xFF5E3A9B); // Khối đáy 3D sâu và đầm tay (Duolingo style)
   static const Color brandSoft = Color(0xFFF5F1FD); // Lavender Mist
   static const Color brandBorder = Color(0xFFDDD2F6);
   static const Color brandBase = Color(0xFFCFC0F0); // Đáy của nút Lavender
 
-  // Accent Colors: Khác biệt với màu hoạt hình của Duolingo
-  static const Color mint = Color(0xFF00C48C); // Tech Mint (thay vì xanh lá chuối)
-  static const Color mintDark = Color(0xFF008C63);
+  // Accent Colors: Duolingo-style vivid colors
+  static const Color mint = Color(0xFF58CC02); // Duolingo Green
+  static const Color mintDark = Color(0xFF46A302);
 
-  static const Color amber = Color(0xFFF59E0B); // Warm Sunburst
-  static const Color amberDark = Color(0xFFC97A00);
+  static const Color amber = Color(0xFFFFC800); // Duolingo Gold / Streak
+  static const Color amberDark = Color(0xFFE5A500);
   static const Color amberText = Color(0xFFD97706);
 
-  static const Color coral = Color(0xFFF43F5E); // Coral Berry (thay vì đỏ gắt)
-  static const Color coralDark = Color(0xFFBE123C);
+  static const Color coral = Color(0xFFFF4B4B); // Duolingo Coral / Red
+  static const Color coralDark = Color(0xFFD33131);
 
   // Tương thích ngược
   static const Color green = mint;
@@ -121,30 +121,28 @@ class _ChunkyCardState extends State<ChunkyCard> {
     }
 
     final radius = BorderRadius.circular(widget.radius);
-    final depth = _pressed ? 0.0 : widget.depth;
-
-    final cardContent = AnimatedPadding(
-      duration: const Duration(milliseconds: 60),
-      curve: Curves.easeOutQuad,
-      padding: EdgeInsets.only(
-        top: widget.depth - depth,
-        bottom: depth,
+    final cardContent = Container(
+      decoration: BoxDecoration(
+        color: effectiveBorder,
+        borderRadius: radius,
       ),
-      child: Container(
+      padding: EdgeInsets.only(bottom: widget.depth),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 60),
+        curve: Curves.easeOutQuad,
+        transform: Matrix4.translationValues(
+          0,
+          _pressed ? widget.depth : 0,
+          0,
+        ),
+        width: double.infinity,
+        padding: widget.padding,
         decoration: BoxDecoration(
-          color: effectiveBorder,
+          color: effectiveFill,
           borderRadius: radius,
+          border: Border.all(color: effectiveBorder, width: 2),
         ),
-        child: Container(
-          width: double.infinity,
-          padding: widget.padding,
-          decoration: BoxDecoration(
-            color: effectiveFill,
-            borderRadius: radius,
-            border: Border.all(color: effectiveBorder, width: 2),
-          ),
-          child: widget.child,
-        ),
+        child: widget.child,
       ),
     );
 

@@ -50,8 +50,7 @@ class MyApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: settings.themeMode,
-      themeAnimationDuration: const Duration(milliseconds: 250),
-      themeAnimationCurve: Curves.easeInOutCubic,
+      themeAnimationDuration: Duration.zero,
       debugShowCheckedModeBanner: false,
       routerConfig: router,
     );
