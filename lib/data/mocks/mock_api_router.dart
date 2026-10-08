@@ -61,8 +61,12 @@ class MockApiRouter {
 
     // Vocab
     if (route == 'GET ${ApiEndpoints.decks}') return VocabMock.listDecks();
+    if (route == 'POST ${ApiEndpoints.decks}') return VocabMock.createDeck(body);
     final deckIdMatch = _deckById.firstMatch(path)?.group(1);
     if (method == 'GET' && deckIdMatch != null) return VocabMock.getDeck(deckIdMatch);
+    if (method == 'DELETE' && deckIdMatch != null) return VocabMock.deleteDeck();
+    if (route == 'GET ${ApiEndpoints.cards}') return VocabMock.listCards(params);
+    if (route == 'POST ${ApiEndpoints.cards}') return VocabMock.createCard(body);
     if (route == 'GET ${ApiEndpoints.studyQueue}') return VocabMock.getStudyQueue(params);
     if (route == 'POST ${ApiEndpoints.studySubmit}') return VocabMock.submitStudy(body);
 
