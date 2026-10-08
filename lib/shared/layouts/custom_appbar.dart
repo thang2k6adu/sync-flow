@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pp191225/core/theme/app_theme.dart';
 
 /// Reusable `CustomAppBar` widget.
 ///
@@ -49,45 +50,50 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final VoidCallback? onBackPressed;
   final List<Widget>? actions; // Icon hoặc menu bên phải
-  final Color backgroundColor;
-  final Color titleColor;
+  final Color? backgroundColor;
+  final Color? titleColor;
   final double elevation;
   final bool showBottomBorder;
   final double bottomBorderHeight;
-  final Color bottomBorderColor;
+  final Color? bottomBorderColor;
 
   const CustomAppBar({
     super.key,
     required this.title,
     this.onBackPressed,
     this.actions,
-    this.backgroundColor = Colors.white,
-    this.titleColor = Colors.black,
+    this.backgroundColor,
+    this.titleColor,
     this.elevation = 0,
     this.showBottomBorder = true,
-    this.bottomBorderHeight = 1.0,
-    this.bottomBorderColor = const Color(0xFFE0E0E0),
+    this.bottomBorderHeight = 2.0,
+    this.bottomBorderColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
+    final bg = backgroundColor ?? colors.surface;
+    final fg = titleColor ?? colors.textMain;
+    final borderCol = bottomBorderColor ?? colors.border;
+
     return AppBar(
-      backgroundColor: backgroundColor,
+      backgroundColor: bg,
       elevation: elevation,
       centerTitle: true,
-      iconTheme: IconThemeData(color: titleColor),
+      iconTheme: IconThemeData(color: fg),
       leading: IconButton(
         padding: const EdgeInsets.only(left: 8.0),
-        icon: const Icon(Icons.arrow_back_ios),
+        icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
         onPressed: onBackPressed ?? () => GoRouter.of(context).pop(),
       ),
       leadingWidth: 72,
       title: Text(
         title,
         style: TextStyle(
-          color: titleColor,
-          fontSize: 20,
-          fontWeight: FontWeight.w500,
+          color: fg,
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
         ),
       ),
       actions: actions,
@@ -96,7 +102,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               preferredSize: Size.fromHeight(bottomBorderHeight),
               child: Container(
                 height: bottomBorderHeight,
-                color: bottomBorderColor,
+                color: borderCol,
               ),
             )
           : null,

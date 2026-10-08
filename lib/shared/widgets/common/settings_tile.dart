@@ -3,6 +3,7 @@
 // - or imageUrl: circular avatar (falls back to initials if image is null or fails)
 // Tapable and exposes customization points.
 import 'package:flutter/material.dart';
+import 'package:pp191225/core/theme/app_theme.dart';
 
 enum TrailingMode { text, avatar }
 
@@ -171,13 +172,12 @@ class SettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themeColors;
     return Material(
-      color: Colors.white,
+      color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        splashColor: Theme.of(
-          context,
-        ).colorScheme.primary.withValues(alpha: 0.1),
+        splashColor: colors.brand.withValues(alpha: 0.1),
         highlightColor: Colors.transparent,
         child: Ink(
           padding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 16.0),
@@ -193,7 +193,7 @@ class SettingsTile extends StatelessWidget {
                       TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: colors.textMain,
                       ),
                 ),
               ),
@@ -212,7 +212,7 @@ class SettingsTile extends StatelessWidget {
                   if (showChevron)
                     Icon(
                       Icons.chevron_right,
-                      color: Theme.of(context).disabledColor,
+                      color: colors.textSub,
                     ),
                 ],
               ),

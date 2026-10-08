@@ -8,12 +8,7 @@ class GetCardsByDeckUseCase {
 
   GetCardsByDeckUseCase(this.repository);
 
-  Future<Either<Failure, List<VocabCard>>> call(String deckId) {
-    if (deckId.trim().isEmpty) {
-      return Future.value(
-        const Left(ValidationFailure(message: 'Deck ID không được để trống')),
-      );
-    }
+  Future<Either<Failure, List<VocabCard>>> call([String deckId = '']) {
     return repository.getCardsByDeck(deckId.trim());
   }
 }
