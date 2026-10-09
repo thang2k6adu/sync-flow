@@ -1,9 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pp191225/data/repositories/auth_repository_impl.dart';
+import 'package:pp191225/data/repositories/gamification_repository_impl.dart';
 import 'package:pp191225/data/repositories/task_repository_impl.dart';
 import 'package:pp191225/data/repositories/user_repository_impl.dart';
 import 'package:pp191225/data/repositories/vocab_repository_impl.dart';
 import 'package:pp191225/domain/repositories/auth_repository.dart';
+import 'package:pp191225/domain/repositories/gamification_repository.dart';
 import 'package:pp191225/domain/repositories/task_repository.dart';
 import 'package:pp191225/domain/repositories/user_repository.dart';
 import 'package:pp191225/domain/repositories/vocab_repository.dart';
@@ -59,6 +61,12 @@ final vocabRepositoryProvider = Provider<VocabRepository>((ref) {
 final progressionRepositoryProvider = Provider<ProgressionRepository>((ref) {
   final localDataSource = ref.watch(progressionLocalDataSourceProvider);
   return ProgressionRepositoryImpl(localDataSource: localDataSource);
+});
+
+/// Provide GamificationRepository (backend thật: progression + leaderboard)
+final gamificationRepositoryProvider = Provider<GamificationRepository>((ref) {
+  final remoteDataSource = ref.watch(gamificationRemoteDataSourceProvider);
+  return GamificationRepositoryImpl(remoteDataSource: remoteDataSource);
 });
 
 /// Provide SettingsRepository

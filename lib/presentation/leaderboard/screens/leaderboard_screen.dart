@@ -39,19 +39,83 @@ class LeaderboardScreen extends ConsumerWidget {
             color: colors.textMain,
           ),
         ),
-      ),
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          // Bục vinh quang Top 3
-          SliverToBoxAdapter(
-            child: PodiumView(topThree: leaderboardState.topThree),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh_rounded, color: colors.textMain),
+            onPressed: () =>
+                ref.read(leaderboardControllerProvider.notifier).refresh(),
           ),
+        ],
+      ),
+      body: _buildBody(context, ref, leaderboardState, colors),
+    );
+  }
+
+  Widget _buildBody(
+    BuildContext context,
+    WidgetRef ref,
+    LeaderboardState leaderboardState,
+    AppThemeColors colors,
+  ) {
+    if (leaderboardState.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (leaderboardState.errorMessage != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Không tải được bảng xếp hạng',
+                style: TextStyle(
+                  fontFamily: AppFonts.poppins,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
+                  color: colors.textMain,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '${leaderboardState.errorMessage}',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12, color: colors.textSub),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () =>
+                    ref.read(leaderboardControllerProvider.notifier).refresh(),
+                child: const Text('Thử lại'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final myStanding = leaderboardState.myStanding;
+
+    return RefreshIndicator(
+      onRefresh: () =>
+          ref.read(leaderboardControllerProvider.notifier).refresh(),
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
+        ),
+        slivers: [
+          // Bục vinh quang Top 1..3
+          if (leaderboardState.topThree.isNotEmpty)
+            SliverToBoxAdapter(
+              child: PodiumView(topThree: leaderboardState.topThree),
+            ),
 
           // Thẻ thứ hạng của bạn
-          SliverToBoxAdapter(
-            child: MyStandingCard(myStanding: leaderboardState.myStanding),
-          ),
+          if (myStanding != null)
+            SliverToBoxAdapter(
+              child: MyStandingCard(myStanding: myStanding),
+            ),
 
           const SliverToBoxAdapter(
             child: SizedBox(height: 8),
@@ -73,16 +137,36 @@ class LeaderboardScreen extends ConsumerWidget {
             ),
           ),
 
-          // Danh sách xếp hạng từ top 4 trở đi
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final entry = leaderboardState.restList[index];
-                return LeaderboardTile(entry: entry);
-              },
-              childCount: leaderboardState.restList.length,
+          if (leaderboardState.restList.isEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                child: Center(
+                  child: Text(
+                    leaderboardState.topThree.isNotEmpty
+                        ? 'Chưa có thêm học viên ngoài nhóm dẫn đầu'
+                        : 'Chưa có dữ liệu bảng xếp hạng',
+                    style: TextStyle(
+                      fontFamily: AppFonts.poppins,
+                      fontSize: 13,
+                      color: colors.textSub,
+                    ),
+                  ),
+                ),
+              ),
+            )
+          else
+            // Danh sách xếp hạng từ top 4 trở đi
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final entry = leaderboardState.restList[index];
+                  return LeaderboardTile(entry: entry);
+                },
+                childCount: leaderboardState.restList.length,
+              ),
             ),
-          ),
 
           // Đệm phía dưới tránh che bởi navbar
           const SliverToBoxAdapter(

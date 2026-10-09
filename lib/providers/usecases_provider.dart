@@ -3,6 +3,7 @@ import 'package:pp191225/domain/usecases/auth/login_with_password_usecase.dart';
 import 'package:pp191225/domain/usecases/auth/login_with_provider_usecase.dart';
 import 'package:pp191225/domain/usecases/auth/logout_usecase.dart';
 import 'package:pp191225/domain/usecases/auth/register_usecase.dart';
+import 'package:pp191225/domain/usecases/gamification/gamification_usecases.dart';
 import 'package:pp191225/domain/usecases/task/create_task_usecase.dart';
 import 'package:pp191225/domain/usecases/task/delete_task_usecase.dart';
 import 'package:pp191225/domain/usecases/task/get_tasks_usecase.dart';
@@ -139,5 +140,15 @@ final getStudyQueueUseCaseProvider = Provider<GetStudyQueueUseCase>((ref) {
 final submitStudyUseCaseProvider = Provider<SubmitStudyUseCase>((ref) {
   final repository = ref.watch(vocabRepositoryProvider);
   return SubmitStudyUseCase(repository);
+});
+
+final getLeaderboardUseCaseProvider = Provider<GetLeaderboardUseCase>((ref) {
+  final repository = ref.watch(gamificationRepositoryProvider);
+  return GetLeaderboardUseCase(repository);
+});
+
+final syncProgressionUseCaseProvider = Provider<SyncProgressionUseCase>((ref) {
+  final repository = ref.watch(gamificationRepositoryProvider);
+  return SyncProgressionUseCase(repository);
 });
 
