@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pp191225/data/mocks/mock_api_router.dart';
 import 'package:pp191225/data/models/auth/auth_response_dto.dart';
 import 'package:pp191225/data/models/base/api_response.dart';
+import 'package:pp191225/data/models/gamification/leaderboard_dto.dart';
 import 'package:pp191225/data/models/tasks/task_dto.dart';
 import 'package:pp191225/data/models/users/user_dto.dart';
 
@@ -57,6 +58,41 @@ void main() {
       throwsException,
     );
     expect(() => MockApiRouter.handle('GET', '/nope'), throwsException);
+  });
+
+  test('gamification: progression sync + leaderboard parse đúng DTO', () async {
+    ProgressionDto parseProgression(dynamic json) =>
+        ApiResponse<ProgressionDto>.fromJson(
+          json as Map<String, dynamic>,
+          (d) => ProgressionDto.fromJson(d as Map<String, dynamic>),
+        ).data!;
+
+    final before = parseProgression(
+      await MockApiRouter.handle('GET', '/users/progression'),
+    );
+    expect(before.level, greaterThanOrEqualTo(1));
+
+    final after = parseProgression(
+      await MockApiRouter.handle(
+        'POST',
+        '/users/progression/add',
+        data: {'expGained': 15, 'cardStudied': true, 'wordMastered': true},
+      ),
+    );
+    expect(after.totalExp, before.totalExp + 15);
+    expect(after.wordsMastered, before.wordsMastered + 1);
+
+    final board =
+        await MockApiRouter.handle('GET', '/users/leaderboard')
+            as Map<String, dynamic>;
+    final dto = ApiResponse<LeaderboardResponseDto>.fromJson(
+      board,
+      (d) => LeaderboardResponseDto.fromJson(d as Map<String, dynamic>),
+    ).data!;
+    expect(dto.topThree.length, 3);
+    expect(dto.myStanding, isNotNull);
+    expect(dto.myStanding!.isCurrentUser, isTrue);
+    expect(dto.restList.every((e) => e.rank > 3), isTrue);
   });
 }
 

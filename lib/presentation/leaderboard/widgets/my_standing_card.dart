@@ -143,25 +143,41 @@ class MyStandingCard extends StatelessWidget {
                     ],
                   ),
 
-                  // Tăng trưởng
+                  // Tăng trưởng (chỉ hiển thị khi có dữ liệu so với kỳ trước;
+                  // backend chưa trả rankDiff nên mặc định 0 -> hiển thị trung tính)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: colors.mint.withOpacity(0.2),
+                      color: (myStanding.rankDiff == 0
+                              ? colors.textSub
+                              : colors.mintDark)
+                          .withOpacity(0.12),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.trending_up_rounded, size: 15, color: colors.mintDark),
+                        Icon(
+                          myStanding.rankDiff == 0
+                              ? Icons.remove_rounded
+                              : Icons.trending_up_rounded,
+                          size: 15,
+                          color: myStanding.rankDiff == 0
+                              ? colors.textSub
+                              : colors.mintDark,
+                        ),
                         const SizedBox(width: 4),
                         Text(
-                          '↑ ${myStanding.rankDiff} bậc',
+                          myStanding.rankDiff == 0
+                              ? 'Giữ nguyên'
+                              : '↑ ${myStanding.rankDiff} bậc',
                           style: TextStyle(
                             fontFamily: AppFonts.poppins,
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
-                            color: colors.mintDark,
+                            color: myStanding.rankDiff == 0
+                                ? colors.textSub
+                                : colors.mintDark,
                           ),
                         ),
                       ],

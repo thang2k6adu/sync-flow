@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pp191225/core/constants/api_constants.dart';
 import 'package:pp191225/domain/entities/progression/user_progression.dart';
 import 'package:pp191225/domain/repositories/progression_repository.dart';
 import 'package:pp191225/providers/repositories_provider.dart';
+import 'package:pp191225/providers/usecases_provider.dart';
 
 class ProgressionState {
   final UserProgression progression;
@@ -47,6 +49,25 @@ class ProgressionController extends Notifier<ProgressionState> {
     final updatedProg = _checkStreak(prog);
     state = state.copyWith(progression: updatedProg);
     await _repository.saveProgression(updatedProg);
+    // Đồng bộ chiều backend -> local khi có mạng (backend là nguồn chân lý cho BXH).
+    if (!ApiConstants.useMockData) {
+      try {
+        final repo = ref.read(gamificationRepositoryProvider);
+        final remote = await repo.getProgression();
+        remote.fold(
+          (_) {},
+          (server) async {
+            final merged = server.totalExp >= state.progression.totalExp
+                ? server
+                : state.progression;
+            state = state.copyWith(progression: merged);
+            await _repository.saveProgression(merged);
+          },
+        );
+      } catch (_) {
+        // Offline: giữ local, lần học sau sẽ sync lên.
+      }
+    }
   }
 
   UserProgression _checkStreak(UserProgression p) {
@@ -70,7 +91,14 @@ class ProgressionController extends Notifier<ProgressionState> {
     }
   }
 
-  Future<bool> addExp(int amount) async {
+  Future<bool> addExp(int amount) => _addExpAndSync(amount);
+
+  Future<bool> _addExpAndSync(
+    int amount, {
+    bool? cardStudied,
+    bool? wordMastered,
+    bool? correctExercise,
+  }) async {
     final current = state.progression;
     var newExp = current.currentExp + amount;
     var newTotalExp = current.totalExp + amount;
@@ -96,7 +124,43 @@ class ProgressionController extends Notifier<ProgressionState> {
     );
 
     await _repository.saveProgression(updatedProgression);
+    _syncToBackend(
+      expGained: amount,
+      cardStudied: cardStudied,
+      wordMastered: wordMastered,
+      correctExercise: correctExercise,
+    );
     return leveledUp;
+  }
+
+  void _syncToBackend({
+    int? expGained,
+    bool? cardStudied,
+    bool? wordMastered,
+    bool? correctExercise,
+  }) {
+    if (ApiConstants.useMockData) return;
+    Future.microtask(() async {
+      try {
+        final sync = ref.read(syncProgressionUseCaseProvider);
+        final result = await sync(
+          expGained: expGained,
+          cardStudied: cardStudied,
+          wordMastered: wordMastered,
+          correctExercise: correctExercise,
+        );
+        result.fold(
+          (_) {},
+          (server) async {
+            // Backend tính lại level/streak chuẩn: lấy về để BXH khớp mọi máy.
+            state = state.copyWith(progression: server);
+            await _repository.saveProgression(server);
+          },
+        );
+      } catch (_) {
+        // Offline: local vẫn đúng, lần sau sync tiếp.
+      }
+    });
   }
 
   Future<bool> recordCardStudied({bool isEasy = false}) async {
@@ -110,11 +174,14 @@ class ProgressionController extends Notifier<ProgressionState> {
 
     await _repository.saveProgression(updatedProgression);
     state = state.copyWith(progression: updatedProgression);
-    return addExp(expReward);
+    // Gộp 1 lần sync trong _addExpAndSync (kèm cardStudied + expGained).
+    // Không sync riêng ở đây để backend khỏi cộng 2 lần totalReviews.
+    return _addExpAndSync(expReward, cardStudied: true, wordMastered: isEasy);
   }
 
-  Future<bool> recordCorrectExercise() async {
-    return addExp(15);
+  Future<bool> recordCorrectExercise() {
+    // Gộp 1 lần sync trong _addExpAndSync (kèm correctExercise + expGained).
+    return _addExpAndSync(15, correctExercise: true);
   }
 
   void dismissLevelUp() {

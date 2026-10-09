@@ -6,6 +6,8 @@ import 'package:pp191225/data/datasources/local/progression_local_datasource.dar
 import 'package:pp191225/data/datasources/local/settings_local_datasource.dart';
 import 'package:pp191225/data/datasources/remote/auth_remote_datasource.dart';
 import 'package:pp191225/data/datasources/remote/auth_remote_datasource_impl.dart';
+import 'package:pp191225/data/datasources/remote/gamification_remote_datasource.dart';
+import 'package:pp191225/data/datasources/remote/gamification_remote_datasource_impl.dart';
 import 'package:pp191225/data/datasources/remote/task_remote_datasource.dart';
 import 'package:pp191225/data/datasources/remote/task_remote_datasource_impl.dart';
 import 'package:pp191225/data/datasources/remote/user_remote_datasource.dart';
@@ -56,6 +58,11 @@ final taskRemoteDataSourceProvider = Provider<TaskRemoteDataSource>((ref) {
 final vocabRemoteDataSourceProvider = Provider<VocabRemoteDataSource>((ref) {
   final apiService = ref.watch(apiServiceProvider);
   return VocabRemoteDataSourceImpl(apiService);
+});
+
+final gamificationRemoteDataSourceProvider = Provider<GamificationRemoteDataSource>((ref) {
+  final apiService = ref.watch(apiServiceProvider);
+  return GamificationRemoteDataSourceImpl(apiService);
 });
 
 final progressionLocalDataSourceProvider = Provider<ProgressionLocalDataSource>((ref) {

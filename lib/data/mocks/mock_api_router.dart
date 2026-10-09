@@ -1,5 +1,6 @@
 import 'package:pp191225/core/constants/api_endpoints.dart';
 import 'package:pp191225/data/mocks/auth_mock.dart';
+import 'package:pp191225/data/mocks/gamification_mock.dart';
 import 'package:pp191225/data/mocks/task_mock.dart';
 import 'package:pp191225/data/mocks/user_mock.dart';
 import 'package:pp191225/data/mocks/vocab_mock.dart';
@@ -47,6 +48,18 @@ class MockApiRouter {
     if (route == 'PUT ${ApiEndpoints.userProfile}') {
       return UserMock.updateProfile(body);
     }
+    if (route == 'PATCH ${ApiEndpoints.userProfile}') {
+      return UserMock.updateProfile(body);
+    }
+    // Gamification (dev UI offline, response y hệt backend thật)
+    if (route == 'GET ${ApiEndpoints.userProgression}') return GamificationMock.progression();
+    if (route == 'POST ${ApiEndpoints.userProgressionAdd}') {
+      return GamificationMock.addProgression(body);
+    }
+    if (route == 'GET ${ApiEndpoints.leaderboard}') {
+      return GamificationMock.leaderboard(params);
+    }
+
     final userId = _userById.firstMatch(path)?.group(1);
     if (method == 'GET' && userId != null) return UserMock.getById(userId);
 

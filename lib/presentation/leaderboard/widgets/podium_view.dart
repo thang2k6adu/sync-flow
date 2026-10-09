@@ -13,8 +13,71 @@ class PodiumView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (topThree.length < 3) return const SizedBox.shrink();
+    if (topThree.isEmpty) return const SizedBox.shrink();
 
+    // 1 người duy nhất (Hạng 1 ở giữa)
+    if (topThree.length == 1) {
+      final rank1 = topThree[0];
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 130,
+              child: _PodiumColumn(
+                entry: rank1,
+                podiumHeight: 130,
+                badgeColor: const Color(0xFFFFB800), // Vàng
+                badgeIcon: Icons.emoji_events_rounded,
+                badgeLabel: '1',
+                avatarSize: 66,
+                isFirst: true,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // 2 người (Hạng 1 và Hạng 2)
+    if (topThree.length == 2) {
+      final rank1 = topThree[0];
+      final rank2 = topThree[1];
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              child: _PodiumColumn(
+                entry: rank1,
+                podiumHeight: 130,
+                badgeColor: const Color(0xFFFFB800), // Vàng
+                badgeIcon: Icons.emoji_events_rounded,
+                badgeLabel: '1',
+                avatarSize: 66,
+                isFirst: true,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _PodiumColumn(
+                entry: rank2,
+                podiumHeight: 110,
+                badgeColor: const Color(0xFFA0AEC0), // Bạc
+                badgeIcon: Icons.workspace_premium_rounded,
+                badgeLabel: '2',
+                avatarSize: 56,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Đủ 3 người (Rank 3 - 1 - 2)
     final rank1 = topThree[0];
     final rank2 = topThree[1];
     final rank3 = topThree[2];
