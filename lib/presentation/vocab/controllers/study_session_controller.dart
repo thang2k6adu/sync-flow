@@ -342,7 +342,7 @@ class StudySessionController
         .trim();
   }
 
-  Future<void> submitRating(String rating) async {
+  Future<void> submitRating(String? rating) async {
     final item = state.currentItem;
     if (item == null) return;
 

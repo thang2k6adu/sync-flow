@@ -332,8 +332,25 @@ class StudySessionScreen extends ConsumerWidget {
         children: [
           Expanded(child: _buildStudyContent(state, currentItem, controller)),
 
-          // SRS Action Rating Bar
-          SrsRatingBar(onRating: (rating) => controller.submitRating(rating)),
+          // Action Bar
+          if (state.studyMode == StudyMode.flashcard)
+            SrsRatingBar(onRating: (rating) => controller.submitRating(rating))
+          else if (state.isExerciseSubmitted)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                border: Border(top: BorderSide(color: ChunkyColors.border, width: 2)),
+              ),
+              child: SafeArea(
+                top: false,
+                child: ChunkyButton(
+                  label: 'Tiếp tục',
+                  onPressed: () => controller.submitRating(null),
+                ),
+              ),
+            ),
         ],
       ),
     );
