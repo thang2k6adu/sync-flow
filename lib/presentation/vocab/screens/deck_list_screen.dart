@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lottie/lottie.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:pp191225/core/constants/route_constants.dart';
 import 'package:pp191225/core/theme/app_theme.dart';
 import 'package:pp191225/domain/entities/vocab/deck.dart';
@@ -10,6 +12,19 @@ import 'package:pp191225/presentation/vocab/widgets/deck_card_item.dart';
 import 'package:pp191225/presentation/vocab/widgets/leech_rescue_widgets.dart';
 import 'package:pp191225/shared/widgets/common/chunky_card.dart';
 import 'package:pp191225/shared/widgets/feedback/overlay.dart';
+
+enum DeckSortOption {
+  none('Mới nhất (Mặc định)'),
+  category('Theo Chủ đề (Tags)'),
+  cefr('Theo Trình độ (CEFR)');
+
+  final String label;
+  const DeckSortOption(this.label);
+}
+
+final deckSortProvider = StateProvider<DeckSortOption>((ref) => DeckSortOption.none);
+final selectedCategoryProvider = StateProvider<String?>((ref) => null);
+final selectedCefrProvider = StateProvider<String?>((ref) => null);
 
 class DeckListScreen extends ConsumerWidget {
   const DeckListScreen({super.key});
@@ -53,6 +68,7 @@ class DeckListScreen extends ConsumerWidget {
     final decksAsync = ref.watch(deckListControllerProvider);
     final leechCountAsync = ref.watch(leechCountProvider);
     final leechCount = leechCountAsync.value ?? 0;
+    final sortOption = ref.watch(deckSortProvider);
 
     return DefaultTabController(
       length: 2,
@@ -73,6 +89,33 @@ class DeckListScreen extends ConsumerWidget {
             ),
           ),
           actions: [
+            PopupMenuButton<DeckSortOption>(
+              icon: Icon(Icons.sort_rounded, color: colors.brand),
+              tooltip: 'Sắp xếp',
+              onSelected: (option) => ref.read(deckSortProvider.notifier).state = option,
+              itemBuilder: (context) => DeckSortOption.values
+                  .map((opt) => PopupMenuItem(
+                        value: opt,
+                        child: Row(
+                          children: [
+                            Icon(
+                              sortOption == opt ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
+                              color: sortOption == opt ? colors.brand : colors.textSub,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              opt.label,
+                              style: TextStyle(
+                                color: sortOption == opt ? colors.brand : colors.textMain,
+                                fontWeight: sortOption == opt ? FontWeight.w700 : FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ))
+                  .toList(),
+            ),
             IconButton(
               icon: Icon(Icons.school_rounded, color: colors.brand),
               tooltip: 'Học ngay (Toàn bộ)',
@@ -158,45 +201,80 @@ class DeckListScreen extends ConsumerWidget {
             ),
           ),
           data: (decks) {
-            final systemDecks = decks.where((d) => d.isSystem).toList();
-            final personalDecks = decks.where((d) => !d.isSystem).toList();
+            final categories = decks.map((d) => d.category).whereType<String>().toSet().toList()..sort();
+            final cefrLevels = decks.map((d) => d.cefrLevel).whereType<String>().toSet().toList()..sort();
 
-            return TabBarView(
+            final selectedCat = ref.watch(selectedCategoryProvider);
+            final selectedCefr = ref.watch(selectedCefrProvider);
+
+            var filteredDecks = List<Deck>.from(decks);
+
+            if (selectedCat != null) {
+              filteredDecks = filteredDecks.where((d) => d.category == selectedCat).toList();
+            }
+            if (selectedCefr != null) {
+              filteredDecks = filteredDecks.where((d) => d.cefrLevel == selectedCefr).toList();
+            }
+
+            if (sortOption == DeckSortOption.category) {
+              filteredDecks.sort((a, b) => (a.category ?? 'z').compareTo(b.category ?? 'z'));
+            } else if (sortOption == DeckSortOption.cefr) {
+              filteredDecks.sort((a, b) => (a.cefrLevel ?? 'z').compareTo(b.cefrLevel ?? 'z'));
+            }
+
+            final systemDecks = filteredDecks.where((d) => d.isSystem).toList();
+            final personalDecks = filteredDecks.where((d) => !d.isSystem).toList();
+
+            return Column(
               children: [
-                // Tab 1: Khám phá (System Decks)
-                _SystemDecksTab(
-                  decks: systemDecks,
-                  colors: colors,
-                  onStudy: (deck) => context.push(
-                    RouteConstants.studySession,
-                    extra: deck.id,
+                if (categories.isNotEmpty || cefrLevels.isNotEmpty)
+                  _FiltersSection(
+                    categories: categories,
+                    cefrLevels: cefrLevels,
+                    selectedCat: selectedCat,
+                    selectedCefr: selectedCefr,
+                    colors: colors,
                   ),
-                  onTap: (deck) => context.push(
-                    RouteConstants.deckDetail,
-                    extra: deck,
-                  ),
-                  onRefresh: () =>
-                      ref.read(deckListControllerProvider.notifier).refresh(),
-                ),
+                Expanded(
+                  child: TabBarView(
+                    children: [
+                      // Tab 1: Khám phá (System Decks)
+                      _SystemDecksTab(
+                        decks: systemDecks,
+                        colors: colors,
+                        onStudy: (deck) => context.push(
+                          RouteConstants.studySession,
+                          extra: deck.id,
+                        ),
+                        onTap: (deck) => context.push(
+                          RouteConstants.deckDetail,
+                          extra: deck,
+                        ),
+                        onRefresh: () =>
+                            ref.read(deckListControllerProvider.notifier).refresh(),
+                      ),
 
-                // Tab 2: Thư viện của tôi (Personal Decks)
-                _PersonalDecksTab(
-                  decks: personalDecks,
-                  leechCount: leechCount,
-                  colors: colors,
-                  onStudy: (deck) => context.push(
-                    RouteConstants.studySession,
-                    extra: deck.id,
+                      // Tab 2: Thư viện của tôi (Personal Decks)
+                      _PersonalDecksTab(
+                        decks: personalDecks,
+                        leechCount: leechCount,
+                        colors: colors,
+                        onStudy: (deck) => context.push(
+                          RouteConstants.studySession,
+                          extra: deck.id,
+                        ),
+                        onTap: (deck) => context.push(
+                          RouteConstants.deckDetail,
+                          extra: deck,
+                        ),
+                        onDelete: (deck) => _confirmDelete(context, ref, deck),
+                        onRefresh: () =>
+                            ref.read(deckListControllerProvider.notifier).refresh(),
+                        onCreateDeck: () => _showCreateDialog(context),
+                        onStartLeech: () => _startLeechRescue(context),
+                      ),
+                    ],
                   ),
-                  onTap: (deck) => context.push(
-                    RouteConstants.deckDetail,
-                    extra: deck,
-                  ),
-                  onDelete: (deck) => _confirmDelete(context, ref, deck),
-                  onRefresh: () =>
-                      ref.read(deckListControllerProvider.notifier).refresh(),
-                  onCreateDeck: () => _showCreateDialog(context),
-                  onStartLeech: () => _startLeechRescue(context),
                 ),
               ],
             );
@@ -220,6 +298,120 @@ class DeckListScreen extends ConsumerWidget {
             side: BorderSide(color: colors.brandDark, width: 2),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _FiltersSection extends ConsumerWidget {
+  final List<String> categories;
+  final List<String> cefrLevels;
+  final String? selectedCat;
+  final String? selectedCefr;
+  final AppThemeColors colors;
+
+  const _FiltersSection({
+    required this.categories,
+    required this.cefrLevels,
+    required this.selectedCat,
+    required this.selectedCefr,
+    required this.colors,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        border: Border(bottom: BorderSide(color: colors.border, width: 1)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (categories.isNotEmpty) ...[
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: Text(
+                'Lọc theo chủ đề',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: colors.textSub,
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 40,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                children: [
+                  _buildChip('Tất cả', selectedCat == null, () {
+                    ref.read(selectedCategoryProvider.notifier).state = null;
+                  }),
+                  ...categories.map((cat) => _buildChip(cat, selectedCat == cat, () {
+                        ref.read(selectedCategoryProvider.notifier).state = cat;
+                      })),
+                ],
+              ),
+            ),
+          ],
+          if (categories.isNotEmpty && cefrLevels.isNotEmpty) const SizedBox(height: 12),
+          if (cefrLevels.isNotEmpty) ...[
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: Text(
+                'Lọc theo trình độ',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: colors.textSub,
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 40,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                children: [
+                  _buildChip('Tất cả', selectedCefr == null, () {
+                    ref.read(selectedCefrProvider.notifier).state = null;
+                  }),
+                  ...cefrLevels.map((lvl) => _buildChip(lvl, selectedCefr == lvl, () {
+                        ref.read(selectedCefrProvider.notifier).state = lvl;
+                      })),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChip(String label, bool isSelected, VoidCallback onTap) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: ChoiceChip(
+        label: Text(label),
+        selected: isSelected,
+        onSelected: (_) => onTap(),
+        selectedColor: colors.brandSoft,
+        backgroundColor: colors.background,
+        labelStyle: TextStyle(
+          color: isSelected ? colors.brand : colors.textSub,
+          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+          fontSize: 13,
+        ),
+        side: BorderSide(
+          color: isSelected ? colors.brand : colors.border,
+          width: isSelected ? 2 : 1,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        showCheckmark: false,
       ),
     );
   }
@@ -257,25 +449,41 @@ class _SystemDecksTab extends StatelessWidget {
                 fillColor: colors.brand,
                 borderColor: colors.brandDark,
                 padding: const EdgeInsets.all(20),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
                   children: [
-                    Text(
-                      'Bộ từ chuẩn hóa',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w700,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Bộ từ chuẩn hóa',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 22,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          const Text(
+                            'Lộ trình CEFR, IELTS, TOEIC. Được biên soạn bởi chuyên gia.',
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    SizedBox(height: 6),
-                    Text(
-                      'Học theo lộ trình CEFR, IELTS, TOEIC hoặc chủ đề cuộc sống. Được biên soạn bởi chuyên gia.',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
+                    const SizedBox(width: 12),
+                    // Cậu có thể thay link .json này bằng link Lottie bất kỳ nhé!
+                    Lottie.network(
+                      'https://assets4.lottiefiles.com/packages/lf20_u4yrau.json', // Thay link Lottie (JSON) vào đây
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) =>
+                          const Icon(Icons.auto_stories_rounded, size: 64, color: Colors.white54),
                     ),
                   ],
                 ),
@@ -290,7 +498,14 @@ class _SystemDecksTab extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 32),
                 child: Column(
                   children: [
-                    Icon(Icons.explore_rounded, size: 72, color: colors.brandBorder),
+                    Lottie.network(
+                      'https://assets9.lottiefiles.com/packages/lf20_k9wsvz.json', // Thay Lottie ngộ nghĩnh
+                      width: 120,
+                      height: 120,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) =>
+                          Icon(Icons.explore_rounded, size: 72, color: colors.brandBorder),
+                    ),
                     const SizedBox(height: 16),
                     Text(
                       'Sắp ra mắt!',
@@ -315,18 +530,24 @@ class _SystemDecksTab extends StatelessWidget {
               ),
             )
           else
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
+            SliverToBoxAdapter(
+              child: CarouselSlider.builder(
+                itemCount: decks.length,
+                options: CarouselOptions(
+                  height: 500,
+                  enlargeCenterPage: true,
+                  viewportFraction: 0.85,
+                  enableInfiniteScroll: false,
+                ),
+                itemBuilder: (context, index, realIndex) {
                   final deck = decks[index];
-                  return _SystemDeckCard(
+                  return DeckCardItem(
                     deck: deck,
-                    colors: colors,
+                    isSystem: true,
                     onTap: () => onTap(deck),
                     onStudy: () => onStudy(deck),
                   );
                 },
-                childCount: decks.length,
               ),
             ),
 
@@ -337,164 +558,6 @@ class _SystemDecksTab extends StatelessWidget {
   }
 }
 
-/// Card riêng cho System Deck — không có nút xoá, có badge "Hệ thống"
-class _SystemDeckCard extends StatelessWidget {
-  final Deck deck;
-  final AppThemeColors colors;
-  final VoidCallback onTap;
-  final VoidCallback onStudy;
-
-  const _SystemDeckCard({
-    required this.deck,
-    required this.colors,
-    required this.onTap,
-    required this.onStudy,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      child: ChunkyCard(
-        onTap: onTap,
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [colors.brand, colors.brandDark],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: const Icon(Icons.auto_stories_rounded,
-                      color: Colors.white, size: 26),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              deck.name,
-                              style: TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w700,
-                                color: colors.textMain,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: colors.brandSoft,
-                              borderRadius: BorderRadius.circular(6),
-                              border: Border.all(
-                                  color: colors.brandBorder, width: 1),
-                            ),
-                            child: Text(
-                              'HỆ THỐNG',
-                              style: TextStyle(
-                                fontSize: 9,
-                                fontWeight: FontWeight.w800,
-                                color: colors.brand,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      if (deck.description != null &&
-                          deck.description!.isNotEmpty) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          deck.description!,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: colors.textSub,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                if (deck.cefrLevel != null)
-                  Container(
-                    margin: const EdgeInsets.only(left: 8),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: colors.brandSoft,
-                      borderRadius: BorderRadius.circular(10),
-                      border:
-                          Border.all(color: colors.brandBorder, width: 2),
-                    ),
-                    child: Text(
-                      deck.cefrLevel!,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: colors.brand,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Icon(Icons.style_rounded, size: 16, color: colors.textSub),
-                const SizedBox(width: 6),
-                Text(
-                  '${deck.cardCount} thẻ',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: colors.textSub,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                if (deck.category != null) ...[
-                  const SizedBox(width: 12),
-                  Icon(Icons.category_rounded, size: 16, color: colors.textSub),
-                  const SizedBox(width: 4),
-                  Text(
-                    deck.category!,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: colors.textSub,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-                const Spacer(),
-                SizedBox(
-                  width: 128,
-                  child: ChunkyButton(label: 'Bắt đầu học', onPressed: onStudy),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 /// Tab Thư viện của tôi — Personal Decks
 class _PersonalDecksTab extends StatelessWidget {
@@ -536,33 +599,49 @@ class _PersonalDecksTab extends StatelessWidget {
                 fillColor: colors.brand,
                 borderColor: colors.brandDark,
                 padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
                   children: [
-                    const Text(
-                      'Ôn tập mỗi ngày',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w700,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Ôn tập mỗi ngày',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 22,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          const Text(
+                            'Ôn đúng lúc sắp quên để nhớ lâu hơn.',
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          ChunkyButton(
+                            label: 'Bắt đầu ôn tập',
+                            color: Colors.white,
+                            shadowColor: colors.brandBorder,
+                            textColor: colors.brand,
+                            onPressed: () => context.push(RouteConstants.studySession),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'Ôn đúng lúc sắp quên để nhớ lâu hơn.',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    ChunkyButton(
-                      label: 'Bắt đầu ôn tập',
-                      color: Colors.white,
-                      shadowColor: colors.brandBorder,
-                      textColor: colors.brand,
-                      onPressed: () => context.push(RouteConstants.studySession),
+                    const SizedBox(width: 12),
+                    // Cậu có thể thay bằng link Lottie (.json) khác nếu muốn!
+                    Lottie.network(
+                      'https://assets3.lottiefiles.com/packages/lf20_1LhsaB.json', // Thay link Lottie
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) =>
+                          const Icon(Icons.school_rounded, size: 64, color: Colors.white54),
                     ),
                   ],
                 ),
@@ -612,10 +691,13 @@ class _PersonalDecksTab extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 32),
                 child: Column(
                   children: [
-                    Icon(
-                      Icons.style_rounded,
-                      size: 72,
-                      color: colors.brandBorder,
+                    Lottie.network(
+                      'https://assets9.lottiefiles.com/packages/lf20_UJNc2t.json', // Thay Lottie box empty
+                      width: 120,
+                      height: 120,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) =>
+                          Icon(Icons.style_rounded, size: 72, color: colors.brandBorder),
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -646,9 +728,16 @@ class _PersonalDecksTab extends StatelessWidget {
               ),
             )
           else
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
+            SliverToBoxAdapter(
+              child: CarouselSlider.builder(
+                itemCount: decks.length,
+                options: CarouselOptions(
+                  height: 500,
+                  enlargeCenterPage: true,
+                  viewportFraction: 0.85,
+                  enableInfiniteScroll: false,
+                ),
+                itemBuilder: (context, index, realIndex) {
                   final deck = decks[index];
                   return DeckCardItem(
                     deck: deck,
@@ -657,7 +746,6 @@ class _PersonalDecksTab extends StatelessWidget {
                     onDelete: () => onDelete(deck),
                   );
                 },
-                childCount: decks.length,
               ),
             ),
           const SliverToBoxAdapter(child: SizedBox(height: 96)),
