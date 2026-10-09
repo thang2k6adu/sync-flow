@@ -7,10 +7,7 @@ import 'package:pp191225/shared/widgets/common/chunky_card.dart';
 class MyStandingCard extends StatelessWidget {
   final LeaderboardEntry myStanding;
 
-  const MyStandingCard({
-    super.key,
-    required this.myStanding,
-  });
+  const MyStandingCard({super.key, required this.myStanding});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +18,7 @@ class MyStandingCard extends StatelessWidget {
       child: ChunkyCard(
         padding: const EdgeInsets.all(16),
         fillColor: colors.surface,
-        borderColor: colors.brand.withOpacity(0.35),
+        borderColor: colors.brand.withValues(alpha: 0.35),
         child: Column(
           children: [
             // Thông tin cá nhân
@@ -36,7 +33,9 @@ class MyStandingCard extends StatelessWidget {
                     border: Border.all(color: colors.brand, width: 2),
                   ),
                   child: ClipOval(
-                    child: myStanding.avatar != null && myStanding.avatar!.isNotEmpty
+                    child:
+                        myStanding.avatar != null &&
+                            myStanding.avatar!.isNotEmpty
                         ? Image.network(
                             myStanding.avatar!,
                             fit: BoxFit.cover,
@@ -79,9 +78,12 @@ class MyStandingCard extends StatelessWidget {
 
                 // Thẻ điểm EXP
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
-                    color: colors.amber.withOpacity(0.12),
+                    color: colors.amber.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -109,15 +111,17 @@ class MyStandingCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               decoration: BoxDecoration(
-                color: colors.mint.withOpacity(0.08),
+                color: colors.mint.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: colors.mint.withOpacity(0.25),
+                  color: colors.mint.withValues(alpha: 0.25),
                   width: 1,
                 ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                alignment: WrapAlignment.spaceBetween,
                 children: [
                   // Thứ hạng hiện tại
                   Row(
@@ -146,12 +150,16 @@ class MyStandingCard extends StatelessWidget {
                   // Tăng trưởng (chỉ hiển thị khi có dữ liệu so với kỳ trước;
                   // backend chưa trả rankDiff nên mặc định 0 -> hiển thị trung tính)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
-                      color: (myStanding.rankDiff == 0
-                              ? colors.textSub
-                              : colors.mintDark)
-                          .withOpacity(0.12),
+                      color:
+                          (myStanding.rankDiff == 0
+                                  ? colors.textSub
+                                  : const Color(0xFF008C63))
+                              .withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -164,7 +172,7 @@ class MyStandingCard extends StatelessWidget {
                           size: 15,
                           color: myStanding.rankDiff == 0
                               ? colors.textSub
-                              : colors.mintDark,
+                              : const Color(0xFF008C63),
                         ),
                         const SizedBox(width: 4),
                         Text(
@@ -177,7 +185,7 @@ class MyStandingCard extends StatelessWidget {
                             fontWeight: FontWeight.w700,
                             color: myStanding.rankDiff == 0
                                 ? colors.textSub
-                                : colors.mintDark,
+                                : const Color(0xFF008C63),
                           ),
                         ),
                       ],
@@ -197,7 +205,9 @@ class MyStandingCard extends StatelessWidget {
       color: colors.brandSoft,
       alignment: Alignment.center,
       child: Text(
-        myStanding.name.isNotEmpty ? myStanding.name.substring(0, 1).toUpperCase() : 'U',
+        myStanding.name.isNotEmpty
+            ? myStanding.name.substring(0, 1).toUpperCase()
+            : 'U',
         style: TextStyle(
           fontFamily: AppFonts.poppins,
           fontWeight: FontWeight.w800,

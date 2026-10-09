@@ -1,114 +1,71 @@
 import 'package:flutter/material.dart';
-import 'package:pp191225/core/theme/app_theme.dart';
 
-/// ActionButton kiểu dáng 3D Chunky (Duolingo Style):
-/// - Sử dụng Transform.translate an toàn tuyệt đối với mọi Layout Constraints.
-class ActionButton extends StatefulWidget {
-  final String text;
-  final Color? backgroundColor;
-  final Color? shadowColor;
-  final Color textColor;
-  final VoidCallback? onPressed;
-  final double borderRadius;
-  final EdgeInsetsGeometry padding;
-  final bool isLoading;
-  final double depth;
+/// ActionButton là một button tùy biến, có thể sử dụng cho nhiều hành động khác nhau.
+/// Ví dụ: Follow, Like, Save, Add to Cart, hoặc bất kỳ hành động nào trong app.
+///
+/// - [text]: Văn bản hiển thị trên button.
+/// - [backgroundColor]: Màu nền của button, mặc định là màu primary của theme.
+/// - [textColor]: Màu chữ trên button, mặc định là trắng.
+/// - [onPressed]: Callback khi button được nhấn.
+/// - [borderRadius]: Bán kính bo tròn của button, mặc định 8.0.
+/// - [padding]: Padding bên trong button, mặc định là `EdgeInsets.symmetric(horizontal: 20, vertical: 8)`.
+///
+/// Ví dụ sử dụng:
+/// ```dart
+/// ActionButton(
+///   text: 'Follow',
+///   onPressed: () {
+///     print('Follow clicked');
+///   },
+///   borderRadius: 12,
+///   padding: EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+/// )
+/// ```
+class ActionButton extends StatelessWidget {
+  final String text; // Text hiện trên button (ví dụ: Follow, Save, Like...)
+  final Color? backgroundColor; // Màu nền của button (null = primary của theme)
+  final Color textColor; // Màu chữ của button
+  final VoidCallback? onPressed; // Callback khi nhấn button
+  final double borderRadius; // Lưu ý có thể tuỳ chỉnh border radius của button
+  final EdgeInsetsGeometry padding; // Padding của button
+  final bool isLoading; // Cho phép nhấn button
 
   const ActionButton({
     super.key,
     required this.text,
     this.backgroundColor,
-    this.shadowColor,
     this.textColor = Colors.white,
     this.onPressed,
-    this.borderRadius = 12.0,
-    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    this.borderRadius = 4.0,
+    this.padding = const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
     this.isLoading = false,
-    this.depth = 3.0,
   });
 
   @override
-  State<ActionButton> createState() => _ActionButtonState();
-}
-
-class _ActionButtonState extends State<ActionButton> {
-  bool _isPressed = false;
-
-  bool get _isEnabled => widget.onPressed != null && !widget.isLoading;
-
-  void _handleTapDown(TapDownDetails _) {
-    if (!_isEnabled) return;
-    setState(() => _isPressed = true);
-  }
-
-  void _handleTapUp(TapUpDetails _) {
-    if (!_isEnabled) return;
-    setState(() => _isPressed = false);
-    widget.onPressed?.call();
-  }
-
-  void _handleTapCancel() {
-    if (!_isEnabled) return;
-    setState(() => _isPressed = false);
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final colors = context.themeColors;
-
-    final Color faceColor = widget.backgroundColor ?? colors.brand;
-    final Color baseColor = widget.shadowColor ??
-        (widget.backgroundColor != null
-            ? Color.lerp(widget.backgroundColor, Colors.black, 0.25)!
-            : colors.brandDark);
-
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTapDown: _handleTapDown,
-      onTapUp: _handleTapUp,
-      onTapCancel: _handleTapCancel,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minWidth: 80),
-        child: Container(
-          decoration: BoxDecoration(
-            color: _isEnabled ? baseColor : colors.border,
-            borderRadius: BorderRadius.circular(widget.borderRadius),
-          ),
-          padding: EdgeInsets.only(bottom: widget.depth),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 60),
-            curve: Curves.easeOutQuad,
-            transform: Matrix4.translationValues(
-              0,
-              _isPressed ? widget.depth : 0,
-              0,
-            ),
-            padding: widget.padding,
-            decoration: BoxDecoration(
-              color: _isEnabled ? faceColor : colors.surfaceMuted,
-              borderRadius: BorderRadius.circular(widget.borderRadius),
-            ),
-            alignment: Alignment.center,
-            child: widget.isLoading
-                ? SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor:
-                          AlwaysStoppedAnimation<Color>(widget.textColor),
-                    ),
-                  )
-                : Text(
-                    widget.text,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: _isEnabled ? widget.textColor : colors.textSub,
-                    ),
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minWidth: 80),
+      child: Container(
+        padding: padding,
+        decoration: BoxDecoration(
+          color: isLoading
+              ? Colors.grey[300]
+              : (backgroundColor ?? Theme.of(context).colorScheme.primary),
+          borderRadius: BorderRadius.circular(borderRadius),
+        ),
+        child: GestureDetector(
+          onTap: isLoading ? () => {} : onPressed,
+          child: isLoading
+              ? const Text('...', textAlign: TextAlign.center)
+              : Text(
+                  text,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    color: textColor,
                   ),
-          ),
+                ),
         ),
       ),
     );

@@ -4,6 +4,7 @@ import 'package:pp191225/domain/entities/vocab/deck.dart';
 import 'package:pp191225/domain/usecases/vocab/create_deck_usecase.dart';
 import 'package:pp191225/domain/usecases/vocab/delete_deck_usecase.dart';
 import 'package:pp191225/domain/usecases/vocab/get_decks_usecase.dart';
+import 'package:pp191225/domain/usecases/vocab/get_study_queue_usecase.dart';
 import 'package:pp191225/providers/usecases_provider.dart';
 
 final deckListControllerProvider =
@@ -18,38 +19,6 @@ final leechCountProvider = FutureProvider.autoDispose<int>((ref) async {
   return result.fold(
     (l) => 0,
     (queue) => queue.where((item) => item.isLeech).length,
-  );
-});
-
-/// Tổng quan trạng thái học tập phục vụ Dashboard Home hiện đại
-class StudySummary {
-  final int dueCount;
-  final int leechCount;
-  final Deck? recommendedDeck;
-
-  const StudySummary({
-    required this.dueCount,
-    required this.leechCount,
-    this.recommendedDeck,
-  });
-}
-
-final studySummaryProvider = FutureProvider.autoDispose<StudySummary>((ref) async {
-  final getQueue = ref.read(getStudyQueueUseCaseProvider);
-  final decksAsync = ref.watch(deckListControllerProvider);
-  final queueResult = await getQueue(limit: 100);
-
-  final queue = queueResult.fold((l) => [], (r) => r);
-  final dueCount = queue.length;
-  final leechCount = queue.where((item) => item.isLeech).length;
-
-  final decks = decksAsync.value ?? [];
-  final recommended = decks.isNotEmpty ? decks.first : null;
-
-  return StudySummary(
-    dueCount: dueCount,
-    leechCount: leechCount,
-    recommendedDeck: recommended,
   );
 });
 

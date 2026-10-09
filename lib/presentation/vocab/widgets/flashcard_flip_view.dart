@@ -1,15 +1,10 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pp191225/core/theme/app_fonts.dart';
-import 'package:pp191225/core/theme/app_theme.dart';
 import 'package:pp191225/domain/entities/vocab/study_item.dart';
 import 'package:pp191225/providers/datasources_provider.dart';
 import 'package:pp191225/shared/widgets/common/chunky_card.dart';
 
-/// Flashcard phong cách Duolingo: thẻ trắng/viền xám, chữ Poppins đậm,
-/// nút loa viền, lật 3D có haptic. Tự thích ứng Light/Dark qua themeColors.
 class FlashcardFlipView extends ConsumerWidget {
   final StudyItem item;
   final bool isFlipped;
@@ -24,15 +19,11 @@ class FlashcardFlipView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final colors = context.themeColors;
     return GestureDetector(
-      onTap: () {
-        HapticFeedback.selectionClick();
-        onFlip();
-      },
+      onTap: onFlip,
       behavior: HitTestBehavior.opaque,
       child: TweenAnimationBuilder(
-        duration: const Duration(milliseconds: 400),
+        duration: const Duration(milliseconds: 350),
         curve: Curves.easeInOut,
         tween: Tween<double>(begin: 0, end: isFlipped ? 180 : 0),
         builder: (context, double value, child) {
@@ -43,22 +34,21 @@ class FlashcardFlipView extends ConsumerWidget {
               ..setEntry(3, 2, 0.001)
               ..rotateY((value * pi) / 180),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               child: ChunkyCard(
-                depth: 4,
-                radius: 20,
-                fillColor: colors.surface,
-                borderColor: colors.borderStrong,
+                depth: 5,
+                radius: 24,
+                borderColor: isBack ? ChunkyColors.brandBorder : ChunkyColors.border,
                 padding: EdgeInsets.zero,
                 child: SizedBox(
-                  height: 420,
+                  height: 380,
                   child: isBack
                       ? Transform(
                           alignment: Alignment.center,
                           transform: Matrix4.identity()..rotateY(pi),
-                          child: _buildBackContent(context, ref, colors),
+                          child: _buildBackContent(ref),
                         )
-                      : _buildFrontContent(context, ref, colors),
+                      : _buildFrontContent(ref),
                 ),
               ),
             ),
@@ -68,30 +58,26 @@ class FlashcardFlipView extends ConsumerWidget {
     );
   }
 
-  /// Mặt trước kiểu Duolingo: từ lớn căn giữa + phonetic + nút loa viền.
-  Widget _buildFrontContent(
-      BuildContext context, WidgetRef ref, AppThemeColors colors) {
-    final textTheme = Theme.of(context).textTheme;
+  Widget _buildFrontContent(WidgetRef ref) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 22, 24, 20),
+      padding: const EdgeInsets.all(24),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             decoration: BoxDecoration(
-              color: colors.brandSoft,
-              borderRadius: BorderRadius.circular(999),
-              border: Border.all(color: colors.brandBorder, width: 1.5),
+              color: ChunkyColors.brandSoft,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: ChunkyColors.brandBorder, width: 1.5),
             ),
             child: Text(
-              'CẤP ĐỘ SRS: ${item.masteryLevel}'.toUpperCase(),
-              style: TextStyle(
-                fontFamily: AppFonts.poppins,
-                fontSize: 11,
-                fontWeight: FontWeight.w800,
-                color: colors.brand,
-                letterSpacing: 0.8,
+              'CẤP ĐỘ SRS: ${item.masteryLevel}',
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: ChunkyColors.brand,
+                letterSpacing: 0.5,
               ),
             ),
           ),
@@ -99,56 +85,70 @@ class FlashcardFlipView extends ConsumerWidget {
           Text(
             item.term,
             textAlign: TextAlign.center,
-            style: (textTheme.displayLarge ??
-                    const TextStyle(fontSize: 36, fontWeight: FontWeight.w700))
-                .copyWith(
-              fontFamily: AppFonts.poppins,
-              fontSize: 38,
-              fontWeight: FontWeight.w700,
-              height: 1.15,
-              letterSpacing: -0.2,
-              color: colors.textMain,
+            style: const TextStyle(
+              fontSize: 34,
+              fontWeight: FontWeight.w800,
+              color: ChunkyColors.textMain,
             ),
           ),
           if (item.phonetic != null && item.phonetic!.isNotEmpty) ...[
             const SizedBox(height: 8),
             Text(
               item.phonetic!,
-              style: TextStyle(
-                fontFamily: AppFonts.poppins,
+              style: const TextStyle(
                 fontSize: 17,
-                color: colors.textSub,
+                color: ChunkyColors.textSub,
                 fontWeight: FontWeight.w500,
               ),
             ),
           ],
-          const SizedBox(height: 18),
-          ChunkyButton.outlined(
-            label: 'Nghe phát âm',
-            icon: Icons.volume_up_rounded,
-            size: ChunkyButtonSize.small,
-            radius: 999,
-            onPressed: () {
-              ref.read(ttsServiceProvider).speak(
-                    text: item.term,
-                    audioUrl: item.audioUrl,
-                  );
-            },
+          const SizedBox(height: 14),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                ref.read(ttsServiceProvider).speak(
+                  text: item.term,
+                  audioUrl: item.audioUrl,
+                );
+              },
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                decoration: BoxDecoration(
+                  color: ChunkyColors.brandSoft,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: ChunkyColors.brandBorder, width: 1.5),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.volume_up_rounded, color: ChunkyColors.brand, size: 20),
+                    SizedBox(width: 6),
+                    Text(
+                      'Nghe phát âm',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: ChunkyColors.brand,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
           const Spacer(),
-          Divider(height: 1, thickness: 1.5, color: colors.border),
-          const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.touch_app_rounded, size: 18, color: colors.textSub),
-              const SizedBox(width: 6),
+            children: const [
+              Icon(Icons.touch_app_rounded, size: 18, color: ChunkyColors.textSub),
+              SizedBox(width: 6),
               Text(
                 'Chạm vào thẻ để lật xem nghĩa',
                 style: TextStyle(
-                  fontFamily: AppFonts.poppins,
                   fontSize: 13,
-                  color: colors.textSub,
+                  color: ChunkyColors.textSub,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -159,37 +159,32 @@ class FlashcardFlipView extends ConsumerWidget {
     );
   }
 
-  Widget _buildBackContent(
-      BuildContext context, WidgetRef ref, AppThemeColors colors) {
+  Widget _buildBackContent(WidgetRef ref) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
                   children: [
                     Text(
                       item.term,
-                      style: TextStyle(
-                        fontFamily: AppFonts.poppins,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                        height: 1.2,
-                        color: colors.textMain,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        color: ChunkyColors.brand,
                       ),
                     ),
-                    if (item.phonetic != null && item.phonetic!.isNotEmpty) ...[
-                      const SizedBox(height: 2),
+                    if (item.phonetic != null) ...[
+                      const SizedBox(width: 8),
                       Text(
                         item.phonetic!,
-                        style: TextStyle(
-                          fontFamily: AppFonts.poppins,
+                        style: const TextStyle(
                           fontSize: 14,
-                          color: colors.textSub,
+                          color: ChunkyColors.textSub,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -197,21 +192,21 @@ class FlashcardFlipView extends ConsumerWidget {
                   ],
                 ),
               ),
-              ChunkyIconButton.circle(
-                icon: Icons.volume_up_rounded,
+              IconButton(
+                visualDensity: VisualDensity.compact,
+                icon: const Icon(Icons.volume_up_rounded, color: ChunkyColors.brand, size: 22),
                 tooltip: 'Nghe phát âm từ',
-                size: ChunkyButtonSize.small,
                 onPressed: () {
                   ref.read(ttsServiceProvider).speak(
-                        text: item.term,
-                        audioUrl: item.audioUrl,
-                      );
+                    text: item.term,
+                    audioUrl: item.audioUrl,
+                  );
                 },
               ),
             ],
           ),
           const SizedBox(height: 12),
-          Divider(height: 1, thickness: 2, color: colors.border),
+          const Divider(height: 2, thickness: 2, color: ChunkyColors.border),
           const SizedBox(height: 12),
           Expanded(
             child: ListView.separated(
@@ -229,33 +224,29 @@ class FlashcardFlipView extends ConsumerWidget {
                       children: [
                         if (m.pos != null)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                             margin: const EdgeInsets.only(right: 8),
                             decoration: BoxDecoration(
-                              color: colors.brandSoft,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: colors.brandBorder, width: 1.5),
+                              color: ChunkyColors.brandSoft,
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: ChunkyColors.brandBorder, width: 1),
                             ),
                             child: Text(
-                              m.pos!.toUpperCase(),
-                              style: TextStyle(
-                                fontFamily: AppFonts.poppins,
+                              m.pos!,
+                              style: const TextStyle(
                                 fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 0.5,
-                                color: colors.brand,
+                                fontWeight: FontWeight.w700,
+                                color: ChunkyColors.brand,
                               ),
                             ),
                           ),
                         Expanded(
                           child: Text(
                             m.meaningVi,
-                            style: TextStyle(
-                              fontFamily: AppFonts.poppins,
-                              fontSize: 17,
+                            style: const TextStyle(
+                              fontSize: 15,
                               fontWeight: FontWeight.w700,
-                              height: 1.35,
-                              color: colors.textMain,
+                              color: ChunkyColors.textMain,
                             ),
                           ),
                         ),
@@ -265,12 +256,10 @@ class FlashcardFlipView extends ConsumerWidget {
                       const SizedBox(height: 4),
                       Text(
                         m.definitionEn!,
-                        style: TextStyle(
-                          fontFamily: AppFonts.poppins,
+                        style: const TextStyle(
                           fontSize: 13,
-                          color: colors.textSub,
+                          color: ChunkyColors.textSub,
                           fontWeight: FontWeight.w500,
-                          height: 1.4,
                         ),
                       ),
                     ],
@@ -278,11 +267,11 @@ class FlashcardFlipView extends ConsumerWidget {
                       const SizedBox(height: 8),
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: colors.surfaceMuted,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: colors.border, width: 1.5),
+                          color: ChunkyColors.surfaceMuted,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: ChunkyColors.border, width: 1.5),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -293,28 +282,25 @@ class FlashcardFlipView extends ConsumerWidget {
                                 Expanded(
                                   child: Text(
                                     '“${m.exampleEn!}”',
-                                    style: TextStyle(
-                                      fontFamily: AppFonts.poppins,
-                                      fontSize: 14,
+                                    style: const TextStyle(
+                                      fontSize: 13,
                                       fontWeight: FontWeight.w600,
-                                      height: 1.4,
-                                      color: colors.textMain,
+                                      color: ChunkyColors.textMain,
                                     ),
                                   ),
                                 ),
                                 const SizedBox(width: 6),
                                 InkWell(
                                   onTap: () {
-                                    HapticFeedback.lightImpact();
                                     ref.read(ttsServiceProvider).speak(text: m.exampleEn!);
                                   },
                                   borderRadius: BorderRadius.circular(12),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(4),
+                                  child: const Padding(
+                                    padding: EdgeInsets.all(2),
                                     child: Icon(
                                       Icons.volume_up_outlined,
                                       size: 18,
-                                      color: colors.brand,
+                                      color: ChunkyColors.brand,
                                     ),
                                   ),
                                 ),
@@ -324,12 +310,10 @@ class FlashcardFlipView extends ConsumerWidget {
                               const SizedBox(height: 2),
                               Text(
                                 m.exampleVi!,
-                                style: TextStyle(
-                                  fontFamily: AppFonts.poppins,
-                                  fontSize: 13,
-                                  color: colors.textSub,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: ChunkyColors.textSub,
                                   fontWeight: FontWeight.w500,
-                                  height: 1.4,
                                 ),
                               ),
                             ],

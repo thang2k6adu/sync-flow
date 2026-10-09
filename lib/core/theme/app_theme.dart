@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pp191225/core/constants/app_dimens.dart';
+import 'package:pp191225/core/theme/app_colors.dart';
 import 'package:pp191225/core/theme/app_fonts.dart';
 
 /// Bảng màu ngữ nghĩa thích ứng Light/Dark mode cho Sync Flow
@@ -19,11 +20,8 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
   final Color brandBorder;
   final Color brandBase;
   final Color mint;
-  final Color mintDark;
   final Color amber;
-  final Color amberDark;
   final Color coral;
-  final Color coralDark;
 
   const AppThemeColors({
     required this.background,
@@ -39,53 +37,44 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     required this.brandBorder,
     required this.brandBase,
     required this.mint,
-    required this.mintDark,
     required this.amber,
-    required this.amberDark,
     required this.coral,
-    required this.coralDark,
   });
 
   static const light = AppThemeColors(
-    background: Color(0xFFF7F7FA),
+    background: Color(0xFFFAFAFE),
     surface: Colors.white,
-    surfaceMuted: Color(0xFFF3F1FA),
-    border: Color(0xFFE8E5F3),
-    borderStrong: Color(0xFFDDD8ED),
+    surfaceMuted: Color(0xFFF6F5FB),
+    border: Color(0xFFECEAF5),
+    borderStrong: Color(0xFFDEDAEB),
     textMain: Color(0xFF1E1B39),
     textSub: Color(0xFF747094),
-    brand: Color(0xFF7F57C8),
-    brandDark: Color(0xFF5E3A9B),
-    brandSoft: Color(0xFFF5F1FD),
-    brandBorder: Color(0xFFDDD2F6),
-    brandBase: Color(0xFFCFC0F0),
-    mint: Color(0xFF58CC02),
-    mintDark: Color(0xFF46A302),
-    amber: Color(0xFFFFC800),
-    amberDark: Color(0xFFE5A500),
-    coral: Color(0xFFFF4B4B),
-    coralDark: Color(0xFFD33131),
+    brand: Color(0xFF5F33E1),
+    brandDark: Color(0xFF3B1A99),
+    brandSoft: Color(0xFFF4F0FF),
+    brandBorder: Color(0xFFDACDFE),
+    brandBase: Color(0xFFC7B4FA),
+    mint: Color(0xFF00C48C),
+    amber: Color(0xFFF59E0B),
+    coral: Color(0xFFF43F5E),
   );
 
   static const dark = AppThemeColors(
-    background: Color(0xFF13141B),
-    surface: Color(0xFF1D1E2C),
-    surfaceMuted: Color(0xFF27293C),
-    border: Color(0xFF2D3048),
-    borderStrong: Color(0xFF3F4363),
-    textMain: Color(0xFFF3F2F8),
-    textSub: Color(0xFF9EA3B8),
-    brand: Color(0xFF8E68D6),
-    brandDark: Color(0xFF633EAA),
-    brandSoft: Color(0xFF2B2544),
-    brandBorder: Color(0xFF483A6D),
-    brandBase: Color(0xFF382B57),
-    mint: Color(0xFF58CC02),
-    mintDark: Color(0xFF3D8C01),
-    amber: Color(0xFFFFC800),
-    amberDark: Color(0xFFB88500),
-    coral: Color(0xFFFF4B4B),
-    coralDark: Color(0xFFB82828),
+    background: Color(0xFF0F0E17),
+    surface: Color(0xFF1A1829),
+    surfaceMuted: Color(0xFF242238),
+    border: Color(0xFF2A2742),
+    borderStrong: Color(0xFF3A365B),
+    textMain: Color(0xFFF5F3FF),
+    textSub: Color(0xFFA5A1C8),
+    brand: Color(0xFF7C5CFC),
+    brandDark: Color(0xFF4B2EAF),
+    brandSoft: Color(0xFF262046),
+    brandBorder: Color(0xFF42377A),
+    brandBase: Color(0xFF322A5E),
+    mint: Color(0xFF10B981),
+    amber: Color(0xFFFBBF24),
+    coral: Color(0xFFFB7185),
   );
 
   @override
@@ -103,11 +92,8 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     Color? brandBorder,
     Color? brandBase,
     Color? mint,
-    Color? mintDark,
     Color? amber,
-    Color? amberDark,
     Color? coral,
-    Color? coralDark,
   }) {
     return AppThemeColors(
       background: background ?? this.background,
@@ -123,11 +109,8 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       brandBorder: brandBorder ?? this.brandBorder,
       brandBase: brandBase ?? this.brandBase,
       mint: mint ?? this.mint,
-      mintDark: mintDark ?? this.mintDark,
       amber: amber ?? this.amber,
-      amberDark: amberDark ?? this.amberDark,
       coral: coral ?? this.coral,
-      coralDark: coralDark ?? this.coralDark,
     );
   }
 
@@ -148,11 +131,8 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       brandBorder: Color.lerp(brandBorder, other.brandBorder, t)!,
       brandBase: Color.lerp(brandBase, other.brandBase, t)!,
       mint: Color.lerp(mint, other.mint, t)!,
-      mintDark: Color.lerp(mintDark, other.mintDark, t)!,
       amber: Color.lerp(amber, other.amber, t)!,
-      amberDark: Color.lerp(amberDark, other.amberDark, t)!,
       coral: Color.lerp(coral, other.coral, t)!,
-      coralDark: Color.lerp(coralDark, other.coralDark, t)!,
     );
   }
 }
@@ -171,10 +151,7 @@ extension AppThemeContextExtension on BuildContext {
 class AppTheme {
   AppTheme._();
 
-  static final ThemeData lightTheme = _buildLightTheme();
-  static final ThemeData darkTheme = _buildDarkTheme();
-
-  static ThemeData _buildLightTheme() {
+  static ThemeData get lightTheme {
     const colors = AppThemeColors.light;
     return ThemeData(
       brightness: Brightness.light,
@@ -242,7 +219,7 @@ class AppTheme {
     );
   }
 
-  static ThemeData _buildDarkTheme() {
+  static ThemeData get darkTheme {
     const colors = AppThemeColors.dark;
     return ThemeData(
       brightness: Brightness.dark,
@@ -384,13 +361,15 @@ class AppTheme {
         fontSize: 14,
         fontWeight: FontWeight.w400,
         height: 1.45,
+        letterSpacing: 0.14,
         color: subColor,
       ),
       labelLarge: TextStyle(
         fontFamily: AppFonts.poppins,
-        fontSize: 15,
+        fontSize: 16,
         fontWeight: FontWeight.w600,
-        height: 1.3,
+        height: 1.4,
+        letterSpacing: 0.4,
         color: mainColor,
       ),
       labelMedium: TextStyle(
@@ -402,9 +381,10 @@ class AppTheme {
       ),
       labelSmall: TextStyle(
         fontFamily: AppFonts.poppins,
-        fontSize: 11,
+        fontSize: 12,
         fontWeight: FontWeight.w500,
-        height: 1.3,
+        height: 1.2,
+        letterSpacing: 0.4,
         color: subColor,
       ),
     );

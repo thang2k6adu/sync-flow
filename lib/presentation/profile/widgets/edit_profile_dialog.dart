@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pp191225/core/theme/app_theme.dart';
 import 'package:pp191225/domain/entities/users/user.dart';
 import 'package:pp191225/presentation/auth/controllers/auth_controller.dart';
 import 'package:pp191225/providers/usecases_provider.dart';
@@ -60,14 +59,12 @@ class _EditProfileDialogState extends ConsumerState<EditProfileDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.themeColors;
-
     return Dialog(
-      backgroundColor: colors.surface,
+      backgroundColor: Colors.white,
       surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: colors.border, width: 2),
+        side: const BorderSide(color: ChunkyColors.border, width: 2),
       ),
       insetPadding: const EdgeInsets.symmetric(horizontal: 24),
       child: Padding(
@@ -76,13 +73,13 @@ class _EditProfileDialogState extends ConsumerState<EditProfileDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Center(
+            const Center(
               child: Text(
                 'Chỉnh sửa hồ sơ',
                 style: TextStyle(
                   fontWeight: FontWeight.w800,
                   fontSize: 20,
-                  color: colors.textMain,
+                  color: ChunkyColors.textMain,
                 ),
               ),
             ),
@@ -93,23 +90,23 @@ class _EditProfileDialogState extends ConsumerState<EditProfileDialog> {
                 labelText: 'Họ và tên',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: colors.border, width: 2),
+                  borderSide: const BorderSide(color: ChunkyColors.border, width: 2),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: colors.border, width: 2),
+                  borderSide: const BorderSide(color: ChunkyColors.border, width: 2),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: colors.brand, width: 2),
+                  borderSide: const BorderSide(color: ChunkyColors.brand, width: 2),
                 ),
-                prefixIcon: Icon(Icons.person_rounded, color: colors.brand),
+                prefixIcon: const Icon(Icons.person_rounded, color: ChunkyColors.brand),
               ),
             ),
             const SizedBox(height: 10),
             Text(
               'Email: ${widget.user.email}',
-              style: TextStyle(fontSize: 13, color: colors.textSub, fontWeight: FontWeight.w500),
+              style: const TextStyle(fontSize: 13, color: ChunkyColors.textSub, fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 24),
             ChunkyButton(
@@ -119,7 +116,7 @@ class _EditProfileDialogState extends ConsumerState<EditProfileDialog> {
             const SizedBox(height: 8),
             ChunkyButton.outlined(
               label: 'Huỷ bỏ',
-              textColor: colors.textSub,
+              textColor: ChunkyColors.textSub,
               onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
             ),
           ],

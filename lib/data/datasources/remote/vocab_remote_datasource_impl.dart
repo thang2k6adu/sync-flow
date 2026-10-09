@@ -98,7 +98,7 @@ class VocabRemoteDataSourceImpl implements VocabRemoteDataSource {
     try {
       final response = await apiService.get(
         ApiEndpoints.cards,
-        queryParameters: deckId.isNotEmpty ? {'deckId': deckId} : null,
+        queryParameters: {'deckId': deckId},
       );
       return ApiResponse<List<CardDto>>.fromJson(
         response as Map<String, dynamic>,

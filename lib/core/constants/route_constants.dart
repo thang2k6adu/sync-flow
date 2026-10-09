@@ -17,5 +17,4 @@ class RouteConstants {
 
   static const String profile = '/profile';
   static const String settings = '/settings';
-  static const String leaderboard = '/leaderboard';
 }

@@ -54,8 +54,8 @@ class StudySessionState {
 
   StudyItem? get currentItem =>
       (queue.isNotEmpty && currentIndex < queue.length)
-          ? queue[currentIndex]
-          : null;
+      ? queue[currentIndex]
+      : null;
 
   /// Backward-compatible getters
   bool get isExerciseMode =>
@@ -106,10 +106,12 @@ class StudySessionState {
   }
 }
 
-final studySessionControllerProvider = AutoDisposeNotifierProviderFamily<
-    StudySessionController, StudySessionState, String?>(
-  StudySessionController.new,
-);
+final studySessionControllerProvider =
+    AutoDisposeNotifierProviderFamily<
+      StudySessionController,
+      StudySessionState,
+      String?
+    >(StudySessionController.new);
 
 class StudySessionController
     extends AutoDisposeFamilyNotifier<StudySessionState, String?> {
@@ -120,16 +122,16 @@ class StudySessionController
   StudySessionState build(String? arg) {
     _getStudyQueue = ref.read(getStudyQueueUseCaseProvider);
     _submitStudy = ref.read(submitStudyUseCaseProvider);
-    if (arg == 'leech_rescue') {
-      Future.microtask(() => startLeechRescue());
-    } else {
-      Future.microtask(() => _loadQueue(arg));
-    }
+    Future.microtask(() => _loadQueue(arg));
     return const StudySessionState(isLoading: true);
   }
 
   Future<void> _loadQueue(String? deckId) async {
-    state = state.copyWith(isLoading: true, errorMessage: null, isCramMode: deckId != null);
+    state = state.copyWith(
+      isLoading: true,
+      errorMessage: null,
+      isCramMode: deckId != null,
+    );
     try {
       // Tăng limit để có thể lấy toàn bộ (hoặc tối đa 100) thẻ từ cần ôn trong 1 bộ
       final result = await _getStudyQueue(
@@ -158,10 +160,7 @@ class StudySessionController
         },
       );
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }
 
@@ -177,8 +176,7 @@ class StudySessionController
           errorMessage: failure.message,
         ),
         (allQueue) {
-          final leechCards =
-              allQueue.where((item) => item.isLeech).toList();
+          final leechCards = allQueue.where((item) => item.isLeech).toList();
 
           if (leechCards.isEmpty) {
             state = state.copyWith(
@@ -203,10 +201,7 @@ class StudySessionController
         },
       );
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }
 
@@ -218,42 +213,20 @@ class StudySessionController
 
     if (item.masteryLevel <= 1) {
       return StudyMode.flashcard;
-    } else if (item.masteryLevel == 2) {
-      return StudyMode.sentenceBuilder;
-    } else {
-      // masteryLevel >= 3: Backend được phép roll giữa các loại bài tập
-      final exerciseType = item.currentExercise!.exerciseType;
-      if (exerciseType == 'sentence_builder') {
-        return StudyMode.sentenceBuilder;
-      } else if (exerciseType == 'typing' || exerciseType == 'typing_challenge') {
-        return StudyMode.typingChallenge;
-      }
-      return StudyMode.typingChallenge; // Fallback an toàn cho Level 3+
     }
+
+    final exerciseType = item.currentExercise!.exerciseType;
+    if (exerciseType == 'typing' || exerciseType == 'typing_challenge') {
+      return StudyMode.typingChallenge;
+    } else if (exerciseType == 'sentence_builder') {
+      return StudyMode.sentenceBuilder;
+    }
+
+    return StudyMode.typingChallenge;
   }
 
   void flipCard() {
     state = state.copyWith(isFlipped: !state.isFlipped);
-  }
-
-  /// Cycle qua 3 modes: flashcard → sentenceBuilder → typingChallenge → flashcard
-  void toggleMode() {
-    final item = state.currentItem;
-    if (item == null || item.currentExercise == null) return;
-
-    final nextMode = switch (state.studyMode) {
-      StudyMode.flashcard => StudyMode.sentenceBuilder,
-      StudyMode.sentenceBuilder => StudyMode.typingChallenge,
-      StudyMode.typingChallenge => StudyMode.flashcard,
-    };
-
-    state = state.copyWith(
-      studyMode: nextMode,
-      selectedTokens: [],
-      isExerciseSubmitted: false,
-      isExerciseCorrect: false,
-      typingAnswer: null,
-    );
   }
 
   void useHint() {
@@ -263,7 +236,8 @@ class StudySessionController
   void addToken(String token) {
     if (state.isExerciseSubmitted) return;
     final exercise = state.currentItem?.currentExercise;
-    final isFillInBlank = exercise != null &&
+    final isFillInBlank =
+        exercise != null &&
         (exercise.exerciseType == 'typing' ||
             exercise.exerciseType == 'fill_in_blank' ||
             exercise.tokens.length == 1 ||
@@ -291,7 +265,8 @@ class StudySessionController
     if (item == null || item.currentExercise == null) return;
 
     final exercise = item.currentExercise!;
-    final isFillInBlank = exercise.exerciseType == 'typing' ||
+    final isFillInBlank =
+        exercise.exerciseType == 'typing' ||
         exercise.exerciseType == 'fill_in_blank' ||
         exercise.targetSentence.contains('___') ||
         exercise.tokens.length == 1;
@@ -300,18 +275,23 @@ class StudySessionController
     if (isFillInBlank) {
       if (state.selectedTokens.isNotEmpty) {
         final userWord = state.selectedTokens.first.trim().toLowerCase();
-        isCorrect = exercise.tokens.any((t) => t.trim().toLowerCase() == userWord);
+        isCorrect = exercise.tokens.any(
+          (t) => t.trim().toLowerCase() == userWord,
+        );
       }
     } else {
       final userSentence = state.selectedTokens.join(' ').trim().toLowerCase();
       final targetSentence = exercise.targetSentence.trim().toLowerCase();
       final targetTokens = exercise.tokens.join(' ').trim().toLowerCase();
-      isCorrect = userSentence == targetSentence ||
+      isCorrect =
+          userSentence == targetSentence ||
           userSentence == targetTokens ||
           _normalize(userSentence) == _normalize(targetSentence);
     }
 
-    final newMistakes = isCorrect ? state.mistakesCount : state.mistakesCount + 1;
+    final newMistakes = isCorrect
+        ? state.mistakesCount
+        : state.mistakesCount + 1;
 
     if (isCorrect) {
       ref.read(progressionControllerProvider.notifier).recordCorrectExercise();
@@ -338,7 +318,9 @@ class StudySessionController
     final userWord = answer.trim().toLowerCase();
     final isCorrect = userWord == correctWord.trim().toLowerCase();
 
-    final newMistakes = isCorrect ? state.mistakesCount : state.mistakesCount + 1;
+    final newMistakes = isCorrect
+        ? state.mistakesCount
+        : state.mistakesCount + 1;
 
     if (isCorrect) {
       ref.read(progressionControllerProvider.notifier).recordCorrectExercise();
@@ -365,9 +347,9 @@ class StudySessionController
     if (item == null) return;
 
     // Award EXP and update progression
-    ref.read(progressionControllerProvider.notifier).recordCardStudied(
-      isEasy: rating == 'EASY',
-    );
+    ref
+        .read(progressionControllerProvider.notifier)
+        .recordCardStudied(isEasy: rating == 'EASY');
 
     final now = DateTime.now().millisecondsSinceEpoch;
     final timeSpent = now - state.startTimeMs;
@@ -400,10 +382,7 @@ class StudySessionController
         : state.completedResults;
 
     if (nextIndex >= state.queue.length) {
-      state = state.copyWith(
-        isCompleted: true,
-        completedResults: newResults,
-      );
+      state = state.copyWith(isCompleted: true, completedResults: newResults);
     } else {
       final nextItem = state.queue[nextIndex];
       final mode = _determineModeForItem(nextItem);

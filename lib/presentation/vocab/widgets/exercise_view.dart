@@ -96,10 +96,13 @@ class ExerciseView extends ConsumerWidget {
                       ],
                     ),
                     if (exercise.meaningHint != null)
-                      ChunkyIconButton.circle(
-                        icon: Icons.lightbulb_rounded,
-                        variant: usedHint ? FlowButtonVariant.amber : FlowButtonVariant.secondary,
-                        size: ChunkyButtonSize.small,
+                      IconButton(
+                        visualDensity: VisualDensity.compact,
+                        icon: Icon(
+                          Icons.lightbulb_rounded,
+                          color: usedHint ? colors.amber : colors.textSub,
+                          size: 22,
+                        ),
                         tooltip: 'Gợi ý',
                         onPressed: onHint,
                       ),
@@ -262,10 +265,12 @@ class ExerciseView extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  ChunkyIconButton.circle(
-                    icon: Icons.volume_up_rounded,
-                    variant: isCorrect ? FlowButtonVariant.mint : FlowButtonVariant.coral,
-                    size: ChunkyButtonSize.small,
+                  IconButton(
+                    icon: Icon(
+                      Icons.volume_up_rounded,
+                      color: isCorrect ? colors.mint : colors.coral,
+                      size: 24,
+                    ),
                     tooltip: 'Nghe phát âm',
                     onPressed: () {
                       final sentenceToSpeak = isFillInBlank
@@ -318,7 +323,6 @@ class ExerciseView extends ConsumerWidget {
           if (!isSubmitted)
             ChunkyButton.mint(
               label: 'Kiểm tra đáp án',
-              size: ChunkyButtonSize.large,
               onPressed: selectedTokens.isNotEmpty ? onCheck : null,
             ),
         ],

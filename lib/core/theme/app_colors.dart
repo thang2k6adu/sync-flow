@@ -6,16 +6,10 @@ class AppColors {
   // ---- Màu theo Figma (PP191225) ----
 
   /// Màu thương hiệu chính (Figma: Brand/500)
-  static const Color primary = Color(0xFF7F57C8);
-
-  /// Màu đáy bóng 3D của primary (Duolingo style)
-  static const Color primaryDark = Color(0xFF5E3A9B);
+  static const Color primary = Color(0xFF5F33E1);
 
   /// Màu thương hiệu nhạt, dùng cho nền / vùng chọn (Figma: Brand/600)
-  static const Color secondary = Color(0xFFF5F1FD);
-
-  /// Đáy bóng cho secondary button
-  static const Color secondaryDark = Color(0xFFDDD2F6);
+  static const Color secondary = Color(0xFFEEE9FF);
 
   /// Trung tính (Figma: Neutral/50-900)
   static const Color neutral50 = Color(0xFFFFFFFF);

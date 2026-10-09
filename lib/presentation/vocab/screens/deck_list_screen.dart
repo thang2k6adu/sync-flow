@@ -2,28 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pp191225/core/constants/route_constants.dart';
-import 'package:pp191225/core/theme/app_fonts.dart';
 import 'package:pp191225/core/theme/app_theme.dart';
 import 'package:pp191225/domain/entities/vocab/deck.dart';
 import 'package:pp191225/presentation/vocab/controllers/deck_list_controller.dart';
 import 'package:pp191225/presentation/vocab/widgets/create_deck_dialog.dart';
 import 'package:pp191225/presentation/vocab/widgets/deck_card_item.dart';
-import 'package:pp191225/presentation/vocab/widgets/deck_filter_toolbar.dart';
 import 'package:pp191225/presentation/vocab/widgets/leech_rescue_widgets.dart';
 import 'package:pp191225/shared/widgets/common/chunky_card.dart';
 import 'package:pp191225/shared/widgets/feedback/overlay.dart';
 
-class DeckListScreen extends ConsumerStatefulWidget {
+class DeckListScreen extends ConsumerWidget {
   const DeckListScreen({super.key});
-
-  @override
-  ConsumerState<DeckListScreen> createState() => _DeckListScreenState();
-}
-
-class _DeckListScreenState extends ConsumerState<DeckListScreen> {
-  String _searchQuery = '';
-  DeckSortField _sortField = DeckSortField.name;
-  bool _isAscending = true;
 
   void _showCreateDialog(BuildContext context) {
     showDialog(
@@ -33,10 +22,12 @@ class _DeckListScreenState extends ConsumerState<DeckListScreen> {
   }
 
   void _startLeechRescue(BuildContext context) {
+    // Navigate to study session with a special flag, or just route to studySession
+    // and let controller handle it (e.g. extra: 'leech')
     context.push(RouteConstants.studySession, extra: 'leech_rescue');
   }
 
-  Future<void> _confirmDelete(BuildContext context, Deck deck) async {
+  Future<void> _confirmDelete(BuildContext context, WidgetRef ref, Deck deck) async {
     final ok = await showChunkyConfirm(
       context,
       title: 'Xoá bộ từ?',
@@ -50,79 +41,18 @@ class _DeckListScreenState extends ConsumerState<DeckListScreen> {
     final overlay = UOverlay(context);
     try {
       await ref.read(deckListControllerProvider.notifier).deleteDeck(deck.id);
-      if (context.mounted) {
-        overlay.showWithTimeout(message: 'Đã xoá bộ "${deck.name}"', type: ToastType.success);
-      }
+      overlay.showWithTimeout(message: 'Đã xoá bộ từ');
     } catch (e) {
-      if (context.mounted) {
-        overlay.showWithTimeout(message: 'Lỗi: $e', type: ToastType.error);
-      }
+      overlay.showWithTimeout(message: 'Xoá thất bại');
     }
-  }
-
-  int _cefrRank(String? cefr) {
-    switch (cefr?.toUpperCase()) {
-      case 'A1':
-        return 1;
-      case 'A2':
-        return 2;
-      case 'B1':
-        return 3;
-      case 'B2':
-        return 4;
-      case 'C1':
-        return 5;
-      case 'C2':
-        return 6;
-      default:
-        return 0;
-    }
-  }
-
-  List<Deck> _filterAndSort(List<Deck> original) {
-    var result = List<Deck>.from(original);
-
-    // 1. Lọc theo search query
-    if (_searchQuery.trim().isNotEmpty) {
-      final q = _searchQuery.trim().toLowerCase();
-      result = result.where((d) {
-        final nameMatch = d.name.toLowerCase().contains(q);
-        final descMatch = d.description?.toLowerCase().contains(q) ?? false;
-        final catMatch = d.category?.toLowerCase().contains(q) ?? false;
-        final cefrMatch = d.cefrLevel?.toLowerCase().contains(q) ?? false;
-        return nameMatch || descMatch || catMatch || cefrMatch;
-      }).toList();
-    }
-
-    // 2. Sắp xếp theo tiêu chí và chiều Tăng / Giảm
-    result.sort((a, b) {
-      int cmp = 0;
-      switch (_sortField) {
-        case DeckSortField.name:
-          cmp = a.name.toLowerCase().compareTo(b.name.toLowerCase());
-          break;
-        case DeckSortField.cardCount:
-          cmp = a.cardCount.compareTo(b.cardCount);
-          break;
-        case DeckSortField.cefr:
-          cmp = _cefrRank(a.cefrLevel).compareTo(_cefrRank(b.cefrLevel));
-          break;
-        case DeckSortField.createdAt:
-          final dateA = a.createdAt ?? DateTime(2000);
-          final dateB = b.createdAt ?? DateTime(2000);
-          cmp = dateA.compareTo(dateB);
-          break;
-      }
-      return _isAscending ? cmp : -cmp;
-    });
-
-    return result;
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.themeColors;
     final decksAsync = ref.watch(deckListControllerProvider);
+    final leechCountAsync = ref.watch(leechCountProvider);
+    final leechCount = leechCountAsync.value ?? 0;
 
     return DefaultTabController(
       length: 2,
@@ -137,45 +67,39 @@ class _DeckListScreenState extends ConsumerState<DeckListScreen> {
           title: Text(
             'Kho từ vựng',
             style: TextStyle(
-              fontFamily: AppFonts.poppins,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
               fontSize: 18,
               color: colors.textMain,
             ),
           ),
           actions: [
-            Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: ChunkyIconButton.circle(
-                icon: Icons.school_rounded,
-                size: ChunkyButtonSize.small,
-                variant: FlowButtonVariant.secondary,
-                tooltip: 'Học ngay (Toàn bộ)',
-                onPressed: () => context.push(RouteConstants.studySession),
-              ),
+            IconButton(
+              icon: Icon(Icons.school_rounded, color: colors.brand),
+              tooltip: 'Học ngay (Toàn bộ)',
+              onPressed: () => context.push(RouteConstants.studySession),
             ),
+            const SizedBox(width: 4),
           ],
           bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(48),
+            preferredSize: const Size.fromHeight(50),
             child: Column(
               children: [
+                Divider(height: 2, thickness: 2, color: colors.border),
                 TabBar(
                   labelColor: colors.brand,
                   unselectedLabelColor: colors.textSub,
                   labelStyle: const TextStyle(
-                    fontFamily: AppFonts.poppins,
                     fontWeight: FontWeight.w700,
-                    fontSize: 13,
+                    fontSize: 14,
                   ),
                   unselectedLabelStyle: const TextStyle(
-                    fontFamily: AppFonts.poppins,
                     fontWeight: FontWeight.w600,
-                    fontSize: 13,
+                    fontSize: 14,
                   ),
                   indicatorColor: colors.brand,
                   indicatorWeight: 3,
                   dividerColor: colors.border,
-                  dividerHeight: 1.5,
+                  dividerHeight: 2,
                   tabs: const [
                     Tab(
                       child: Row(
@@ -193,7 +117,7 @@ class _DeckListScreenState extends ConsumerState<DeckListScreen> {
                         children: [
                           Icon(Icons.folder_special_rounded, size: 18),
                           SizedBox(width: 6),
-                          Text('Tất cả bộ từ'),
+                          Text('Thư viện của tôi'),
                         ],
                       ),
                     ),
@@ -203,115 +127,97 @@ class _DeckListScreenState extends ConsumerState<DeckListScreen> {
             ),
           ),
         ),
-        body: Column(
-          children: [
-            // Thanh công cụ Tìm kiếm & Sắp xếp Tăng / Giảm cho cả trang kho từ
-            DeckFilterToolbar(
-              searchQuery: _searchQuery,
-              onSearchChanged: (q) => setState(() => _searchQuery = q),
-              sortField: _sortField,
-              onSortFieldChanged: (field) => setState(() => _sortField = field),
-              isAscending: _isAscending,
-              onToggleDirection: () => setState(() => _isAscending = !_isAscending),
-              totalCount: decksAsync.value?.length ?? 0,
-            ),
-
-            // Nội dung tab
-            Expanded(
-              child: decksAsync.when(
-                loading: () => Center(
-                  child: CircularProgressIndicator(color: colors.brand),
-                ),
-                error: (err, _) => Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.error_rounded, size: 48, color: colors.coral),
-                        const SizedBox(height: 12),
-                        Text(
-                          'Lỗi: ${err.toString()}',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: colors.textSub,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        ChunkyButton(
-                          label: 'Thử lại',
-                          onPressed: () =>
-                              ref.read(deckListControllerProvider.notifier).refresh(),
-                        ),
-                      ],
+        body: decksAsync.when(
+          loading: () => Center(
+            child: CircularProgressIndicator(color: colors.brand),
+          ),
+          error: (err, _) => Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.error_rounded, size: 48, color: colors.coral),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Lỗi: ${err.toString()}',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: colors.textSub,
                     ),
                   ),
+                  const SizedBox(height: 16),
+                  ChunkyButton(
+                    label: 'Thử lại',
+                    onPressed: () =>
+                        ref.read(deckListControllerProvider.notifier).refresh(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          data: (decks) {
+            final systemDecks = decks.where((d) => d.isSystem).toList();
+            final personalDecks = decks.where((d) => !d.isSystem).toList();
+
+            return TabBarView(
+              children: [
+                // Tab 1: Khám phá (System Decks)
+                _SystemDecksTab(
+                  decks: systemDecks,
+                  colors: colors,
+                  onStudy: (deck) => context.push(
+                    RouteConstants.studySession,
+                    extra: deck.id,
+                  ),
+                  onTap: (deck) => context.push(
+                    RouteConstants.deckDetail,
+                    extra: deck,
+                  ),
+                  onRefresh: () =>
+                      ref.read(deckListControllerProvider.notifier).refresh(),
                 ),
-                data: (decks) {
-                  final allDecks = _filterAndSort(decks);
-                  final systemDecks =
-                      allDecks.where((d) => d.isSystem).toList();
 
-                  return TabBarView(
-                    children: [
-                      // Tab 1: Khám phá (System Decks)
-                      _SystemDecksTab(
-                        decks: systemDecks,
-                        colors: colors,
-                        onStudy: (deck) => context.push(
-                          RouteConstants.studySession,
-                          extra: deck.id,
-                        ),
-                        onTap: (deck) => context.push(
-                          RouteConstants.deckDetail,
-                          extra: deck,
-                        ),
-                        onRefresh: () =>
-                            ref.read(deckListControllerProvider.notifier).refresh(),
-                      ),
-
-                      // Tab 2: Tất cả bộ từ (mặc định hiện hết, search thì lọc)
-                      _PersonalDecksTab(
-                        decks: allDecks,
-                        colors: colors,
-                        onCreateDeck: () => _showCreateDialog(context),
-                        onStudy: (deck) => context.push(
-                          RouteConstants.studySession,
-                          extra: deck.id,
-                        ),
-                        onTap: (deck) => context.push(
-                          RouteConstants.deckDetail,
-                          extra: deck,
-                        ),
-                        onDelete: (deck) => _confirmDelete(context, deck),
-                        onRefresh: () =>
-                            ref.read(deckListControllerProvider.notifier).refresh(),
-                        onStartLeechRescue: () => _startLeechRescue(context),
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ),
-          ],
+                // Tab 2: Thư viện của tôi (Personal Decks)
+                _PersonalDecksTab(
+                  decks: personalDecks,
+                  leechCount: leechCount,
+                  colors: colors,
+                  onStudy: (deck) => context.push(
+                    RouteConstants.studySession,
+                    extra: deck.id,
+                  ),
+                  onTap: (deck) => context.push(
+                    RouteConstants.deckDetail,
+                    extra: deck,
+                  ),
+                  onDelete: (deck) => _confirmDelete(context, ref, deck),
+                  onRefresh: () =>
+                      ref.read(deckListControllerProvider.notifier).refresh(),
+                  onCreateDeck: () => _showCreateDialog(context),
+                  onStartLeech: () => _startLeechRescue(context),
+                ),
+              ],
+            );
+          },
         ),
-        floatingActionButton: Padding(
-          padding: const EdgeInsets.only(bottom: 70), // Nổi lên trên đường cong navbar
-          child: FloatingActionButton.extended(
-            onPressed: () => _showCreateDialog(context),
-            backgroundColor: colors.brand,
-            foregroundColor: Colors.white,
-            elevation: 4,
-            icon: const Icon(Icons.add_rounded, size: 22),
-            label: const Text(
-              'Tạo bộ từ',
-              style: TextStyle(
-                fontFamily: AppFonts.poppins,
-                fontWeight: FontWeight.w700,
-                fontSize: 13,
-              ),
-            ),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () => _showCreateDialog(context),
+          icon: const Icon(Icons.add_rounded),
+          label: const Text(
+            'THÊM BỘ TỪ',
+            style: TextStyle(fontWeight: FontWeight.w700, letterSpacing: 0.8),
+          ),
+          elevation: 0,
+          focusElevation: 0,
+          hoverElevation: 0,
+          highlightElevation: 0,
+          backgroundColor: colors.brand,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(color: colors.brandDark, width: 2),
           ),
         ),
       ),
@@ -319,7 +225,7 @@ class _DeckListScreenState extends ConsumerState<DeckListScreen> {
   }
 }
 
-/// Tab Khám phá — hiển thị System Decks
+/// Tab Khám phá — hiển thị System Decks theo category
 class _SystemDecksTab extends StatelessWidget {
   final List<Deck> decks;
   final AppThemeColors colors;
@@ -346,43 +252,28 @@ class _SystemDecksTab extends StatelessWidget {
           // Banner giới thiệu
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: Container(
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [colors.brandDark, colors.brand],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: colors.brand.withOpacity(0.2),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+              child: ChunkyCard(
+                fillColor: colors.brand,
+                borderColor: colors.brandDark,
+                padding: const EdgeInsets.all(20),
+                child: const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Bộ từ chuẩn hóa',
                       style: TextStyle(
-                        fontFamily: AppFonts.poppins,
                         color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 6),
                     Text(
-                      'Lộ trình CEFR, Oxford cốt lõi và chủ đề giao tiếp đời sống.',
+                      'Học theo lộ trình CEFR, IELTS, TOEIC hoặc chủ đề cuộc sống. Được biên soạn bởi chuyên gia.',
                       style: TextStyle(
-                        fontFamily: AppFonts.poppins,
-                        color: Colors.white.withOpacity(0.85),
-                        fontSize: 12,
+                        color: Colors.white70,
+                        fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -392,63 +283,34 @@ class _SystemDecksTab extends StatelessWidget {
             ),
           ),
 
-          // Header danh sách
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 6),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Danh mục khám phá',
-                    style: TextStyle(
-                      fontFamily: AppFonts.poppins,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                      color: colors.textMain,
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: colors.brandSoft,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      '${decks.length} bộ từ',
-                      style: TextStyle(
-                        fontFamily: AppFonts.poppins,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: colors.brand,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
+          // Phân nhóm theo category
           if (decks.isEmpty)
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 32),
-                child: Center(
-                  child: Column(
-                    children: [
-                      Icon(Icons.search_off_rounded, size: 40, color: colors.textSub.withOpacity(0.4)),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Không có bộ từ hệ thống nào phù hợp',
-                        style: TextStyle(
-                          fontFamily: AppFonts.poppins,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: colors.textSub,
-                        ),
+                child: Column(
+                  children: [
+                    Icon(Icons.explore_rounded, size: 72, color: colors.brandBorder),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Sắp ra mắt!',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: colors.textMain,
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Bộ từ chuẩn hóa đang được biên soạn. Bạn có thể tạo bộ từ riêng trong tab "Thư viện của tôi".',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: colors.textSub,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             )
@@ -468,236 +330,14 @@ class _SystemDecksTab extends StatelessWidget {
               ),
             ),
 
-          const SliverToBoxAdapter(child: SizedBox(height: 100)),
+          const SliverToBoxAdapter(child: SizedBox(height: 96)),
         ],
       ),
     );
   }
 }
 
-/// Tab Tất cả bộ từ — hiển thị Personal Decks + Banner Leech Rescue
-class _PersonalDecksTab extends StatelessWidget {
-  final List<Deck> decks;
-  final AppThemeColors colors;
-  final VoidCallback onCreateDeck;
-  final Function(Deck) onStudy;
-  final Function(Deck) onTap;
-  final Function(Deck) onDelete;
-  final Future<void> Function() onRefresh;
-  final VoidCallback onStartLeechRescue;
-
-  const _PersonalDecksTab({
-    required this.decks,
-    required this.colors,
-    required this.onCreateDeck,
-    required this.onStudy,
-    required this.onTap,
-    required this.onDelete,
-    required this.onRefresh,
-    required this.onStartLeechRescue,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return RefreshIndicator(
-      color: colors.brand,
-      onRefresh: onRefresh,
-      child: CustomScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        slivers: [
-          // Banner Ôn tập mỗi ngày (SRS)
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: Container(
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [colors.brandDark, colors.brand],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: colors.brand.withOpacity(0.2),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Ôn tập mỗi ngày',
-                      style: TextStyle(
-                        fontFamily: AppFonts.poppins,
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Học theo chu kỳ Spaced Repetition — ôn đúng lúc sắp quên để nhớ lâu hơn.',
-                      style: TextStyle(
-                        fontFamily: AppFonts.poppins,
-                        color: Colors.white.withOpacity(0.85),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-                    ElevatedButton.icon(
-                      onPressed: () => context.push(RouteConstants.studySession),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: colors.brand,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                      ),
-                      icon: const Icon(Icons.bolt_rounded, size: 18),
-                      label: const Text(
-                        'Bắt đầu ôn tập',
-                        style: TextStyle(
-                          fontFamily: AppFonts.poppins,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          // Banner Cứu trợ từ hay quên
-          SliverToBoxAdapter(
-            child: Consumer(
-              builder: (context, ref, _) {
-                final leechCount = ref.watch(leechCountProvider).value ?? 0;
-                return LeechRescueSessionBanner(
-                  leechCount: leechCount,
-                  onStart: onStartLeechRescue,
-                );
-              },
-            ),
-          ),
-
-          // Header danh sách bộ từ cá nhân
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 6),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Tất cả bộ từ',
-                    style: TextStyle(
-                      fontFamily: AppFonts.poppins,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                      color: colors.textMain,
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: colors.brandSoft,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      '${decks.length} bộ từ',
-                      style: TextStyle(
-                        fontFamily: AppFonts.poppins,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: colors.brand,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          if (decks.isEmpty)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 32),
-                child: Column(
-                  children: [
-                    Icon(Icons.auto_stories_outlined,
-                        size: 56, color: colors.textSub.withOpacity(0.4)),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Không tìm thấy bộ từ phù hợp',
-                      style: TextStyle(
-                        fontFamily: AppFonts.poppins,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: colors.textMain,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Thử tìm với từ khóa khác hoặc tạo bộ từ mới theo nhu cầu của bạn.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: AppFonts.poppins,
-                        fontSize: 12,
-                        color: colors.textSub,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton.icon(
-                      onPressed: onCreateDeck,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colors.brand,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      icon: const Icon(Icons.add_rounded, size: 18),
-                      label: const Text('Tạo ngay'),
-                    ),
-                  ],
-                ),
-              ),
-            )
-          else
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final deck = decks[index];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                    child: DeckCardItem(
-                      deck: deck,
-                      onTap: () => onTap(deck),
-                      onStudy: () => onStudy(deck),
-                      onDelete: () => onDelete(deck),
-                    ),
-                  );
-                },
-                childCount: decks.length,
-              ),
-            ),
-
-          const SliverToBoxAdapter(child: SizedBox(height: 100)),
-        ],
-      ),
-    );
-  }
-}
-
-/// Card riêng cho System Deck
+/// Card riêng cho System Deck — không có nút xoá, có badge "Hệ thống"
 class _SystemDeckCard extends StatelessWidget {
   final Deck deck;
   final AppThemeColors colors;
@@ -717,8 +357,6 @@ class _SystemDeckCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: ChunkyCard(
         onTap: onTap,
-        fillColor: colors.surface,
-        borderColor: colors.border,
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -727,18 +365,18 @@ class _SystemDeckCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 44,
-                  height: 44,
+                  width: 48,
+                  height: 48,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [colors.brand, colors.brandDark],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                   child: const Icon(Icons.auto_stories_rounded,
-                      color: Colors.white, size: 22),
+                      color: Colors.white, size: 26),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -751,8 +389,7 @@ class _SystemDeckCard extends StatelessWidget {
                             child: Text(
                               deck.name,
                               style: TextStyle(
-                                fontFamily: AppFonts.poppins,
-                                fontSize: 15,
+                                fontSize: 17,
                                 fontWeight: FontWeight.w700,
                                 color: colors.textMain,
                               ),
@@ -771,7 +408,6 @@ class _SystemDeckCard extends StatelessWidget {
                             child: Text(
                               'HỆ THỐNG',
                               style: TextStyle(
-                                fontFamily: AppFonts.poppins,
                                 fontSize: 9,
                                 fontWeight: FontWeight.w800,
                                 color: colors.brand,
@@ -789,8 +425,7 @@ class _SystemDeckCard extends StatelessWidget {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontFamily: AppFonts.poppins,
-                            fontSize: 12,
+                            fontSize: 13,
                             fontWeight: FontWeight.w500,
                             color: colors.textSub,
                           ),
@@ -803,18 +438,17 @@ class _SystemDeckCard extends StatelessWidget {
                   Container(
                     margin: const EdgeInsets.only(left: 8),
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: colors.brandSoft,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(10),
                       border:
-                          Border.all(color: colors.brandBorder, width: 1.5),
+                          Border.all(color: colors.brandBorder, width: 2),
                     ),
                     child: Text(
                       deck.cefrLevel!,
                       style: TextStyle(
-                        fontFamily: AppFonts.poppins,
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: FontWeight.w700,
                         color: colors.brand,
                       ),
@@ -822,30 +456,212 @@ class _SystemDeckCard extends StatelessWidget {
                   ),
               ],
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 16),
             Row(
               children: [
-                Icon(Icons.style_outlined, size: 16, color: colors.textSub),
+                Icon(Icons.style_rounded, size: 16, color: colors.textSub),
                 const SizedBox(width: 6),
                 Text(
                   '${deck.cardCount} thẻ',
                   style: TextStyle(
-                    fontFamily: AppFonts.poppins,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
                     color: colors.textSub,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
+                if (deck.category != null) ...[
+                  const SizedBox(width: 12),
+                  Icon(Icons.category_rounded, size: 16, color: colors.textSub),
+                  const SizedBox(width: 4),
+                  Text(
+                    deck.category!,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: colors.textSub,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
                 const Spacer(),
-                ChunkyButton(
-                  label: 'Ôn tập',
-                  size: ChunkyButtonSize.small,
-                  onPressed: onStudy,
+                SizedBox(
+                  width: 128,
+                  child: ChunkyButton(label: 'Bắt đầu học', onPressed: onStudy),
                 ),
               ],
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Tab Thư viện của tôi — Personal Decks
+class _PersonalDecksTab extends StatelessWidget {
+  final List<Deck> decks;
+  final int leechCount;
+  final AppThemeColors colors;
+  final Function(Deck) onStudy;
+  final Function(Deck) onTap;
+  final Function(Deck) onDelete;
+  final Future<void> Function() onRefresh;
+  final VoidCallback onCreateDeck;
+  final VoidCallback onStartLeech;
+
+  const _PersonalDecksTab({
+    required this.decks,
+    required this.leechCount,
+    required this.colors,
+    required this.onStudy,
+    required this.onTap,
+    required this.onDelete,
+    required this.onRefresh,
+    required this.onCreateDeck,
+    required this.onStartLeech,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return RefreshIndicator(
+      color: colors.brand,
+      onRefresh: onRefresh,
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          // Banner ôn tập SRS
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+              child: ChunkyCard(
+                fillColor: colors.brand,
+                borderColor: colors.brandDark,
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Ôn tập mỗi ngày',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'Ôn đúng lúc sắp quên để nhớ lâu hơn.',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    ChunkyButton(
+                      label: 'Bắt đầu ôn tập',
+                      color: Colors.white,
+                      shadowColor: colors.brandBorder,
+                      textColor: colors.brand,
+                      onPressed: () => context.push(RouteConstants.studySession),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // Leech Rescue Banner (nếu có từ khó)
+          SliverToBoxAdapter(
+            child: LeechRescueSessionBanner(
+              leechCount: leechCount,
+              onStart: onStartLeech,
+            ),
+          ),
+
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Bộ từ vựng của bạn',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: colors.textMain,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '${decks.length} bộ',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: colors.textSub,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          if (decks.isEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 32),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.style_rounded,
+                      size: 72,
+                      color: colors.brandBorder,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Chưa có bộ từ vựng nào',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: colors.textMain,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Tạo bộ từ đầu tiên để bắt đầu học nhé!',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: colors.textSub,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    ChunkyButton(
+                      label: 'Tạo bộ từ mới',
+                      onPressed: onCreateDeck,
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final deck = decks[index];
+                  return DeckCardItem(
+                    deck: deck,
+                    onTap: () => onTap(deck),
+                    onStudy: () => onStudy(deck),
+                    onDelete: () => onDelete(deck),
+                  );
+                },
+                childCount: decks.length,
+              ),
+            ),
+          const SliverToBoxAdapter(child: SizedBox(height: 96)),
+        ],
       ),
     );
   }

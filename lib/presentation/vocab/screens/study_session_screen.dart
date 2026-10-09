@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pp191225/core/theme/app_fonts.dart';
-import 'package:pp191225/core/theme/app_theme.dart';
 import 'package:pp191225/domain/entities/vocab/study_item.dart';
 import 'package:pp191225/presentation/progression/controllers/progression_controller.dart';
 import 'package:pp191225/presentation/progression/widgets/level_up_dialog.dart';
@@ -27,33 +25,34 @@ class StudySessionScreen extends ConsumerWidget {
           context: context,
           builder: (_) => LevelUpDialog(
             progression: next.progression,
-            onDismiss: () =>
-                ref.read(progressionControllerProvider.notifier).dismissLevelUp(),
+            onDismiss: () => ref
+                .read(progressionControllerProvider.notifier)
+                .dismissLevelUp(),
           ),
         );
       }
     });
 
     final state = ref.watch(studySessionControllerProvider(deckId));
-    final controller = ref.read(studySessionControllerProvider(deckId).notifier);
-    final colors = context.themeColors;
+    final controller = ref.read(
+      studySessionControllerProvider(deckId).notifier,
+    );
 
     if (state.isLoading) {
-      return Scaffold(
-        backgroundColor: colors.background,
+      return const Scaffold(
+        backgroundColor: Colors.white,
         body: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CircularProgressIndicator(color: colors.brand),
-              const SizedBox(height: 16),
+              CircularProgressIndicator(color: ChunkyColors.brand),
+              SizedBox(height: 16),
               Text(
                 'Đang chuẩn bị thẻ ôn tập...',
                 style: TextStyle(
-                  fontFamily: AppFonts.poppins,
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
-                  color: colors.textMain,
+                  color: ChunkyColors.textMain,
                 ),
               ),
             ],
@@ -64,21 +63,20 @@ class StudySessionScreen extends ConsumerWidget {
 
     if (state.errorMessage != null) {
       return Scaffold(
-        backgroundColor: colors.background,
+        backgroundColor: Colors.white,
         appBar: AppBar(
-          backgroundColor: colors.surface,
+          backgroundColor: Colors.white,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.close_rounded, color: colors.textSub),
+            icon: const Icon(Icons.close_rounded, color: ChunkyColors.textMain),
             onPressed: () => context.pop(),
           ),
-          title: Text(
+          title: const Text(
             'Ôn tập từ vựng',
             style: TextStyle(
-              fontFamily: AppFonts.poppins,
               fontWeight: FontWeight.w700,
               fontSize: 18,
-              color: colors.textMain,
+              color: ChunkyColors.textMain,
             ),
           ),
         ),
@@ -88,16 +86,19 @@ class StudySessionScreen extends ConsumerWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.error_outline_rounded, size: 56, color: colors.coral),
+                const Icon(
+                  Icons.error_outline_rounded,
+                  size: 56,
+                  color: ChunkyColors.red,
+                ),
                 const SizedBox(height: 16),
                 Text(
                   'Không thể tải hàng đợi:\n${state.errorMessage}',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: AppFonts.poppins,
+                  style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
-                    color: colors.textSub,
+                    color: ChunkyColors.textSub,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -115,12 +116,12 @@ class StudySessionScreen extends ConsumerWidget {
     if (state.isCompleted) {
       final completedCount = state.completedResults.length;
       return Scaffold(
-        backgroundColor: colors.background,
+        backgroundColor: Colors.white,
         appBar: AppBar(
-          backgroundColor: colors.surface,
+          backgroundColor: Colors.white,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.close_rounded, color: colors.textMain),
+            icon: const Icon(Icons.close_rounded, color: ChunkyColors.textMain),
             onPressed: () => context.pop(),
           ),
         ),
@@ -136,8 +137,8 @@ class StudySessionScreen extends ConsumerWidget {
                   height: 96,
                   decoration: BoxDecoration(
                     color: state.isLeechRescueMode
-                        ? colors.coral
-                        : colors.amber,
+                        ? ChunkyColors.coral
+                        : ChunkyColors.yellow,
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: state.isLeechRescueMode
@@ -159,70 +160,89 @@ class StudySessionScreen extends ConsumerWidget {
                   state.isLeechRescueMode
                       ? 'Phiên cứu trợ hoàn thành!'
                       : 'Tuyệt vời! Hoàn thành!',
-                  style: TextStyle(
-                    fontFamily: AppFonts.poppins,
+                  style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w800,
-                    color: colors.textMain,
+                    color: ChunkyColors.textMain,
                   ),
                 ),
                 const SizedBox(height: 10),
                 Text(
                   completedCount > 0
-                    ? state.isLeechRescueMode
-                        ? 'Bạn đã ôn tập $completedCount từ khó nhớ. Tiếp tục cố gắng nhé!'
-                        : 'Bạn đã hoàn thành xuất sắc $completedCount thẻ ôn tập hôm nay.'
-                    : 'Bạn đã ôn tập xong tất cả thẻ từ đến hạn!',
+                      ? state.isLeechRescueMode
+                            ? 'Bạn đã ôn tập $completedCount từ khó nhớ. Tiếp tục cố gắng nhé!'
+                            : 'Bạn đã hoàn thành xuất sắc $completedCount thẻ ôn tập hôm nay.'
+                      : 'Bạn đã ôn tập xong tất cả thẻ từ đến hạn!',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: AppFonts.poppins,
+                  style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
-                    color: colors.textSub,
+                    color: ChunkyColors.textSub,
                   ),
                 ),
                 const SizedBox(height: 24),
                 ChunkyCard(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 16,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       Column(
                         children: [
-                          Icon(Icons.check_circle_rounded, color: colors.mint, size: 28),
+                          const Icon(
+                            Icons.check_circle_rounded,
+                            color: ChunkyColors.green,
+                            size: 28,
+                          ),
                           const SizedBox(height: 6),
                           Text(
                             '$completedCount thẻ',
-                            style: TextStyle(
-                              fontFamily: AppFonts.poppins,
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
-                              color: colors.textMain,
+                              color: ChunkyColors.textMain,
                             ),
                           ),
-                          Text(
+                          const Text(
                             'Đã ôn tập',
-                            style: TextStyle(fontFamily: AppFonts.poppins, fontSize: 12, color: colors.textSub, fontWeight: FontWeight.w500),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: ChunkyColors.textSub,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ],
                       ),
-                      Container(height: 40, width: 2, color: colors.border),
+                      Container(
+                        height: 40,
+                        width: 2,
+                        color: ChunkyColors.border,
+                      ),
                       Column(
                         children: [
-                          Icon(Icons.bolt_rounded, color: colors.amber, size: 28),
+                          const Icon(
+                            Icons.bolt_rounded,
+                            color: ChunkyColors.yellow,
+                            size: 28,
+                          ),
                           const SizedBox(height: 6),
                           Text(
                             '+${completedCount * 10} EXP',
-                            style: TextStyle(
-                              fontFamily: AppFonts.poppins,
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
-                              color: colors.amber,
+                              color: ChunkyColors.amberText,
                             ),
                           ),
-                          Text(
+                          const Text(
                             'Kinh nghiệm',
-                            style: TextStyle(fontFamily: AppFonts.poppins, fontSize: 12, color: colors.textSub, fontWeight: FontWeight.w500),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: ChunkyColors.textSub,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ],
                       ),
@@ -230,12 +250,7 @@ class StudySessionScreen extends ConsumerWidget {
                   ),
                 ),
                 const Spacer(),
-                ChunkyButton.mint(
-                  label: 'Tiếp tục',
-                  size: ChunkyButtonSize.large,
-                  icon: Icons.arrow_forward_rounded,
-                  onPressed: () => context.pop(),
-                ),
+                ChunkyButton(label: 'Tiếp tục', onPressed: () => context.pop()),
                 const SizedBox(height: 16),
               ],
             ),
@@ -246,12 +261,15 @@ class StudySessionScreen extends ConsumerWidget {
 
     final currentItem = state.currentItem;
     if (currentItem == null) {
-      return Scaffold(
-        backgroundColor: colors.background,
+      return const Scaffold(
+        backgroundColor: Colors.white,
         body: Center(
           child: Text(
             'Không có thẻ nào trong hàng đợi',
-            style: TextStyle(fontFamily: AppFonts.poppins, fontWeight: FontWeight.w600, color: colors.textSub),
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              color: ChunkyColors.textSub,
+            ),
           ),
         ),
       );
@@ -262,14 +280,14 @@ class StudySessionScreen extends ConsumerWidget {
     final progress = total > 0 ? current / total : 0.0;
 
     return Scaffold(
-      backgroundColor: colors.background,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: colors.surface,
+        backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.close_rounded, color: colors.textSub, size: 26),
+          icon: const Icon(Icons.close_rounded, color: ChunkyColors.textSub),
           onPressed: () => context.pop(),
         ),
         title: Padding(
@@ -278,11 +296,11 @@ class StudySessionScreen extends ConsumerWidget {
             children: [
               ChunkyProgressBar(
                 value: progress,
-                height: 16,
+                height: 12,
                 color: state.isLeechRescueMode
-                    ? colors.coral
-                    : colors.brand,
-                trackColor: colors.border,
+                    ? ChunkyColors.coral
+                    : ChunkyColors.brand,
+                trackColor: ChunkyColors.border,
               ),
               // Study Mode indicator
               const SizedBox(height: 4),
@@ -291,20 +309,6 @@ class StudySessionScreen extends ConsumerWidget {
           ),
         ),
         titleSpacing: 0,
-        actions: [
-          if (currentItem.currentExercise != null)
-            Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: IconButton(
-                icon: Icon(
-                  _getModeIcon(state.studyMode),
-                  color: colors.brand,
-                ),
-                tooltip: _getModeTooltip(state.studyMode),
-                onPressed: () => controller.toggleMode(),
-              ),
-            ),
-        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(2),
           child: Column(
@@ -315,21 +319,21 @@ class StudySessionScreen extends ConsumerWidget {
                   padding: const EdgeInsets.only(bottom: 4),
                   child: LeechBadge(lapsesCount: currentItem.lapsesCount),
                 ),
-              Divider(height: 2, thickness: 2, color: colors.border),
+              const Divider(
+                height: 2,
+                thickness: 2,
+                color: ChunkyColors.border,
+              ),
             ],
           ),
         ),
       ),
       body: Column(
         children: [
-          Expanded(
-            child: _buildStudyContent(state, currentItem, controller),
-          ),
+          Expanded(child: _buildStudyContent(state, currentItem, controller)),
 
           // SRS Action Rating Bar
-          SrsRatingBar(
-            onRating: (rating) => controller.submitRating(rating),
-          ),
+          SrsRatingBar(onRating: (rating) => controller.submitRating(rating)),
         ],
       ),
     );

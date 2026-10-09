@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pp191225/core/theme/app_theme.dart';
 
 enum ToastType { auto, loading, success, error }
 
@@ -66,21 +65,22 @@ class _BannerToast extends StatelessWidget {
 
   const _BannerToast({required this.message, required this.isError});
 
+  static const _successFill = Color(0xFFEEE9FF);
+  static const _successBorder = Color(0xFFC9B8FF);
+  static const _successText = Color(0xFF4524B8);
+  static const _successIcon = Color(0xFF5F33E1);
+
+  static const _errorFill = Color(0xFFFFDFE0);
+  static const _errorBorder = Color(0xFFFFB2B2);
+  static const _errorText = Color(0xFFEA2B2B);
+  static const _errorIcon = Color(0xFFFF4B4B);
+
   @override
   Widget build(BuildContext context) {
-    final colors = context.themeColors;
-    final isDark = context.isDarkMode;
-
-    final fill = isError
-        ? (isDark ? const Color(0xFF3B1E22) : const Color(0xFFFFDFE0))
-        : (isDark ? colors.brandSoft : colors.brandSoft);
-    final border = isError
-        ? (isDark ? colors.coral : const Color(0xFFFFB2B2))
-        : colors.brandBorder;
-    final textColor = isError
-        ? (isDark ? const Color(0xFFFF8B8B) : const Color(0xFFEA2B2B))
-        : (isDark ? colors.textMain : colors.brandDark);
-    final iconColor = isError ? colors.coral : colors.brand;
+    final fill = isError ? _errorFill : _successFill;
+    final border = isError ? _errorBorder : _successBorder;
+    final textColor = isError ? _errorText : _successText;
+    final iconColor = isError ? _errorIcon : _successIcon;
     final topInset = MediaQuery.of(context).padding.top;
 
     return Positioned(
@@ -144,32 +144,30 @@ class _LoadingToast extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.themeColors;
-
     return Positioned.fill(
       child: Material(
-        color: Colors.black.withValues(alpha: 0.35),
+        color: Colors.black.withValues(alpha: 0.25),
         child: Center(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 22),
             decoration: BoxDecoration(
-              color: colors.surface,
+              color: Colors.white,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: colors.border, width: 2),
+              border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                CupertinoActivityIndicator(
+                const CupertinoActivityIndicator(
                   radius: 14,
-                  color: colors.brand,
+                  color: Color(0xFF5F33E1),
                 ),
                 const SizedBox(height: 14),
                 Text(
                   message,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: colors.textMain,
+                  style: const TextStyle(
+                    color: Color(0xFF3C3C3C),
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                   ),

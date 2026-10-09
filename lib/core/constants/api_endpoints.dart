@@ -11,10 +11,6 @@ class ApiEndpoints {
   static const String userProfile = '/users/profile';
   static String getUserById(String userId) => '/users/$userId';
 
-  static const String userProgression = '/users/progression';
-  static const String userProgressionAdd = '/users/progression/add';
-  static const String leaderboard = '/users/leaderboard';
-
   static const String tasks = '/tasks';
   static String getTaskById(String taskId) => '/tasks/$taskId';
 

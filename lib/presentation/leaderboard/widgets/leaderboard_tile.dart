@@ -6,10 +6,7 @@ import 'package:pp191225/presentation/leaderboard/models/leaderboard_entry.dart'
 class LeaderboardTile extends StatelessWidget {
   final LeaderboardEntry entry;
 
-  const LeaderboardTile({
-    super.key,
-    required this.entry,
-  });
+  const LeaderboardTile({super.key, required this.entry});
 
   @override
   Widget build(BuildContext context) {
@@ -19,13 +16,11 @@ class LeaderboardTile extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: entry.isCurrentUser
-            ? colors.brandSoft
-            : colors.surface,
+        color: entry.isCurrentUser ? colors.brandSoft : colors.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: entry.isCurrentUser
-              ? colors.brand.withOpacity(0.35)
+              ? colors.brand.withValues(alpha: 0.35)
               : colors.border,
           width: 1,
         ),
@@ -38,9 +33,7 @@ class LeaderboardTile extends StatelessWidget {
             height: 28,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: entry.isCurrentUser
-                  ? colors.brand
-                  : colors.surfaceMuted,
+              color: entry.isCurrentUser ? colors.brand : colors.surfaceMuted,
               shape: BoxShape.circle,
             ),
             child: Text(
@@ -49,9 +42,7 @@ class LeaderboardTile extends StatelessWidget {
                 fontFamily: AppFonts.poppins,
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
-                color: entry.isCurrentUser
-                    ? Colors.white
-                    : colors.textSub,
+                color: entry.isCurrentUser ? Colors.white : colors.textSub,
               ),
             ),
           ),
@@ -133,7 +124,7 @@ class LeaderboardTile extends StatelessWidget {
                     fontFamily: AppFonts.poppins,
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
-                    color: colors.mintDark,
+                    color: const Color(0xFF008C63),
                   ),
                 )
               else if (entry.rankDiff < 0)
@@ -149,10 +140,7 @@ class LeaderboardTile extends StatelessWidget {
               else
                 Text(
                   '—',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: colors.textSub,
-                  ),
+                  style: TextStyle(fontSize: 10, color: colors.textSub),
                 ),
             ],
           ),

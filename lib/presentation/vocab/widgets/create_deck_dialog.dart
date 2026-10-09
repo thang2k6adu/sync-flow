@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pp191225/core/theme/app_theme.dart';
 import 'package:pp191225/presentation/vocab/controllers/deck_list_controller.dart';
 import 'package:pp191225/shared/widgets/common/chunky_card.dart';
 import 'package:pp191225/shared/widgets/feedback/overlay.dart';
@@ -61,14 +60,12 @@ class _CreateDeckDialogState extends ConsumerState<CreateDeckDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.themeColors;
-
     return Dialog(
-      backgroundColor: colors.surface,
+      backgroundColor: Colors.white,
       surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: colors.border, width: 2),
+        side: const BorderSide(color: ChunkyColors.border, width: 2),
       ),
       insetPadding: const EdgeInsets.symmetric(horizontal: 20),
       child: Padding(
@@ -80,13 +77,13 @@ class _CreateDeckDialogState extends ConsumerState<CreateDeckDialog> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Center(
+                const Center(
                   child: Text(
                     'Tạo bộ từ vựng mới',
                     style: TextStyle(
                       fontWeight: FontWeight.w800,
                       fontSize: 20,
-                      color: colors.textMain,
+                      color: ChunkyColors.textMain,
                     ),
                   ),
                 ),
@@ -98,17 +95,17 @@ class _CreateDeckDialogState extends ConsumerState<CreateDeckDialog> {
                     hintText: 'VD: IELTS Oxford 3000',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide(color: colors.border, width: 2),
+                      borderSide: const BorderSide(color: ChunkyColors.border, width: 2),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide(color: colors.border, width: 2),
+                      borderSide: const BorderSide(color: ChunkyColors.border, width: 2),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide(color: colors.brand, width: 2),
+                      borderSide: const BorderSide(color: ChunkyColors.brand, width: 2),
                     ),
-                    prefixIcon: Icon(Icons.style_rounded, color: colors.brand),
+                    prefixIcon: const Icon(Icons.style_rounded, color: ChunkyColors.brand),
                   ),
                   validator: (val) {
                     if (val == null || val.trim().isEmpty) {
@@ -126,23 +123,23 @@ class _CreateDeckDialogState extends ConsumerState<CreateDeckDialog> {
                     hintText: 'Mô tả ngắn gọn về bộ từ...',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide(color: colors.border, width: 2),
+                      borderSide: const BorderSide(color: ChunkyColors.border, width: 2),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide(color: colors.border, width: 2),
+                      borderSide: const BorderSide(color: ChunkyColors.border, width: 2),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide(color: colors.brand, width: 2),
+                      borderSide: const BorderSide(color: ChunkyColors.brand, width: 2),
                     ),
-                    prefixIcon: Icon(Icons.description_rounded, color: colors.textSub),
+                    prefixIcon: const Icon(Icons.description_rounded, color: ChunkyColors.textSub),
                   ),
                 ),
                 const SizedBox(height: 16),
-                Text(
+                const Text(
                   'Cấp độ CEFR:',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: colors.textSub),
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: ChunkyColors.textSub),
                 ),
                 const SizedBox(height: 8),
                 Wrap(
@@ -156,17 +153,17 @@ class _CreateDeckDialogState extends ConsumerState<CreateDeckDialog> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                         decoration: BoxDecoration(
-                          color: isSelected ? colors.brandSoft : colors.surface,
+                          color: isSelected ? ChunkyColors.brandSoft : Colors.white,
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
-                            color: isSelected ? colors.brand : colors.border,
+                            color: isSelected ? ChunkyColors.brand : ChunkyColors.border,
                             width: 2,
                           ),
                         ),
                         child: Text(
                           lvl,
                           style: TextStyle(
-                            color: isSelected ? colors.brand : colors.textMain,
+                            color: isSelected ? ChunkyColors.brand : ChunkyColors.textMain,
                             fontWeight: FontWeight.w700,
                             fontSize: 13,
                           ),
@@ -178,22 +175,21 @@ class _CreateDeckDialogState extends ConsumerState<CreateDeckDialog> {
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   initialValue: _selectedCategory,
-                  dropdownColor: colors.surface,
                   decoration: InputDecoration(
                     labelText: 'Chủ đề',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide(color: colors.border, width: 2),
+                      borderSide: const BorderSide(color: ChunkyColors.border, width: 2),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide(color: colors.border, width: 2),
+                      borderSide: const BorderSide(color: ChunkyColors.border, width: 2),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide(color: colors.brand, width: 2),
+                      borderSide: const BorderSide(color: ChunkyColors.brand, width: 2),
                     ),
-                    prefixIcon: Icon(Icons.category_rounded, color: colors.brand),
+                    prefixIcon: const Icon(Icons.category_rounded, color: ChunkyColors.brand),
                   ),
                   items: categories
                       .map((c) => DropdownMenuItem(value: c, child: Text(c)))
@@ -210,7 +206,7 @@ class _CreateDeckDialogState extends ConsumerState<CreateDeckDialog> {
                 const SizedBox(height: 8),
                 ChunkyButton.outlined(
                   label: 'Huỷ bỏ',
-                  textColor: colors.textSub,
+                  textColor: ChunkyColors.textSub,
                   onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
                 ),
               ],

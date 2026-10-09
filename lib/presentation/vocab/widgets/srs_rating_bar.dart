@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:pp191225/core/theme/app_theme.dart';
 import 'package:pp191225/shared/widgets/common/chunky_card.dart';
 
 class SrsRatingBar extends StatelessWidget {
@@ -13,13 +12,11 @@ class SrsRatingBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.themeColors;
-
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        border: Border(top: BorderSide(color: colors.border, width: 2)),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(top: BorderSide(color: ChunkyColors.border, width: 2)),
       ),
       child: SafeArea(
         top: false,
@@ -29,7 +26,8 @@ class SrsRatingBar extends StatelessWidget {
               child: _SrsRatingButton(
                 label: 'Lại',
                 subLabel: '< 10p',
-                variant: FlowButtonVariant.coral,
+                color: ChunkyColors.red,
+                shadowColor: ChunkyColors.redDark,
                 onTap: () => onRating('AGAIN'),
               ),
             ),
@@ -38,7 +36,8 @@ class SrsRatingBar extends StatelessWidget {
               child: _SrsRatingButton(
                 label: 'Khó',
                 subLabel: '1 ngày',
-                variant: FlowButtonVariant.amber,
+                color: ChunkyColors.orange,
+                shadowColor: const Color(0xFFD97F00),
                 onTap: () => onRating('HARD'),
               ),
             ),
@@ -47,7 +46,8 @@ class SrsRatingBar extends StatelessWidget {
               child: _SrsRatingButton(
                 label: 'Tốt',
                 subLabel: '3 ngày',
-                variant: FlowButtonVariant.primary,
+                color: ChunkyColors.brand,
+                shadowColor: ChunkyColors.brandDark,
                 onTap: () => onRating('GOOD'),
               ),
             ),
@@ -56,7 +56,8 @@ class SrsRatingBar extends StatelessWidget {
               child: _SrsRatingButton(
                 label: 'Dễ',
                 subLabel: '5 ngày',
-                variant: FlowButtonVariant.mint,
+                color: ChunkyColors.green,
+                shadowColor: ChunkyColors.greenDark,
                 onTap: () => onRating('EASY'),
               ),
             ),
@@ -70,13 +71,15 @@ class SrsRatingBar extends StatelessWidget {
 class _SrsRatingButton extends StatefulWidget {
   final String label;
   final String subLabel;
-  final FlowButtonVariant variant;
+  final Color color;
+  final Color shadowColor;
   final VoidCallback onTap;
 
   const _SrsRatingButton({
     required this.label,
     required this.subLabel,
-    required this.variant,
+    required this.color,
+    required this.shadowColor,
     required this.onTap,
   });
 
@@ -91,34 +94,6 @@ class _SrsRatingButtonState extends State<_SrsRatingButton> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.themeColors;
-
-    Color faceColor;
-    Color shadowColor;
-
-    switch (widget.variant) {
-      case FlowButtonVariant.coral:
-        faceColor = colors.coral;
-        shadowColor = colors.coralDark;
-        break;
-      case FlowButtonVariant.amber:
-        faceColor = colors.amber;
-        shadowColor = colors.amberDark;
-        break;
-      case FlowButtonVariant.primary:
-        faceColor = colors.brand;
-        shadowColor = colors.brandDark;
-        break;
-      case FlowButtonVariant.mint:
-        faceColor = colors.mint;
-        shadowColor = colors.mintDark;
-        break;
-      case FlowButtonVariant.secondary:
-        faceColor = colors.brandSoft;
-        shadowColor = colors.brandBase;
-        break;
-    }
-
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTapDown: (_) {
@@ -142,7 +117,7 @@ class _SrsRatingButtonState extends State<_SrsRatingButton> {
               height: _height,
               child: Container(
                 decoration: BoxDecoration(
-                  color: shadowColor,
+                  color: widget.shadowColor,
                   borderRadius: BorderRadius.circular(14),
                 ),
               ),
@@ -157,7 +132,7 @@ class _SrsRatingButtonState extends State<_SrsRatingButton> {
               height: _height,
               child: Container(
                 decoration: BoxDecoration(
-                  color: faceColor,
+                  color: widget.color,
                   borderRadius: BorderRadius.circular(14),
                 ),
                 alignment: Alignment.center,

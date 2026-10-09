@@ -50,7 +50,6 @@ class MyApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: settings.themeMode,
-      themeAnimationDuration: Duration.zero,
       debugShowCheckedModeBanner: false,
       routerConfig: router,
     );

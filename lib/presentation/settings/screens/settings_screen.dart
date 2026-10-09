@@ -100,9 +100,7 @@ class SettingsScreen extends ConsumerWidget {
           // Mục Giao diện (Light Mode / Dark Mode / System)
           const _SectionTitle('Giao diện'),
           _ThemeModeSelector(
-            selectedMode: ref.watch(
-              settingsControllerProvider.select((s) => s.themeMode),
-            ),
+            selectedMode: settings.themeMode,
             onChanged: (mode) => controller.updateThemeMode(mode),
           ),
           const SizedBox(height: 28),

@@ -1,66 +1,60 @@
 import 'package:flutter/material.dart';
-import 'package:pp191225/core/theme/app_theme.dart';
 
-/// Ô tìm kiếm phong cách Chunky (Duolingo Style):
-/// - Viền 2px dày dặn, góc bo tròn mềm mại.
-/// - Thích ứng liền mạch Light/Dark mode.
+/// Ô tìm kiếm dùng chung trong toàn app.
+/// Có thể tái sử dụng ở bất kỳ màn hình nào.
+///
+/// Ví dụ:
+/// ```dart
+/// AppSearchField(
+///   hintText: 'Search users',
+///   controller: myController,
+///   onChanged: (value) => print(value),
+/// )
+/// ```
 class AppSearchField extends StatelessWidget {
   final TextEditingController? controller;
   final String hintText;
   final EdgeInsetsGeometry padding;
   final ValueChanged<String>? onChanged;
-  final Color? backgroundColor;
+  final Color backgroundColor;
   final IconData prefixIcon;
   final double borderRadius;
 
   const AppSearchField({
     super.key,
     this.controller,
-    this.hintText = 'Tìm kiếm...',
-    this.padding = const EdgeInsets.all(16),
+    this.hintText = 'Search',
+    this.padding = const EdgeInsets.all(20),
     this.onChanged,
-    this.backgroundColor,
-    this.prefixIcon = Icons.search_rounded,
-    this.borderRadius = 16,
+    this.backgroundColor = const Color(0xFFF5F5F5),
+    this.prefixIcon = Icons.search,
+    this.borderRadius = 12,
   });
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.themeColors;
-    final fill = backgroundColor ?? colors.surfaceMuted;
-
     return Padding(
       padding: padding,
       child: Container(
         decoration: BoxDecoration(
-          color: fill,
+          color: backgroundColor,
           borderRadius: BorderRadius.circular(borderRadius),
-          border: Border.all(color: colors.border, width: 2),
         ),
         child: TextField(
           controller: controller,
           onChanged: onChanged,
-          style: TextStyle(
-            color: colors.textMain,
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-          ),
           decoration: InputDecoration(
             hintText: hintText,
-            hintStyle: TextStyle(
-              color: colors.textSub,
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-            ),
+            hintStyle: TextStyle(color: Colors.grey[600], fontSize: 15),
             prefixIcon: Icon(
               prefixIcon,
-              color: colors.textSub,
+              color: Colors.grey[600],
               size: 22,
             ),
             border: InputBorder.none,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
-              vertical: 14,
+              vertical: 12,
             ),
           ),
         ),

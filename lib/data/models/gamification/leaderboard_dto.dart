@@ -62,61 +62,20 @@ class LeaderboardResponseDto {
       if (v is! List) return const [];
       return v
           .whereType<Map>()
-          .map((e) => LeaderboardEntryDto.fromJson(Map<String, dynamic>.from(e)))
+          .map(
+            (e) => LeaderboardEntryDto.fromJson(Map<String, dynamic>.from(e)),
+          )
           .toList();
     }
 
     final my = json['myStanding'];
     return LeaderboardResponseDto(
       topThree: parseList(json['topThree']),
-      myStanding: my is Map ? LeaderboardEntryDto.fromJson(Map<String, dynamic>.from(my)) : null,
+      myStanding: my is Map
+          ? LeaderboardEntryDto.fromJson(Map<String, dynamic>.from(my))
+          : null,
       restList: parseList(json['restList']),
       totalMembers: LeaderboardEntryDto.toInt(json['totalMembers']),
-    );
-  }
-}
-
-/// DTO cho GET /users/progression và POST /users/progression/add.
-class ProgressionDto {
-  final int level;
-  final int currentExp;
-  final int totalExp;
-  final int expToNextLevel;
-  final int streak;
-  final int wordsMastered;
-  final int totalReviews;
-  final String rankTitle;
-  final DateTime? lastStudyDate;
-
-  const ProgressionDto({
-    this.level = 1,
-    this.currentExp = 0,
-    this.totalExp = 0,
-    this.expToNextLevel = 100,
-    this.streak = 0,
-    this.wordsMastered = 0,
-    this.totalReviews = 0,
-    this.rankTitle = '',
-    this.lastStudyDate,
-  });
-
-  factory ProgressionDto.fromJson(Map<String, dynamic> json) {
-    DateTime? parsed;
-    final raw = json['lastStudyDate'];
-    if (raw is String && raw.isNotEmpty) parsed = DateTime.tryParse(raw);
-    final level = LeaderboardEntryDto.toInt(json['level']) <= 0
-        ? 1
-        : LeaderboardEntryDto.toInt(json['level']);
-    return ProgressionDto(
-      level: level,
-      currentExp: LeaderboardEntryDto.toInt(json['currentExp']),
-      totalExp: LeaderboardEntryDto.toInt(json['totalExp']),
-      expToNextLevel: LeaderboardEntryDto.toInt(json['expToNextLevel']),
-      streak: LeaderboardEntryDto.toInt(json['streak']),
-      wordsMastered: LeaderboardEntryDto.toInt(json['wordsMastered']),
-      totalReviews: LeaderboardEntryDto.toInt(json['totalReviews']),
-      rankTitle: '${json['rankTitle'] ?? ''}',
-      lastStudyDate: parsed,
     );
   }
 }

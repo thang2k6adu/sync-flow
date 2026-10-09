@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pp191225/core/theme/app_theme.dart';
 import 'package:pp191225/domain/entities/progression/user_progression.dart';
 import 'package:pp191225/shared/widgets/common/chunky_card.dart';
 
@@ -10,12 +9,11 @@ class LevelProgressCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.themeColors;
     final remaining = progression.expToNextLevel - progression.currentExp;
 
     return ChunkyCard(
-      fillColor: colors.brand,
-      borderColor: colors.brandDark,
+      fillColor: ChunkyColors.brand,
+      borderColor: ChunkyColors.brandDark,
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -41,8 +39,8 @@ class LevelProgressCard extends StatelessWidget {
           const SizedBox(height: 18),
           ChunkyProgressBar(
             value: progression.progress,
-            color: colors.amber,
-            trackColor: colors.brandDark,
+            color: ChunkyColors.yellow,
+            trackColor: ChunkyColors.brandDark,
           ),
           const SizedBox(height: 10),
           Row(

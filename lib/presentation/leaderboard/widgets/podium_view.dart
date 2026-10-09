@@ -6,10 +6,7 @@ import 'package:pp191225/presentation/leaderboard/models/leaderboard_entry.dart'
 class PodiumView extends StatelessWidget {
   final List<LeaderboardEntry> topThree;
 
-  const PodiumView({
-    super.key,
-    required this.topThree,
-  });
+  const PodiumView({super.key, required this.topThree});
 
   @override
   Widget build(BuildContext context) {
@@ -161,7 +158,7 @@ class _PodiumColumn extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(4),
           decoration: BoxDecoration(
-            color: badgeColor.withOpacity(0.15),
+            color: badgeColor.withValues(alpha: 0.15),
             shape: BoxShape.circle,
           ),
           child: Icon(badgeIcon, color: badgeColor, size: isFirst ? 22 : 18),
@@ -178,13 +175,15 @@ class _PodiumColumn extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isFirst ? const Color(0xFFFFB800) : colors.borderStrong,
+                  color: isFirst
+                      ? const Color(0xFFFFB800)
+                      : colors.borderStrong,
                   width: isFirst ? 2.5 : 2,
                 ),
                 boxShadow: isFirst
                     ? [
                         BoxShadow(
-                          color: const Color(0xFFFFB800).withOpacity(0.3),
+                          color: const Color(0xFFFFB800).withValues(alpha: 0.3),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -253,11 +252,13 @@ class _PodiumColumn extends StatelessWidget {
           height: podiumHeight,
           decoration: BoxDecoration(
             color: isFirst
-                ? colors.brand.withOpacity(0.12)
+                ? colors.brand.withValues(alpha: 0.12)
                 : colors.surfaceMuted,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             border: Border.all(
-              color: isFirst ? colors.brand.withOpacity(0.3) : colors.border,
+              color: isFirst
+                  ? colors.brand.withValues(alpha: 0.3)
+                  : colors.border,
               width: 1.5,
             ),
           ),

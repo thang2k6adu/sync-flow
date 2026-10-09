@@ -13,7 +13,22 @@ class LeaderboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.themeColors;
-    final leaderboardState = ref.watch(leaderboardControllerProvider);
+    final leaderboardState = ref
+        .watch(leaderboardControllerProvider)
+        .when(
+          skipLoadingOnRefresh: false,
+          data: (data) => LeaderboardState(
+            topThree: data.topThree,
+            myStanding: data.myStanding,
+            restList: data.restList,
+            isLoading: false,
+          ),
+          loading: () => const LeaderboardState(),
+          error: (error, _) => LeaderboardState(
+            isLoading: false,
+            errorMessage: error.toString(),
+          ),
+        );
     final canPop = Navigator.canPop(context);
 
     return Scaffold(
@@ -113,13 +128,9 @@ class LeaderboardScreen extends ConsumerWidget {
 
           // Thẻ thứ hạng của bạn
           if (myStanding != null)
-            SliverToBoxAdapter(
-              child: MyStandingCard(myStanding: myStanding),
-            ),
+            SliverToBoxAdapter(child: MyStandingCard(myStanding: myStanding)),
 
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 8),
-          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 8)),
 
           // Tiêu đề danh sách xếp hạng
           SliverToBoxAdapter(
@@ -140,8 +151,10 @@ class LeaderboardScreen extends ConsumerWidget {
           if (leaderboardState.restList.isEmpty)
             SliverToBoxAdapter(
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 24,
+                ),
                 child: Center(
                   child: Text(
                     leaderboardState.topThree.isNotEmpty
@@ -159,19 +172,14 @@ class LeaderboardScreen extends ConsumerWidget {
           else
             // Danh sách xếp hạng từ top 4 trở đi
             SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final entry = leaderboardState.restList[index];
-                  return LeaderboardTile(entry: entry);
-                },
-                childCount: leaderboardState.restList.length,
-              ),
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final entry = leaderboardState.restList[index];
+                return LeaderboardTile(entry: entry);
+              }, childCount: leaderboardState.restList.length),
             ),
 
           // Đệm phía dưới tránh che bởi navbar
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 100),
-          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),
     );
